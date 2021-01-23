@@ -1,0 +1,21 @@
+.container {
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: row wrap;
+  flex-basis: 100%;
+}
+.container > .fieldBlock {
+  flex-basis: 100%;
+  padding-bottom: 0.5rem;
+}
+.container > .fieldInline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 43%;
+}
+
+.fieldBlock > td,
+.fieldBlock > td {
+  color: #888;
+}
