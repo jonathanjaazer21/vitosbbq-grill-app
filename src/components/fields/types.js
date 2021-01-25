@@ -1,0 +1,5 @@
+export const DATE_TIME_PICKER = 'dateTimePicker'
+export const DROP_DOWN_LIST = 'dropdownList'
+export const INPUT = 'input'
+export const DESCRIPTION = 'description'
+export const HIDDEN = 'hidden'
