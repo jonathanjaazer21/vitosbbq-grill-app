@@ -7,8 +7,9 @@ function DateTimePicker (props) {
       id={props.name}
       format='dd/MM/yy hh:mm a'
       data-name={props.name}
-      value={props.name || new Date(props.default)}
+      value={new Date(props.default)}
       className='e-field'
+      onChange={props?.onChange}
     />
   )
 }
