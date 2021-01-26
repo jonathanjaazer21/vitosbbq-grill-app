@@ -1,4 +1,5 @@
 export const DATE_TIME_PICKER = 'dateTimePicker'
+export const DATE_PICKER = 'datePicker'
 export const DROP_DOWN_LIST = 'dropdownList'
 export const INPUT = 'input'
 export const DESCRIPTION = 'description'
