@@ -2,6 +2,7 @@ import DateTimePicker from './dateTimePicker'
 import DropdownList from './dropdownList'
 import Input from './input'
 import {
+  CHIPS,
   DATE_TIME_PICKER,
   DESCRIPTION,
   DROP_DOWN_LIST,
@@ -9,6 +10,7 @@ import {
   INPUT
 } from './types'
 import classes from './index.module.css'
+import Chips from './chips'
 
 const RenderComponent = ({ label, children, isInline }) => {
   return isInline ? (
@@ -69,5 +71,8 @@ export default {
         style={{ width: '100%' }}
       />
     )
+  },
+  [CHIPS]: props => {
+    return <Chips {...props} />
   }
 }

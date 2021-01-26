@@ -1,0 +1,47 @@
+.container {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 1rem;
+}
+.header,
+body {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2rem;
+}
+
+.panelLibis {
+  padding: 1rem;
+  border: 0.5px solid #eee;
+  background-color: orange;
+  border-radius: 1rem;
+}
+
+.panelRonac {
+  padding: 1rem;
+  border: 0.5px solid #eee;
+  background-color: red;
+  border-radius: 1rem;
+}
+
+.panelLibis,
+.panelRonac {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.panelLibis > div,
+.panelRonac > div {
+  display: flex;
+  flex-direction: column;
+  padding: 0.3rem;
+}
+
+.panelLibis > div > label,
+.panelRonac > div > label {
+  color: white;
+  font-size: 12px;
+}

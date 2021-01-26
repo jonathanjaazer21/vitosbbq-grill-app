@@ -22,7 +22,15 @@ import { addData, updateData } from 'services'
 import { SCHEDULES } from 'services/collectionNames'
 import formatDataSource from './formatDataSource'
 import db from 'services/firebase'
-import { BRANCH, _ID } from 'components/orderSlip/types'
+import {
+  BC,
+  BC_HALF,
+  BRANCH,
+  CONTACT_NUMBER,
+  EIGHT,
+  TWELVE,
+  _ID
+} from 'components/orderSlip/types'
 import { DROPDOWN_DATAS } from 'components/orderSlip/orderSlipConfig'
 
 function SchedulerComponent () {
@@ -91,8 +99,8 @@ function SchedulerComponent () {
   const onPopUpOpen = args => {
     if (args.type === 'Editor') {
       for (const key in DROPDOWN_DATAS) {
-        const branchElement = args.element.querySelector(`#${key}`)
-        branchElement.setAttribute('value', DROPDOWN_DATAS[key][0])
+        const element = args.element.querySelector(`#${key}`)
+        element.setAttribute('value', DROPDOWN_DATAS[key][0])
       }
     }
   }

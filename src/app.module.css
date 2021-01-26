@@ -1,5 +1,28 @@
+.mainContainer {
+  display: grid;
+}
 .container {
   display: flex;
   justify-content: flex-start;
   width: 100%;
+}
+.leftContent {
+  flex-basis: 80%;
+}
+.rightContent {
+  flex-basis: 20%;
+}
+.fixedSideBar {
+  width: 100%;
+  overflow-x: hidden;
+  height: 100vh;
+}
+
+@media (max-width: 375px) {
+  .rightContent {
+    display: none;
+  }
+  .leftContent {
+    flex-basis: 100%;
+  }
 }
