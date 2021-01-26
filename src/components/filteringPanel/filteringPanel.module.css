@@ -17,6 +17,7 @@ body {
   border: 0.5px solid #eee;
   background-color: orange;
   border-radius: 1rem;
+  margin-bottom: 1rem;
 }
 
 .panelRonac {
@@ -24,6 +25,7 @@ body {
   border: 0.5px solid #eee;
   background-color: red;
   border-radius: 1rem;
+  margin-bottom: 1rem;
 }
 
 .panelLibis,
@@ -33,15 +35,32 @@ body {
   justify-content: flex-start;
 }
 
-.panelLibis > div,
-.panelRonac > div {
+.timeContainer {
+  display: flex;
+}
+.timeContainer > div,
+.timeContainer > div {
   display: flex;
   flex-direction: column;
   padding: 0.3rem;
 }
 
-.panelLibis > div > label,
-.panelRonac > div > label {
+.timeContainer > div > label,
+.timeContainer > div > label {
   color: white;
   font-size: 12px;
+}
+.chips > div {
+  display: flex;
+  flex-flow: row wrap;
+}
+.chips > div > div {
+  box-sizing: border-box;
+  background-color: #999;
+  border-radius: 1rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 14px;
+  color: #222;
+  text-align: center;
+  margin: 3px;
 }

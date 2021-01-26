@@ -3,6 +3,7 @@ import DropdownList from './dropdownList'
 import Input from './input'
 import {
   CHIPS,
+  DATE_PICKER,
   DATE_TIME_PICKER,
   DESCRIPTION,
   DROP_DOWN_LIST,
@@ -11,6 +12,7 @@ import {
 } from './types'
 import classes from './index.module.css'
 import Chips from './chips'
+import DatePicker from './datePicker'
 
 const RenderComponent = ({ label, children, isInline }) => {
   return isInline ? (
@@ -35,6 +37,13 @@ export default {
     return (
       <RenderComponent label={props.label} isInline={props.isInline}>
         <DateTimePicker {...props} />
+      </RenderComponent>
+    )
+  },
+  [DATE_PICKER]: props => {
+    return (
+      <RenderComponent label={props.label} isInline={props.isInline}>
+        <DatePicker {...props} />
       </RenderComponent>
     )
   },

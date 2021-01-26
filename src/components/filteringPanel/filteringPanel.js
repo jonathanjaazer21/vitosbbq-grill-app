@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import fields from 'components/fields'
 import classes from './filteringPanel.module.css'
-import {
-  CHIPS,
-  DATE_TIME_PICKER,
-  DROP_DOWN_LIST
-} from 'components/fields/types'
+import { CHIPS, DATE_PICKER, DROP_DOWN_LIST } from 'components/fields/types'
 import {
   BC,
   BC_HALF,
@@ -24,29 +20,80 @@ import { selectSchedulerComponentSlice } from 'components/schedulerComponent/sch
 import { useSelector } from 'react-redux'
 import formatDataSource from 'components/schedulerComponent/formatDataSource'
 
-const normalizeHour = time => {
-  const timeArray = time.split(':')
-  if (timeArray[0] > 12) {
-    const hour = timeArray[0] - 12
-    return `${hour}:${timeArray[1]} PM`
+const normalizeHour = date => {
+  const dateArray = date.split(':')
+  if (dateArray[0] > 12) {
+    const hour = dateArray[0] - 12
+    return `${hour}:${dateArray[1]} PM`
   } else {
-    return `${timeArray[0]}:${timeArray[1]} AM`
+    return `${dateArray[0]}:${dateArray[1]} AM`
   }
 }
+
+const getOnlyDate = dateTime => {
+  const dateTimeSplit = dateTime.toString().split(' ')
+  return `${dateTimeSplit[1]} ${dateTimeSplit[2]} ${dateTimeSplit[3]}`
+}
+
+const sumUp = filteredData => {
+  const newFilteredData = []
+
+  for (const obj of filteredData) {
+    let _index = ''
+    const isExist = newFilteredData.some((data, index) => {
+      const startTime1 = data[DATE_START]?.toString().split(' ')
+      const startTime2 = obj[DATE_START]?.toString().split(' ')
+      _index = index
+      return normalizeHour(startTime1[4]) === normalizeHour(startTime2[4])
+    })
+    if (isExist) {
+      const _newFilteredObj = { ...newFilteredData[_index] }
+      newFilteredData.splice(_index, 1)
+      _newFilteredObj[EIGHT] =
+        parseInt(_newFilteredObj[EIGHT]) + parseInt(obj[EIGHT])
+      _newFilteredObj[TWELVE] =
+        parseInt(_newFilteredObj[TWELVE]) + parseInt(obj[TWELVE])
+      _newFilteredObj[BC] = parseInt(_newFilteredObj[BC]) + parseInt(obj[BC])
+      _newFilteredObj[BC_HALF] =
+        parseInt(_newFilteredObj[BC_HALF]) + parseInt(obj[BC_HALF])
+      newFilteredData.push(_newFilteredObj)
+    } else {
+      newFilteredData.push({
+        [DATE_START]: obj[DATE_START],
+        [DATE_END]: obj[DATE_END],
+        [EIGHT]: obj[EIGHT],
+        [TWELVE]: obj[TWELVE],
+        [BC]: obj[BC],
+        [BC_HALF]: obj[BC_HALF],
+        [BRANCH]: obj[BRANCH]
+      })
+    }
+  }
+  return newFilteredData
+}
+
 function FilteringPanel () {
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
   const [branchValue, setBranchValue] = useState(DROPDOWN_DATAS[BRANCH][0])
+  const [dateValue, setDateValue] = useState(new Date())
   const [filteredDataSource, setFilteredDataSource] = useState([])
 
   useEffect(() => {
-    handleFiltering(branchValue)
+    const filteredDataCopy = [...handleFiltering(branchValue, dateValue)]
+    const sumUpData = [...sumUp(filteredDataCopy)]
+    setFilteredDataSource(sumUpData)
   }, [schedulerComponentSlice.dataSource])
 
-  const handleFiltering = branch => {
-    const filteredData = dataSource.filter(data => data[BRANCH] === branch)
-    setFilteredDataSource(filteredData)
+  const handleFiltering = (branch, date) => {
+    const filteredData = dataSource.filter(data => {
+      const dateStart = getOnlyDate(data[DATE_START])
+      const dateFilter = getOnlyDate(date)
+      return data[BRANCH] === branch && dateStart === dateFilter
+    })
+    return filteredData
   }
+
   return (
     <div className={classes.container}>
       <div className={classes.header}>
@@ -58,24 +105,25 @@ function FilteringPanel () {
             value: branchValue,
             onChange: e => {
               setBranchValue(e.value)
-              handleFiltering(e.value)
+              const filteredDataCopy = [...handleFiltering(e.value, dateValue)]
+              const sumUpData = [...sumUp(filteredDataCopy)]
+              setFilteredDataSource(sumUpData)
             }
           })}
         </div>
         <div>
-          {fields[DATE_TIME_PICKER]({
-            name: DATE_START,
-            label: LABELS[DATE_START],
-            default: new Date(),
-            onChange: e => {}
-          })}
-        </div>
-        <div>
-          {fields[DATE_TIME_PICKER]({
-            name: DATE_END,
-            label: LABELS[DATE_END],
-            default: new Date(),
-            onChange: e => {}
+          {fields[DATE_PICKER]({
+            name: DATE_PICKER,
+            value: dateValue,
+            label: 'Date',
+            onChange: e => {
+              setDateValue(e.target.value)
+              const filteredDataCopy = [
+                ...handleFiltering(branchValue, e.target.value)
+              ]
+              const sumUpData = [...sumUp(filteredDataCopy)]
+              setFilteredDataSource(sumUpData)
+            }
           })}
         </div>
       </div>
@@ -103,20 +151,23 @@ function FilteringPanel () {
           ]
           return (
             <div key={data[_ID]} className={classes[`panel${data[BRANCH]}`]}>
-              <div>
-                <label>Date</label>
-                <span>{`${startTime[1]} ${startTime[2]} ${startTime[3]}`}</span>
+              <div className={classes.timeContainer}>
+                <div>
+                  <label>Time start</label>
+                  <span>{normalizeHour(startTime[4])}</span>
+                </div>
+                <div>
+                  <label>Time end</label>
+                  <span>{normalizeHour(endTime[4])}</span>
+                </div>
               </div>
-              <div>
-                <label>Time start</label>
-                <span>{normalizeHour(startTime[4])}</span>
-              </div>
-              <div>
-                <label>Time end</label>
-                <span>{normalizeHour(endTime[4])}</span>
-              </div>
-              <div>
-                <span>{fields[CHIPS]({ chips })}</span>
+              <div className={classes.chips}>
+                <div>
+                  <div>{`${chips[0].label}: ${chips[0].value}`}</div>
+                  <div>{`${chips[1].label}: ${chips[1].value}`}</div>
+                  <div>{`${chips[2].label}: ${chips[2].value}`}</div>
+                  <div>{`${chips[3].label}: ${chips[3].value}`}</div>
+                </div>
               </div>
             </div>
           )
