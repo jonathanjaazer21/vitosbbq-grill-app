@@ -1,6 +1,6 @@
 import orderSlipConfig, {
   DROPDOWN_DATAS
-} from 'components/orderSlip/orderSlipConfig'
+} from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
 import {
   BC,
   BC_HALF,
@@ -18,7 +18,7 @@ import {
   STATUS,
   TWELVE,
   _ID
-} from 'components/orderSlip/types'
+} from 'components/SchedulerComponent/orderSlip/types'
 
 const schedulerSchema = {}
 for (const obj of orderSlipConfig) {

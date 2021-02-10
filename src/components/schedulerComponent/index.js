@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import {
   ScheduleComponent,
+  ViewDirective,
+  ViewsDirective,
   Inject,
   Day,
   Week,
@@ -10,7 +12,7 @@ import {
   DragAndDrop,
   Resize
 } from '@syncfusion/ej2-react-schedule'
-import OrderSlip from 'components/orderSlip'
+import OrderSlip from 'components/SchedulerComponent/orderSlip'
 import {
   selectSchedulerComponentSlice,
   updateSchedules,
@@ -30,8 +32,9 @@ import {
   EIGHT,
   TWELVE,
   _ID
-} from 'components/orderSlip/types'
-import { DROPDOWN_DATAS } from 'components/orderSlip/orderSlipConfig'
+} from 'components/SchedulerComponent/orderSlip/types'
+import { DROPDOWN_DATAS } from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
+import AppBar from 'components/appBar'
 
 function SchedulerComponent () {
   const dispatch = useDispatch()
@@ -109,20 +112,26 @@ function SchedulerComponent () {
     dataSource: dataSource
   }
   return (
-    <ScheduleComponent
-      startHour='08:00'
-      endHour='20:00'
-      selectedDate={new Date()}
-      editorTemplate={OrderSlip}
-      eventSettings={eventSettings}
-      actionBegin={onActionBegin}
-      eventRendered={onEventRendered}
-      popupOpen={onPopUpOpen}
-    >
-      <Inject
-        services={[Day, Week, WorkWeek, Month, Agenda, DragAndDrop, Resize]}
-      />
-    </ScheduleComponent>
+    <>
+      <ScheduleComponent
+        startHour='08:00'
+        endHour='20:00'
+        selectedDate={new Date()}
+        editorTemplate={OrderSlip}
+        eventSettings={eventSettings}
+        actionBegin={onActionBegin}
+        eventRendered={onEventRendered}
+        popupOpen={onPopUpOpen}
+        height={'90vh'}
+      >
+        <ViewsDirective>
+          <ViewDirective option='Week' />
+          <ViewDirective option='Month' />
+          <ViewDirective option='Agenda' />
+        </ViewsDirective>
+        <Inject services={[Week, Month, Agenda, DragAndDrop]} />
+      </ScheduleComponent>
+    </>
   )
 }
 

@@ -6,7 +6,7 @@ import {
   TWELVE,
   BC,
   BC_HALF
-} from 'components/orderSlip/types'
+} from 'components/SchedulerComponent/orderSlip/types'
 
 const formatDate = date => {
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)

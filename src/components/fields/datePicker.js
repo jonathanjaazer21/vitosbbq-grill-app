@@ -5,7 +5,7 @@ function DatePicker (props) {
   return (
     <DatePickerComponent
       id={props.name}
-      format='dd/MM/yy'
+      format='MM/dd/yy'
       value={props.value}
       onChange={props?.onChange}
     />

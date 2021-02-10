@@ -7,10 +7,10 @@
   width: 100%;
 }
 .leftContent {
-  flex-basis: 80%;
+  flex-basis: 20%;
 }
 .rightContent {
-  flex-basis: 20%;
+  flex-basis: 80%;
 }
 .fixedSideBar {
   width: 100%;
