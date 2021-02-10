@@ -1,19 +1,19 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Vito's Grill",
+  "name": "A Scheduler app to facilitate the order handling of Vitos Grill",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "vitosLogo.jpg",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
     {
-      "src": "logo192.png",
+      "src": "vitosLogo.jpg",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "logo512.png",
+      "src": "vitosLogo.jpg",
       "type": "image/png",
       "sizes": "512x512"
     }

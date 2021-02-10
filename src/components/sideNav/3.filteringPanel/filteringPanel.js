@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import fields from 'components/fields'
 import classes from './filteringPanel.module.css'
-import { CHIPS, DATE_PICKER, DROP_DOWN_LIST } from 'components/fields/types'
+import { DATE_PICKER, DROP_DOWN_LIST } from 'components/fields/types'
 import {
   BC,
   BC_HALF,
@@ -12,13 +12,14 @@ import {
   LABELS,
   TWELVE,
   _ID
-} from 'components/orderSlip/types'
-import { DROPDOWN_DATAS } from 'components/orderSlip/orderSlipConfig'
+} from 'components/SchedulerComponent/orderSlip/types'
+import { DROPDOWN_DATAS } from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
 
-import { selectSchedulerComponentSlice } from 'components/schedulerComponent/schedulerComponentSlice'
+import { selectSchedulerComponentSlice } from 'components/SchedulerComponent/schedulerComponentSlice'
 
 import { useSelector } from 'react-redux'
-import formatDataSource from 'components/schedulerComponent/formatDataSource'
+import { Body, Header } from './styles'
+import formatDataSource from 'components/SchedulerComponent/formatDataSource'
 
 const normalizeHour = date => {
   const dateArray = date.split(':')
@@ -72,7 +73,7 @@ const sumUp = filteredData => {
   return newFilteredData
 }
 
-function FilteringPanel () {
+function FilteringPanel ({ isToggled }) {
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
   const [branchValue, setBranchValue] = useState(DROPDOWN_DATAS[BRANCH][0])
@@ -96,7 +97,7 @@ function FilteringPanel () {
 
   return (
     <div className={classes.container}>
-      <div className={classes.header}>
+      <Header isToggled={isToggled}>
         <div>
           {fields[DROP_DOWN_LIST]({
             name: BRANCH,
@@ -126,8 +127,8 @@ function FilteringPanel () {
             }
           })}
         </div>
-      </div>
-      <div className={classes.body}>
+      </Header>
+      <Body isToggled={isToggled}>
         {filteredDataSource.map(data => {
           const startTime = data[DATE_START]?.toString().split(' ')
           const endTime = data[DATE_END]?.toString().split(' ')
@@ -172,7 +173,7 @@ function FilteringPanel () {
             </div>
           )
         })}
-      </div>
+      </Body>
     </div>
   )
 }
