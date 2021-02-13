@@ -9,7 +9,9 @@ export const schedulerComponentSlice = createSlice({
   reducers: {
     setSchedules: (state, action) => {
       const dataSource = [...state.dataSource]
-      dataSource.push(action.payload)
+      for (const obj of action.payload) {
+        dataSource.push(obj)
+      }
       state.dataSource = dataSource
     },
     updateSchedules: (state, action) => {
@@ -18,10 +20,17 @@ export const schedulerComponentSlice = createSlice({
       )
       dataSource.push(action.payload)
       state.dataSource = dataSource
+    },
+    clearSchedules: state => {
+      state.dataSource = []
     }
   }
 })
 
-export const { setSchedules, updateSchedules } = schedulerComponentSlice.actions
+export const {
+  setSchedules,
+  updateSchedules,
+  clearSchedules
+} = schedulerComponentSlice.actions
 export const selectSchedulerComponentSlice = state => state[SCHEDULER_COMPONENT]
 export default schedulerComponentSlice.reducer

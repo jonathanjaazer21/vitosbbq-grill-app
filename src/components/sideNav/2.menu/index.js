@@ -1,42 +1,55 @@
 import React, { useState } from 'react'
 import {
   Wrapper,
+  TitleItem,
   MenuItem,
   MenuText,
-  Pen,
-  Clock,
   ArrowDown,
-  ArrowUp
+  ArrowUp,
+  SubItem,
+  SubMenuContainer
 } from './styles'
+import menuData from './menuData'
+import { useSelector } from 'react-redux'
+import { selectSideNav } from '../sideNavSlice'
 
-const menus = {
-  Dashboard: false,
-  Masterdata: false
-}
+const menus = {}
 function Menu ({ isToggled }) {
-  const [state, setState] = useState({
-    Dashboard: true,
-    Masterdata: false
-  })
+  const sideNavSlice = useSelector(selectSideNav)
+  const [state, setState] = useState(menus)
+
+  for (const obj of menuData) {
+    menus[obj.title] = sideNavSlice.selectedMenu.includes(obj.title)
+  }
 
   return (
     <Wrapper>
-      {['Dashboard', 'Masterdata'].map(label => (
-        <MenuItem
-          key={label}
-          active={state[label]}
-          onClick={() => setState({ ...menus, [label]: true })}
-        >
-          <div>
-            {label === 'Dashboard' ? (
-              <Clock isToggled={isToggled} />
-            ) : (
-              <Pen isToggled={isToggled} />
-            )}
-          </div>
+      {menuData.map(({ title, Icon, subMenu }) => (
+        <MenuItem key={title}>
+          {/* main title */}
+          <TitleItem
+            active={sideNavSlice.selectedMenu.includes(title)}
+            onClick={() => setState({ ...state, [title]: !state[title] })}
+          >
+            <div>
+              <Icon isToggled={isToggled} />
+            </div>
+            <MenuText isToggled={isToggled}>{title}</MenuText>
+            {state[title] ? <ArrowUp /> : <ArrowDown />}
+          </TitleItem>
 
-          <MenuText isToggled={isToggled}>{label}</MenuText>
-          {state[label] ? <ArrowUp /> : <ArrowDown />}
+          {/* sub items */}
+          <SubMenuContainer active={state[title]} isToggled={isToggled}>
+            {subMenu.map(subItem => (
+              <SubItem
+                to={subItem.path}
+                key={subItem.title}
+                active={sideNavSlice.selectedMenu.includes(subItem.title)}
+              >
+                {subItem.title}
+              </SubItem>
+            ))}
+          </SubMenuContainer>
         </MenuItem>
       ))}
     </Wrapper>

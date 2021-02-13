@@ -1,5 +1,4 @@
-import styled, { Keyframes } from 'styled-components'
-import BaseAnimation from 'animations/baseAnimation'
+import styled from 'styled-components'
 
 export const Wrapper = styled.div`
   display: flex;
