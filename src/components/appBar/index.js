@@ -11,16 +11,22 @@ import {
   UserProfileLink
 } from './appBarStyles'
 import { auth } from 'services/firebase'
-import { selectUserSlice } from 'containers/login/loginSlice'
-import { useSelector } from 'react-redux'
+import {
+  selectUserSlice,
+  clearAccountInfo
+} from 'containers/0.login/loginSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
 function AppBar ({ isToggled, toggle }) {
+  const dispatch = useDispatch()
   const user = useSelector(selectUserSlice)
   const [viewProfile, setViewProfile] = useState(false)
   const handleLogout = () => {
     auth
       .signOut()
-      .then(() => {})
+      .then(() => {
+        dispatch(clearAccountInfo())
+      })
       .catch(error => {
         console.log(error)
       })

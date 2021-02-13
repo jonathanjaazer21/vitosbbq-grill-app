@@ -4,9 +4,7 @@ import {
   ViewDirective,
   ViewsDirective,
   Inject,
-  Day,
   Week,
-  WorkWeek,
   Month,
   Agenda,
   DragAndDrop,
@@ -16,7 +14,8 @@ import OrderSlip from 'components/SchedulerComponent/orderSlip'
 import {
   selectSchedulerComponentSlice,
   updateSchedules,
-  setSchedules
+  setSchedules,
+  clearSchedules
 } from './schedulerComponentSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import schedulerSchema from './schedulerSchema'
@@ -35,16 +34,23 @@ import {
 } from 'components/SchedulerComponent/orderSlip/types'
 import { DROPDOWN_DATAS } from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
 import AppBar from 'components/appBar'
+import identifyDateRange, { getDaysInMonthUTC } from './identifyDateRange'
 
 function SchedulerComponent () {
   const dispatch = useDispatch()
+  const [startDate, setStartDate] = useState(new Date())
+  const [monthList, setMonthList] = useState([])
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
 
   useEffect(() => {
+    const monthDays = getDaysInMonthUTC(new Date())
+    setMonthList([...monthDays])
     const unsubscribe = db
       .collection(SCHEDULES)
+      .orderBy('StartTime', 'asc')
       .onSnapshot(function (snapshot) {
+        const schedules = []
         for (const obj of snapshot.docChanges()) {
           if (obj.type === 'modified') {
             const data = obj.doc.data()
@@ -60,16 +66,21 @@ function SchedulerComponent () {
               Subject: data.customer,
               [_ID]: obj.doc.id
             }
-            dispatch(setSchedules(newData))
+            schedules.push(newData)
+            // dispatch(setSchedules(newData))
           } else {
             console.log('nothing')
           }
         }
+        if (schedules.length > 0) {
+          dispatch(setSchedules(schedules))
+        }
       })
     return () => {
       unsubscribe()
+      dispatch(clearSchedules())
     }
-  }, [])
+  }, [startDate])
 
   const onActionBegin = args => {
     if (args.requestType === 'eventChange') {
@@ -87,7 +98,19 @@ function SchedulerComponent () {
       })
     } else if (args.requestType === 'eventRemove') {
     } else {
-      console.log('data is removed', args)
+      console.log('other action is triggered', args)
+    }
+  }
+
+  const onNavigation = args => {
+    console.log(args.currentDate)
+    console.log('monthList', monthList)
+    const monthDays = getDaysInMonthUTC(args.currentDate)
+    if (!monthList.includes(args.currentDate)) {
+      console.log('wala')
+      setMonthList([...monthDays])
+    } else {
+      console.log('meron')
     }
   }
 
@@ -116,20 +139,20 @@ function SchedulerComponent () {
       <ScheduleComponent
         startHour='08:00'
         endHour='20:00'
-        selectedDate={new Date()}
         editorTemplate={OrderSlip}
         eventSettings={eventSettings}
         actionBegin={onActionBegin}
+        navigating={onNavigation}
         eventRendered={onEventRendered}
         popupOpen={onPopUpOpen}
-        height={'90vh'}
+        height={'92vh'}
       >
         <ViewsDirective>
           <ViewDirective option='Week' />
           <ViewDirective option='Month' />
           <ViewDirective option='Agenda' />
         </ViewsDirective>
-        <Inject services={[Week, Month, Agenda, DragAndDrop]} />
+        <Inject services={[Week, Month, Agenda, DragAndDrop, Resize]} />
       </ScheduleComponent>
     </>
   )
