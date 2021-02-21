@@ -9,13 +9,54 @@ import {
   MASTER_DATA,
   BRANCH_MASTERFILE
 } from 'components/sideNav/2.menu/menuData'
+import Table from 'components/Table'
+import { clearTable, setTable, deleteTable } from 'components/Table/tableSlice'
+import db from 'services/firebase'
+import { BRANCHES } from 'services/collectionNames'
 
-function UserMasterfile () {
+function BranchMasterfile () {
   const dispatch = useDispatch()
   const [toggle, setToggle] = useState(true)
 
   useEffect(() => {
     dispatch(navigateTo([MASTER_DATA, BRANCH_MASTERFILE]))
+    const unsubscribe = db.collection(BRANCHES).onSnapshot(function (snapshot) {
+      const branches = []
+      const headers = [
+        {
+          field: 'branchName',
+          headerText: 'Branch name'
+        },
+        {
+          field: 'branchAddress',
+          headerText: 'Branch Address'
+        },
+        {
+          field: 'color',
+          headerText: 'Color'
+        }
+      ]
+      for (const obj of snapshot.docChanges()) {
+        if (obj.type === 'modified') {
+          // const data = obj.doc.data()
+        } else if (obj.type === 'added') {
+          const data = obj.doc.data()
+          branches.push({ ...data, _id: obj.doc.id })
+        } else if (obj.type === 'removed') {
+          dispatch(deleteTable({ _id: obj.doc.id }))
+        } else {
+          console.log('nothing', obj.type)
+        }
+      }
+      if (branches.length > 0) {
+        dispatch(setTable({ branches, headers }))
+      }
+    })
+
+    return () => {
+      unsubscribe()
+      dispatch(clearTable())
+    }
   }, [])
   return (
     <Wrapper>
@@ -24,6 +65,7 @@ function UserMasterfile () {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={['1s']} delay={['0.2s']}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
+            <Table />
           </Animate>
         </RightContent>
       </Container>
@@ -31,4 +73,4 @@ function UserMasterfile () {
   )
 }
 
-export default UserMasterfile
+export default BranchMasterfile

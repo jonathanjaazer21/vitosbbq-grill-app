@@ -10,13 +10,38 @@ import {
   MASTER_DATA,
   USER_MASTERFILE
 } from 'components/sideNav/2.menu/menuData'
+import Table from 'components/Table'
+import { clearTable, setTable } from 'components/Table/tableSlice'
 
 function UserMasterfile () {
   const dispatch = useDispatch()
   const [toggle, setToggle] = useState(true)
 
   useEffect(() => {
+    const branches = []
+    const headers = [
+      {
+        field: 'email',
+        headerText: 'Email'
+      },
+      {
+        field: 'username',
+        headerText: 'Username'
+      },
+      {
+        field: 'role',
+        headerText: 'Role'
+      },
+      {
+        field: 'branch',
+        headerText: 'Branch'
+      }
+    ]
     dispatch(navigateTo([MASTER_DATA, USER_MASTERFILE]))
+    dispatch(setTable({ headers, branches }))
+    return () => {
+      dispatch(clearTable())
+    }
   }, [])
   return (
     <Wrapper>
@@ -25,6 +50,7 @@ function UserMasterfile () {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={['1s']} delay={['0.2s']}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
+            <Table />
           </Animate>
         </RightContent>
       </Container>

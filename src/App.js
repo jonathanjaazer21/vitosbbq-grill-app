@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import GrillReservation from 'containers/1.grill_reservation'
 import UserMasterfile from 'containers/2.user_masterfile'
+import BranchMasterfile from 'containers/3.branch_mastefile'
 import Login from 'containers/0.login'
 import { auth } from 'services/firebase'
 import { useDispatch } from 'react-redux'
 import { setAccountInfo } from 'containers/0.login/loginSlice'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
+import Backdrop from 'components/backdrop'
 
 function App () {
   const dispatch = useDispatch()
@@ -45,11 +47,11 @@ function App () {
           <Route path='/masterData/userMasterFile'>
             <UserMasterfile />
           </Route>
-          <Route path='/masterData/userBranchMasterFile'>
-            <div>Branch MasterFile</div>
+          <Route path='/masterData/branchMasterFile'>
+            <BranchMasterfile />
           </Route>
           <Route exact path='/'>
-            <div>Landing Page</div>
+            <GrillReservation />
           </Route>
           <Route path='*'>
             <div>Invalid url</div>
@@ -74,7 +76,7 @@ function App () {
     )
   }
   const renderIfVerified = isLoggedIn ? <Routing /> : <UnAuthenticatedRouting />
-  return isLoading ? 'Loading' : renderIfVerified
+  return isLoading ? <Backdrop /> : renderIfVerified
 }
 
 export default App

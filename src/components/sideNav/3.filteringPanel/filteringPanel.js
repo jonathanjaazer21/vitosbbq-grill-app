@@ -13,6 +13,7 @@ import {
   TWELVE,
   _ID
 } from 'components/SchedulerComponent/orderSlip/types'
+import Animate, { FadeInLeft } from 'animate-css-styled-components'
 import { DROPDOWN_DATAS } from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
 
 import { selectSchedulerComponentSlice } from 'components/SchedulerComponent/schedulerComponentSlice'
@@ -108,6 +109,7 @@ function FilteringPanel ({ isToggled }) {
               setBranchValue(e.value)
               const filteredDataCopy = [...handleFiltering(e.value, dateValue)]
               const sumUpData = [...sumUp(filteredDataCopy)]
+              setFilteredDataSource([])
               setFilteredDataSource(sumUpData)
             }
           })}
@@ -123,13 +125,14 @@ function FilteringPanel ({ isToggled }) {
                 ...handleFiltering(branchValue, e.target.value)
               ]
               const sumUpData = [...sumUp(filteredDataCopy)]
+              setFilteredDataSource([])
               setFilteredDataSource(sumUpData)
             }
           })}
         </div>
       </Header>
       <Body isToggled={isToggled}>
-        {filteredDataSource.map(data => {
+        {filteredDataSource.map((data, index) => {
           const startTime = data[DATE_START]?.toString().split(' ')
           const endTime = data[DATE_END]?.toString().split(' ')
           const chips = [
@@ -150,27 +153,39 @@ function FilteringPanel ({ isToggled }) {
               value: data[BC_HALF]
             }
           ]
+
+          const { branchColors } = schedulerComponentSlice
           return (
-            <div key={data[_ID]} className={classes[`panel${data[BRANCH]}`]}>
-              <div className={classes.timeContainer}>
-                <div>
-                  <label>Time start</label>
-                  <span>{normalizeHour(startTime[4])}</span>
+            <Animate
+              key={data[_ID]}
+              Animation={[FadeInLeft]}
+              duration={['1s']}
+              delay={[`0.${1 + index}s`]}
+            >
+              <div
+                className={classes[`panel${data[BRANCH]}`]}
+                style={{ backgroundColor: branchColors[data[BRANCH]] }}
+              >
+                <div className={classes.timeContainer}>
+                  <div>
+                    <label>Time start</label>
+                    <span>{normalizeHour(startTime[4])}</span>
+                  </div>
+                  <div>
+                    <label>Time end</label>
+                    <span>{normalizeHour(endTime[4])}</span>
+                  </div>
                 </div>
-                <div>
-                  <label>Time end</label>
-                  <span>{normalizeHour(endTime[4])}</span>
+                <div className={classes.chips}>
+                  <div>
+                    <div>{`${chips[0].label}: ${chips[0].value}`}</div>
+                    <div>{`${chips[1].label}: ${chips[1].value}`}</div>
+                    <div>{`${chips[2].label}: ${chips[2].value}`}</div>
+                    <div>{`${chips[3].label}: ${chips[3].value}`}</div>
+                  </div>
                 </div>
               </div>
-              <div className={classes.chips}>
-                <div>
-                  <div>{`${chips[0].label}: ${chips[0].value}`}</div>
-                  <div>{`${chips[1].label}: ${chips[1].value}`}</div>
-                  <div>{`${chips[2].label}: ${chips[2].value}`}</div>
-                  <div>{`${chips[3].label}: ${chips[3].value}`}</div>
-                </div>
-              </div>
-            </div>
+            </Animate>
           )
         })}
       </Body>
