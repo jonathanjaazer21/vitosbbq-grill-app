@@ -4,13 +4,17 @@ import { SCHEDULER_COMPONENT } from 'app/types'
 export const schedulerComponentSlice = createSlice({
   name: SCHEDULER_COMPONENT,
   initialState: {
-    dataSource: []
+    dataSource: [],
+    branchColors: {}
   },
   reducers: {
     setSchedules: (state, action) => {
       const dataSource = [...state.dataSource]
       for (const obj of action.payload) {
-        dataSource.push(obj)
+        const isExist = dataSource.some(_id => _id === obj._id)
+        if (!isExist) {
+          dataSource.push(obj)
+        }
       }
       state.dataSource = dataSource
     },
@@ -21,6 +25,10 @@ export const schedulerComponentSlice = createSlice({
       dataSource.push(action.payload)
       state.dataSource = dataSource
     },
+    setBranchColors: (state, action) => {
+      const { payload } = action
+      state.branchColors[payload.branch] = payload.color
+    },
     clearSchedules: state => {
       state.dataSource = []
     }
@@ -30,6 +38,7 @@ export const schedulerComponentSlice = createSlice({
 export const {
   setSchedules,
   updateSchedules,
+  setBranchColors,
   clearSchedules
 } = schedulerComponentSlice.actions
 export const selectSchedulerComponentSlice = state => state[SCHEDULER_COMPONENT]

@@ -25,7 +25,7 @@ import {
 } from './types'
 
 export const DROPDOWN_DATAS = {
-  [BRANCH]: ['Libis', 'Ronac'],
+  [BRANCH]: ['Libis', 'Ronac', 'SM-North', 'SM-MOA'],
   [ORDER_VIA]: ['Facebook', 'Messenger', 'Text'],
   [PAYMENT_MODE]: ['Cash', 'Card'],
   [STATUS]: [

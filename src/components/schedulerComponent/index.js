@@ -15,12 +15,13 @@ import {
   selectSchedulerComponentSlice,
   updateSchedules,
   setSchedules,
-  clearSchedules
+  clearSchedules,
+  setBranchColors
 } from './schedulerComponentSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import schedulerSchema from './schedulerSchema'
-import { addData, updateData } from 'services'
-import { SCHEDULES } from 'services/collectionNames'
+import { addData, updateData, deleteData } from 'services'
+import { BRANCHES, SCHEDULES } from 'services/collectionNames'
 import formatDataSource from './formatDataSource'
 import db from 'services/firebase'
 import {
@@ -33,19 +34,16 @@ import {
   _ID
 } from 'components/SchedulerComponent/orderSlip/types'
 import { DROPDOWN_DATAS } from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
-import AppBar from 'components/appBar'
 import identifyDateRange, { getDaysInMonthUTC } from './identifyDateRange'
+import Backdrop from 'components/backdrop'
 
-function SchedulerComponent () {
+function SchedulerComponent ({ setLoading }) {
   const dispatch = useDispatch()
-  const [startDate, setStartDate] = useState(new Date())
-  const [monthList, setMonthList] = useState([])
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
 
   useEffect(() => {
-    const monthDays = getDaysInMonthUTC(new Date())
-    setMonthList([...monthDays])
+    setLoading(true)
     const unsubscribe = db
       .collection(SCHEDULES)
       .orderBy('StartTime', 'asc')
@@ -75,12 +73,36 @@ function SchedulerComponent () {
         if (schedules.length > 0) {
           dispatch(setSchedules(schedules))
         }
+        setLoading(false)
       })
     return () => {
       unsubscribe()
       dispatch(clearSchedules())
     }
-  }, [startDate])
+  }, [])
+
+  useEffect(() => {
+    const unsubscribe = db.collection(BRANCHES).onSnapshot(function (snapshot) {
+      for (const obj of snapshot.docChanges()) {
+        if (obj.type === 'modified') {
+          const data = obj.doc.data()
+          dispatch(
+            setBranchColors({ branch: data.branchName, color: data.color })
+          )
+        } else if (obj.type === 'added') {
+          const data = obj.doc.data()
+          dispatch(
+            setBranchColors({ branch: data.branchName, color: data.color })
+          )
+        } else {
+          console.log('nothing')
+        }
+      }
+    })
+    return () => {
+      unsubscribe()
+    }
+  }, [])
 
   const onActionBegin = args => {
     if (args.requestType === 'eventChange') {
@@ -97,29 +119,30 @@ function SchedulerComponent () {
         collection: SCHEDULES
       })
     } else if (args.requestType === 'eventRemove') {
+      const { deletedRecords } = args
+
+      deleteData({ id: deletedRecords[0]._id, collection: SCHEDULES })
     } else {
       console.log('other action is triggered', args)
     }
   }
 
   const onNavigation = args => {
-    console.log(args.currentDate)
-    console.log('monthList', monthList)
-    const monthDays = getDaysInMonthUTC(args.currentDate)
-    if (!monthList.includes(args.currentDate)) {
-      console.log('wala')
-      setMonthList([...monthDays])
-    } else {
-      console.log('meron')
-    }
+    // console.log(args.currentDate)
+    // console.log('monthList', monthList)
+    // const monthDays = getDaysInMonthUTC(args.currentDate)
+    // if (!monthList.includes(args.currentDate)) {
+    //   console.log('wala')
+    //   setMonthList([...monthDays])
+    // } else {
+    //   console.log('meron')
+    // }
   }
 
+  const { branchColors } = schedulerComponentSlice
   const onEventRendered = args => {
     const { element, data } = args
-    element.style.background = 'orange'
-    if (data[BRANCH] === 'Ronac') {
-      element.style.background = 'red'
-    }
+    element.style.background = branchColors[data[BRANCH]]
   }
 
   const onPopUpOpen = args => {
@@ -134,6 +157,7 @@ function SchedulerComponent () {
   const eventSettings = {
     dataSource: dataSource
   }
+
   return (
     <>
       <ScheduleComponent

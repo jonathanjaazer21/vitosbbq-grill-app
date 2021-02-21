@@ -20,7 +20,6 @@
 .panelLibis {
   padding: 1rem;
   border: 0.5px solid #eee;
-  background-color: orange;
   border-radius: 1rem;
   margin-bottom: 1rem;
 }
@@ -28,7 +27,6 @@
 .panelRonac {
   padding: 1rem;
   border: 0.5px solid #eee;
-  background-color: red;
   border-radius: 1rem;
   margin-bottom: 1rem;
 }
@@ -61,11 +59,11 @@
 }
 .chips > div > div {
   box-sizing: border-box;
-  background-color: #999;
+  background-color: #222;
   border-radius: 1rem;
   padding: 0.3rem 0.7rem;
   font-size: 14px;
-  color: #222;
+  color: #eee;
   text-align: center;
   margin: 3px;
 }

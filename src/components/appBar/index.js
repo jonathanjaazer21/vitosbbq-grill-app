@@ -16,9 +16,11 @@ import {
   clearAccountInfo
 } from 'containers/0.login/loginSlice'
 import { useDispatch, useSelector } from 'react-redux'
+import { selectSideNav } from 'components/sideNav/sideNavSlice'
 
 function AppBar ({ isToggled, toggle }) {
   const dispatch = useDispatch()
+  const sideNavSlice = useSelector(selectSideNav)
   const user = useSelector(selectUserSlice)
   const [viewProfile, setViewProfile] = useState(false)
   const handleLogout = () => {
@@ -43,12 +45,12 @@ function AppBar ({ isToggled, toggle }) {
       <Menu>
         <Item isToggled={isToggled}>Home</Item>
         <Item isToggled={isToggled}>/</Item>
-        <Item isToggled={isToggled}>Dashboard</Item>
+        <Item isToggled={isToggled}>{sideNavSlice.selectedMenu[0]}</Item>
         <Item isToggled={isToggled}>/</Item>
         <Item isToggled={isToggled} isActive>
-          Grill Reservation
+          {sideNavSlice.selectedMenu[1]}
         </Item>
-        <ItemMobileView>Grill Reservation</ItemMobileView>
+        <ItemMobileView>{sideNavSlice.selectedMenu[1]}</ItemMobileView>
       </Menu>
       <div style={{ position: 'relative' }}>
         <UserProfileLink

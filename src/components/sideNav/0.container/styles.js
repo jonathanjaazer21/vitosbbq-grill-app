@@ -11,7 +11,7 @@ export const Sidenav = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   transition: width 0.5s ease-in-out, background-color 1s ease-in-out;
-
+  z-index: 999;
   @media (max-width: 768px) {
     width: 75px;
     background-color: ${props => props.theme.primaryColor};

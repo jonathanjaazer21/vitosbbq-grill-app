@@ -10,16 +10,19 @@ import {
 } from 'components/sideNav/2.menu/menuData'
 import { useDispatch } from 'react-redux'
 import { navigateTo } from 'components/sideNav/sideNavSlice'
+import Backdrop from 'components/backdrop'
 
 function GrillReservation () {
   const dispatch = useDispatch()
   const [toggle, setToggle] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     dispatch(navigateTo([DASHBOARD, GRILL_RESERVATION]))
   }, [])
   return (
     <Wrapper>
+      {loading && <Backdrop />}
       <Container>
         <Sidenav
           isToggled={toggle}
@@ -28,7 +31,7 @@ function GrillReservation () {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={['1s']} delay={['0.2s']}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
-            <ScheduleComponent />
+            <ScheduleComponent setLoading={setLoading} />
           </Animate>
         </RightContent>
       </Container>

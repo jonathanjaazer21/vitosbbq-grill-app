@@ -1,4 +1,5 @@
 import addData from './dataHandlers/addData'
 import updateData from './dataHandlers/updateData'
+import deleteData from './dataHandlers/deleteData'
 
-export { addData, updateData }
+export { addData, updateData, deleteData }
