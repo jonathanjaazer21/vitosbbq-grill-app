@@ -9,19 +9,19 @@ import {
   MASTER_DATA,
   BRANCH_MASTERFILE
 } from 'components/sideNav/2.menu/menuData'
-import Table from 'components/Table'
+import Table, { toolbarOptions, editSettings } from 'components/Table'
 import { clearTable, setTable, deleteTable } from 'components/Table/tableSlice'
 import db from 'services/firebase'
 import { BRANCHES } from 'services/collectionNames'
 
-function BranchMasterfile () {
+function BranchMasterfile() {
   const dispatch = useDispatch()
   const [toggle, setToggle] = useState(true)
 
   useEffect(() => {
     dispatch(navigateTo([MASTER_DATA, BRANCH_MASTERFILE]))
     const unsubscribe = db.collection(BRANCHES).onSnapshot(function (snapshot) {
-      const branches = []
+      const rows = []
       const headers = [
         {
           field: 'branchName',
@@ -41,15 +41,15 @@ function BranchMasterfile () {
           // const data = obj.doc.data()
         } else if (obj.type === 'added') {
           const data = obj.doc.data()
-          branches.push({ ...data, _id: obj.doc.id })
+          rows.push({ ...data, _id: obj.doc.id })
         } else if (obj.type === 'removed') {
           dispatch(deleteTable({ _id: obj.doc.id }))
         } else {
           console.log('nothing', obj.type)
         }
       }
-      if (branches.length > 0) {
-        dispatch(setTable({ branches, headers }))
+      if (rows.length > 0) {
+        dispatch(setTable({ rows, headers }))
       }
     })
 
@@ -65,7 +65,7 @@ function BranchMasterfile () {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={['1s']} delay={['0.2s']}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
-            <Table />
+            <Table toolbar={toolbarOptions} editSettings={editSettings} />
           </Animate>
         </RightContent>
       </Container>

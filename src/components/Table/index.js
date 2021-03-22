@@ -9,6 +9,7 @@ import {
   Filter,
   Page,
   ExcelExport,
+  Group,
   PdfExport,
   Edit,
   Inject,
@@ -19,7 +20,7 @@ import { useSelector } from 'react-redux'
 import { selectTableSlice } from './tableSlice'
 import { addData, deleteData, updateData } from 'services'
 import { BRANCHES } from 'services/collectionNames'
-const Table = () => {
+const Table = (props) => {
   const tableSlice = useSelector(selectTableSlice)
   const contextMenuItems = [
     'AutoFit',
@@ -39,13 +40,6 @@ const Table = () => {
     'LastPage',
     'NextPage'
   ]
-  const toolbarOptions = ['Add', 'Edit', 'Delete', 'Update', 'Cancel', 'Search']
-  const editSettings = {
-    allowEditing: true,
-    allowAdding: true,
-    allowDeleting: true,
-    newRowPosition: 'Top'
-  }
 
   const onActionBegin = e => {
     const { requestType, data } = e
@@ -66,37 +60,44 @@ const Table = () => {
     }
   }
   return (
-    <div className='control-pane'>
-      <div className='control-section'>
-        <GridComponent
-          id='gridcomp'
-          dataSource={tableSlice.dataList}
-          allowPaging
-          allowSorting
-          allowExcelExport
-          allowPdfExport
-          contextMenuItems={contextMenuItems}
-          editSettings={editSettings}
-          toolbar={toolbarOptions}
-          actionBegin={onActionBegin}
-        >
-          <ColumnsDirective>
-            {tableSlice.headers.map(data => {
-              return (
-                <ColumnDirective
-                  key={data.field}
-                  field={data.field}
-                  headerText={data.headerText}
-                  isPrimaryKey={data?.isPrimaryKey}
-                />
-              )
-            })}
-          </ColumnsDirective>
-          <Inject services={[Page, Toolbar, Edit]} />
-        </GridComponent>
+    <>
+      <div className='control-pane'>
+        <div className='control-section'>
+          <GridComponent
+            id='gridcomp'
+            dataSource={tableSlice.dataList}
+            allowPaging
+            allowSorting
+            allowFiltering
+            allowGrouping
+            allowExcelExport
+            allowPdfExport
+            contextMenuItems={contextMenuItems}
+            actionBegin={onActionBegin}
+            {...props}
+          >
+            <ColumnsDirective>
+              {tableSlice.headers.map(data => {
+                return (
+                  <ColumnDirective
+                    key={data.field}
+                    {...data}
+                  />
+                )
+              })}
+            </ColumnsDirective>
+            <Inject services={[Page, Toolbar, Edit, Sort, Filter, Group, ExcelExport]} />
+          </GridComponent>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
-
+export const toolbarOptions = ['Add', 'Edit', 'Delete', 'Update', 'Cancel', 'Search']
+export const editSettings = {
+  allowEditing: true,
+  allowAdding: true,
+  allowDeleting: true,
+  newRowPosition: 'Top'
+}
 export default Table

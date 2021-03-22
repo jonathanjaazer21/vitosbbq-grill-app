@@ -25,6 +25,12 @@ export const schedulerComponentSlice = createSlice({
       dataSource.push(action.payload)
       state.dataSource = dataSource
     },
+    removeSchedule: (state, action) => {
+      const dataSource = state.dataSource.filter(
+        data => data._id !== action.payload._id
+      )
+      state.dataSource = dataSource
+    },
     setBranchColors: (state, action) => {
       const { payload } = action
       state.branchColors[payload.branch] = payload.color
@@ -38,6 +44,7 @@ export const schedulerComponentSlice = createSlice({
 export const {
   setSchedules,
   updateSchedules,
+  removeSchedule,
   setBranchColors,
   clearSchedules
 } = schedulerComponentSlice.actions

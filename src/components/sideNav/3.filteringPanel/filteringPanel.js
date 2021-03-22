@@ -3,14 +3,22 @@ import fields from 'components/fields'
 import classes from './filteringPanel.module.css'
 import { DATE_PICKER, DROP_DOWN_LIST } from 'components/fields/types'
 import {
-  BC,
-  BC_HALF,
+  BCJ_1,
+  BCJ_2,
+  BCJ_4,
+  BC_2,
+  BC_4,
   BRANCH,
+  CH_12,
+  CH_8,
   DATE_END,
   DATE_START,
-  EIGHT,
+  FBC_4,
+  FCH_12,
+  FCH_8,
+  JV_2,
+  JV_4,
   LABELS,
-  TWELVE,
   _ID
 } from 'components/SchedulerComponent/orderSlip/types'
 import Animate, { FadeInLeft } from 'animate-css-styled-components'
@@ -28,7 +36,11 @@ const normalizeHour = date => {
     const hour = dateArray[0] - 12
     return `${hour}:${dateArray[1]} PM`
   } else {
-    return `${dateArray[0]}:${dateArray[1]} AM`
+    if (parseInt(dateArray[0]) === 12) {
+      return `${dateArray[0]}:${dateArray[1]} PM`
+    } else {
+      return `${dateArray[0]}:${dateArray[1]} AM`
+    }
   }
 }
 
@@ -51,30 +63,46 @@ const sumUp = filteredData => {
     if (isExist) {
       const _newFilteredObj = { ...newFilteredData[_index] }
       newFilteredData.splice(_index, 1)
-      _newFilteredObj[EIGHT] =
-        parseInt(_newFilteredObj[EIGHT]) + parseInt(obj[EIGHT])
-      _newFilteredObj[TWELVE] =
-        parseInt(_newFilteredObj[TWELVE]) + parseInt(obj[TWELVE])
-      _newFilteredObj[BC] = parseInt(_newFilteredObj[BC]) + parseInt(obj[BC])
-      _newFilteredObj[BC_HALF] =
-        parseInt(_newFilteredObj[BC_HALF]) + parseInt(obj[BC_HALF])
+      _newFilteredObj[CH_8] =
+        parseInt(_newFilteredObj[CH_8]) + parseInt(obj[CH_8])
+      _newFilteredObj[CH_12] =
+        parseInt(_newFilteredObj[CH_12]) + parseInt(obj[CH_12])
+      _newFilteredObj[BC_2] =
+        parseInt(_newFilteredObj[BC_2]) + parseInt(obj[BC_2])
+      _newFilteredObj[BC_4] =
+        parseInt(_newFilteredObj[BC_4]) + parseInt(obj[BC_4])
+      _newFilteredObj[JV_4] =
+        parseInt(_newFilteredObj[JV_4]) + parseInt(obj[JV_4])
+      _newFilteredObj[JV_2] =
+        parseInt(_newFilteredObj[JV_2]) + parseInt(obj[JV_2])
+      _newFilteredObj[BCJ_4] =
+        parseInt(_newFilteredObj[BCJ_4]) + parseInt(obj[BCJ_4])
+      _newFilteredObj[BCJ_2] =
+        parseInt(_newFilteredObj[BCJ_2]) + parseInt(obj[BCJ_2])
+      _newFilteredObj[BCJ_1] =
+        parseInt(_newFilteredObj[BCJ_1]) + parseInt(obj[BCJ_1])
       newFilteredData.push(_newFilteredObj)
     } else {
       newFilteredData.push({
         [DATE_START]: obj[DATE_START],
         [DATE_END]: obj[DATE_END],
-        [EIGHT]: obj[EIGHT],
-        [TWELVE]: obj[TWELVE],
-        [BC]: obj[BC],
-        [BC_HALF]: obj[BC_HALF],
-        [BRANCH]: obj[BRANCH]
+        [CH_8]: obj[CH_8],
+        [CH_12]: obj[CH_12],
+        [BC_2]: obj[BC_2],
+        [BC_4]: obj[BC_4],
+        [JV_4]: obj[JV_4],
+        [JV_2]: obj[JV_2],
+        [BCJ_4]: obj[BCJ_4],
+        [BCJ_2]: obj[BCJ_2],
+        [BCJ_1]: obj[BCJ_1],
+        [BRANCH]: obj[BRANCH] // this to identify the color of panel
       })
     }
   }
   return newFilteredData
 }
 
-function FilteringPanel ({ isToggled }) {
+function FilteringPanel({ isToggled }) {
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
   const [branchValue, setBranchValue] = useState(DROPDOWN_DATAS[BRANCH][0])
@@ -118,6 +146,7 @@ function FilteringPanel ({ isToggled }) {
           {fields[DATE_PICKER]({
             name: DATE_PICKER,
             value: dateValue,
+            disabled: false,
             label: 'Date',
             onChange: e => {
               setDateValue(e.target.value)
@@ -137,20 +166,40 @@ function FilteringPanel ({ isToggled }) {
           const endTime = data[DATE_END]?.toString().split(' ')
           const chips = [
             {
-              label: LABELS[EIGHT],
-              value: data[EIGHT]
+              label: LABELS[CH_8],
+              value: data[CH_8]
             },
             {
-              label: LABELS[TWELVE],
-              value: data[TWELVE]
+              label: LABELS[CH_12],
+              value: data[CH_12]
             },
             {
-              label: LABELS[BC],
-              value: data[BC]
+              label: LABELS[BC_2],
+              value: data[BC_2]
             },
             {
-              label: LABELS[BC_HALF],
-              value: data[BC_HALF]
+              label: LABELS[BC_4],
+              value: data[BC_4]
+            },
+            {
+              label: LABELS[JV_4],
+              value: data[JV_4]
+            },
+            {
+              label: LABELS[JV_2],
+              value: data[JV_2]
+            },
+            {
+              label: LABELS[BCJ_4],
+              value: data[BCJ_4]
+            },
+            {
+              label: LABELS[BCJ_2],
+              value: data[BCJ_2]
+            },
+            {
+              label: LABELS[BCJ_1],
+              value: data[BCJ_1]
             }
           ]
 
@@ -178,10 +227,13 @@ function FilteringPanel ({ isToggled }) {
                 </div>
                 <div className={classes.chips}>
                   <div>
-                    <div>{`${chips[0].label}: ${chips[0].value}`}</div>
-                    <div>{`${chips[1].label}: ${chips[1].value}`}</div>
+                    {chips.map((chip, index) => (
+                      <div key={index}>{`${chip.label}: ${chip.value}`}</div>
+                    ))}
+
+                    {/* <div>{`${chips[1].label}: ${chips[1].value}`}</div>
                     <div>{`${chips[2].label}: ${chips[2].value}`}</div>
-                    <div>{`${chips[3].label}: ${chips[3].value}`}</div>
+                    <div>{`${chips[3].label}: ${chips[3].value}`}</div> */}
                   </div>
                 </div>
               </div>

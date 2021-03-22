@@ -1,0 +1,5 @@
+.e-popup.e-popup-open.e-dialog {
+  width: 600px !important;
+  height: 600px !important;
+  max-height: 600px !important;
+}

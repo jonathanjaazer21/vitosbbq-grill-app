@@ -8,6 +8,7 @@ function DatePicker (props) {
       format='MM/dd/yy'
       value={props.value}
       onChange={props?.onChange}
+      disabled={props.disabled}
     />
   )
 }

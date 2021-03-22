@@ -1,12 +1,25 @@
 .containerBlock {
+  flex-basis: 50%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  width: 100%;
 }
+
+.block {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.block > div {
+  width: 95%;
+}
+
 .containerBlock > div {
-  width: 100%;
+  width: 95%;
 }
 .containerInline {
   display: flex;
@@ -24,6 +37,7 @@
 .description {
   margin-top: 1rem;
   display: flex;
+  align-items: center;
   width: 100%;
-  justify-content: space-evenly;
+  justify-content: flex-end;
 }

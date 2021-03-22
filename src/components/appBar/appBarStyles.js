@@ -19,7 +19,7 @@ export const Wrapper = styled.nav`
   display: flex;
   padding: 0.5rem 1rem;
   background-color: ${props =>
-    props.isToggled ? 'transparent' : props.theme.backgroundColor};
+    props.isToggled ? props.theme.primaryColor : props.theme.backgroundColor};
   align-items: center;
   transition: background-color 1s ease-in-out;
 
@@ -29,12 +29,13 @@ export const Wrapper = styled.nav`
 `
 export const Menu = styled.div`
   display: flex;
-  align-items: center;
   flex: 1;
   margin-left: 1rem;
+  margin-top:.7rem;
 `
 
 export const Item = styled.p`
+  display:flex;
   padding: 0rem 0.5rem;
   color: ${({ isActive, theme, isToggled }) =>
     isActive ? theme.active : theme.whiteText};

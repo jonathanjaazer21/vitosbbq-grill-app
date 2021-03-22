@@ -11,7 +11,7 @@ export const TableSlice = createSlice({
     setTable: (state, action) => {
       const { payload } = action
       const dataList = [...state.dataList]
-      for (const obj of payload.branches) {
+      for (const obj of payload.rows) {
         const isExist = dataList.some(({ _id }) => _id === obj._id)
         !isExist && dataList.push(obj)
       }
@@ -20,6 +20,9 @@ export const TableSlice = createSlice({
     },
     updateTable: (state, action) => {
       const { payload } = action
+      const newDataList = state.dataList.filter(row => row._id !== payload.id)
+      newDataList.push(payload.data)
+      state.dataList = newDataList
     },
     deleteTable: (state, action) => {
       const { payload } = action
@@ -36,6 +39,6 @@ export const TableSlice = createSlice({
   }
 })
 
-export const { setTable, clearTable, deleteTable } = TableSlice.actions
+export const { updateTable, setTable, clearTable, deleteTable } = TableSlice.actions
 export const selectTableSlice = state => state[TABLE_COMPONENT]
 export default TableSlice.reducer
