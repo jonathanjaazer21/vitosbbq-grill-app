@@ -18,7 +18,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux'
 import { selectSideNav } from 'components/sideNav/sideNavSlice'
 
-function AppBar ({ isToggled, toggle }) {
+function AppBar({ isToggled, toggle }) {
   const dispatch = useDispatch()
   const sideNavSlice = useSelector(selectSideNav)
   const user = useSelector(selectUserSlice)

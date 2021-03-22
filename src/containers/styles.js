@@ -6,7 +6,6 @@ export const Wrapper = styled.div`
 
 export const Container = styled.div`
   width: 100%;
-  background-color: ${props => props.theme.primaryColor};
 `
 
 export const RightContent = styled.div`

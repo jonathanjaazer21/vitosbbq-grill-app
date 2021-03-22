@@ -8,6 +8,9 @@ import { useDispatch } from 'react-redux'
 import { setAccountInfo } from 'containers/0.login/loginSlice'
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import Backdrop from 'components/backdrop'
+import PaymentTransaction from 'containers/1.payment_transaction'
+import 'antd/dist/antd.css'
+import DropdownMasterfile from 'containers/4.dropdown_masterfile'
 
 function App () {
   const dispatch = useDispatch()
@@ -20,7 +23,7 @@ function App () {
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
-        var uid = user.uid
+        const uid = user.uid
         dispatch(setAccountInfo(user))
         setIsLoggedIn(true)
         setIsLoading(false)
@@ -41,8 +44,14 @@ function App () {
     return (
       <Router>
         <Switch>
+          <Route exact path='/'>
+            <GrillReservation />
+          </Route>
           <Route path='/dashboard/grillReservation'>
             <GrillReservation />
+          </Route>
+          <Route path='/dashboard/paymentTransaction'>
+            <PaymentTransaction />
           </Route>
           <Route path='/masterData/userMasterFile'>
             <UserMasterfile />
@@ -50,8 +59,8 @@ function App () {
           <Route path='/masterData/branchMasterFile'>
             <BranchMasterfile />
           </Route>
-          <Route exact path='/'>
-            <GrillReservation />
+          <Route path='/masterData/dropdownMasterfile'>
+            <DropdownMasterfile />
           </Route>
           <Route path='*'>
             <div>Invalid url</div>

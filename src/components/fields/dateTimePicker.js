@@ -10,6 +10,7 @@ function DateTimePicker (props) {
       value={new Date(props.default)}
       className='e-field'
       onChange={props?.onChange}
+      disabled={props.disabled}
     />
   )
 }

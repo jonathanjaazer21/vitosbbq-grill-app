@@ -10,7 +10,7 @@ import {
   MASTER_DATA,
   USER_MASTERFILE
 } from 'components/sideNav/2.menu/menuData'
-import Table from 'components/Table'
+import Table, { toolbarOptions, editSettings } from 'components/Table'
 import { clearTable, setTable } from 'components/Table/tableSlice'
 
 function UserMasterfile () {
@@ -18,7 +18,7 @@ function UserMasterfile () {
   const [toggle, setToggle] = useState(true)
 
   useEffect(() => {
-    const branches = []
+    const rows = []
     const headers = [
       {
         field: 'email',
@@ -38,7 +38,7 @@ function UserMasterfile () {
       }
     ]
     dispatch(navigateTo([MASTER_DATA, USER_MASTERFILE]))
-    dispatch(setTable({ headers, branches }))
+    dispatch(setTable({ headers, rows }))
     return () => {
       dispatch(clearTable())
     }
@@ -50,7 +50,7 @@ function UserMasterfile () {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={['1s']} delay={['0.2s']}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
-            <Table />
+            <Table toolbar={toolbarOptions} editSettings={editSettings} />
           </Animate>
         </RightContent>
       </Container>

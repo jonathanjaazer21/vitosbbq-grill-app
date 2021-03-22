@@ -16,7 +16,8 @@ import {
   updateSchedules,
   setSchedules,
   clearSchedules,
-  setBranchColors
+  setBranchColors,
+  removeSchedule
 } from './schedulerComponentSlice'
 import { useSelector, useDispatch } from 'react-redux'
 import schedulerSchema from './schedulerSchema'
@@ -30,15 +31,19 @@ import {
   BRANCH,
   CONTACT_NUMBER,
   EIGHT,
+  ORDER_NO,
   TWELVE,
   _ID
 } from 'components/SchedulerComponent/orderSlip/types'
 import { DROPDOWN_DATAS } from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
 import identifyDateRange, { getDaysInMonthUTC } from './identifyDateRange'
 import Backdrop from 'components/backdrop'
+import { selectOrderComponentSlice } from 'components/SchedulerComponent/orderSlip/orderSlipSlice'
 
+import './app.component.css'
 function SchedulerComponent ({ setLoading }) {
   const dispatch = useDispatch()
+  const selectOrderSlice = useSelector(selectOrderComponentSlice)
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
 
@@ -66,8 +71,11 @@ function SchedulerComponent ({ setLoading }) {
             }
             schedules.push(newData)
             // dispatch(setSchedules(newData))
+          } else if (obj.type === 'removed') {
+            const _id = obj.doc.id
+            dispatch(removeSchedule({ _id: _id }))
           } else {
-            console.log('nothing')
+            console.log('nothing', obj.type)
           }
         }
         if (schedules.length > 0) {
@@ -113,7 +121,9 @@ function SchedulerComponent ({ setLoading }) {
         id: args.data[_ID]
       })
     } else if (args.requestType === 'eventCreate') {
-      const dataToBeSend = schedulerSchema(args.addedRecords[0])
+      const data = args.addedRecords[0]
+      const orderNo = data?.branch ? selectOrderSlice[data[BRANCH]] : selectOrderSlice.Libis
+      const dataToBeSend = schedulerSchema({ ...data, [ORDER_NO]: orderNo })
       addData({
         data: dataToBeSend,
         collection: SCHEDULES
@@ -146,11 +156,21 @@ function SchedulerComponent ({ setLoading }) {
   }
 
   const onPopUpOpen = args => {
-    if (args.type === 'Editor') {
-      for (const key in DROPDOWN_DATAS) {
-        const element = args.element.querySelector(`#${key}`)
-        element.setAttribute('value', DROPDOWN_DATAS[key][0])
+    const { data } = args
+    const header = args.element.querySelector('.e-title-text')
+    if (header) {
+      if (data?.orderNo) {
+        header.innerHTML = 'Update Order'
+      } else {
+        header.innerHTML = 'New Order'
       }
+    }
+
+    if (args.type === 'Editor') {
+      // for (const key in DROPDOWN_DATAS) {
+      //   const element = args.element.querySelector(`#${key}`)
+      //   element.setAttribute('value', DROPDOWN_DATAS[key][0])
+      // }
     }
   }
 
@@ -161,15 +181,16 @@ function SchedulerComponent ({ setLoading }) {
   return (
     <>
       <ScheduleComponent
-        startHour='08:00'
-        endHour='20:00'
+        startHour='10:00'
+        endHour='19:00'
         editorTemplate={OrderSlip}
         eventSettings={eventSettings}
         actionBegin={onActionBegin}
         navigating={onNavigation}
         eventRendered={onEventRendered}
         popupOpen={onPopUpOpen}
-        height={'92vh'}
+        height='92vh'
+        width='100%'
       >
         <ViewsDirective>
           <ViewDirective option='Week' />
