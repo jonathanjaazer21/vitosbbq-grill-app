@@ -3,63 +3,27 @@ import fields from 'components/fields'
 import orderSlipConfig from './orderSlipConfig'
 import classes from './orderSlip.module.css'
 import GrillMenus from './grillMenus'
+import { TextBoxComponent } from '@syncfusion/ej2-react-inputs'
 
 import {
-  CH_8,
-  CH_12,
-  BC_2,
-  BC_4,
-  JV_4,
-  JV_2,
-  BCJ_4,
-  BCJ_2,
-  BCJ_1,
-  FCH_8,
-  FCH_12,
-  FBC_4,
-  ATCHARA,
-  BC_SAUCE,
-  SPICED_VINEGAR,
-  BASTING_SAUCE,
-  CHILI_OIL,
-  REPAER,
-  BAO,
-  ORDER_NO
+  LABELS,
+  ORDER_NO, ORDER_VIA, PARTNER_MERCHANT_ORDER_NO
 } from 'components/SchedulerComponent/orderSlip/types'
 import { useDispatch, useSelector } from 'react-redux'
 import { setOrderNo, clearOrderNos } from './orderSlipSlice'
 import { selectSchedulerComponentSlice } from '../schedulerComponentSlice'
 import orderNoDate from './orderNoDate'
 import { useGetDropdowns } from '../dropdowns'
+import { DROP_DOWN_LIST, INPUT } from 'components/fields/types'
+import { useGetDropdownGroup } from 'components/dropdowns/useDropdownGroup'
+import Input from 'components/fields/input'
 
-export const menu = [
-  CH_8,
-  CH_12,
-  BC_2,
-  BC_4,
-  JV_4,
-  JV_2,
-  BCJ_4,
-  BCJ_2,
-  BCJ_1,
-  FCH_8,
-  FCH_12,
-  FBC_4,
-  ATCHARA,
-  BC_SAUCE,
-  SPICED_VINEGAR,
-  BASTING_SAUCE,
-  CHILI_OIL,
-  REPAER,
-  BAO
-]
-
-function OrderSlip (props) {
+function OrderSlip(props) {
   const selectSchedulerComponent = useSelector(selectSchedulerComponentSlice)
   const dropdowns = useGetDropdowns()
+  const [groupDropdowns] = useGetDropdownGroup('orderVia')
   const { dataSource } = selectSchedulerComponent
   const dispatch = useDispatch()
-
   useEffect(() => {
     countLibis()
     countRonac()
@@ -91,12 +55,37 @@ function OrderSlip (props) {
     ? <div className={classes.container}>
       {orderSlipConfig.map(customProps => {
         const dataSource = typeof dropdowns[customProps.name] === 'undefined' ? [] : dropdowns[customProps.name]
-        if (!menu.includes(customProps.name)) {
-          return fields[customProps.type]({ ...props, ...customProps, dataSource })
+        const optionalProps = {}
+        if (customProps.type === DROP_DOWN_LIST) {
+          customProps.value = props[customProps?.name]
         }
+        const isGroupExist = groupDropdowns.some(group => group.name === customProps.name)
+
+        // this is optional triggered when the group of particular dropdown document exist in the database
+        if (isGroupExist) {
+          const result = groupDropdowns.find(group => group.name === customProps.name)
+          const dataSource = []
+          for (const key in result) {
+            if (key === '_id' || key === 'name') {
+            } else {
+              for (const value of result[key]) {
+                dataSource.push({
+                  Category: key,
+                  Value: value,
+                  Id: `${key}-col-${value}`
+                })
+              }
+            }
+          }
+
+          optionalProps.isGrouped = true
+          optionalProps.field = { groupBy: 'Category', text: 'Value', value: 'Id' }
+          optionalProps.dataSource = [...dataSource]
+        }
+        return fields[customProps.type]({ ...props, ...customProps, dataSource, ...optionalProps })
       })}
-      <GrillMenus orderSlipConfig={orderSlipConfig} data={props} menu={[...menu]} />
-      </div>
+      <GrillMenus {...props} />
+    </div>
     : <></>
 }
 

@@ -1,4 +1,4 @@
-import { ACCOUNT_NAME, BRANCH, CONTACT_NUMBER, CUSTOMER, DATE_END, DATE_ORDER_PLACED, DATE_START, INDICATE_REASON, LABELS, ORDER_NO, ORDER_VIA, STATUS } from 'components/SchedulerComponent/orderSlip/types'
+import { ACCOUNT_NAME, BRANCH, CONTACT_NUMBER, CUSTOMER, DATE_END, DATE_ORDER_PLACED, DATE_START, INDICATE_REASON, LABELS, MENU_GROUP_HEADERS, ORDER_NO, ORDER_VIA, STATUS } from 'components/SchedulerComponent/orderSlip/types'
 import React, { useEffect, useState } from 'react'
 import { SCHEDULES } from 'services/collectionNames'
 import db from 'services/firebase'
@@ -9,18 +9,22 @@ import { BiArrowBack } from 'react-icons/bi'
 import calculateSubTotal from 'commonFunctions/calculateSubTotal'
 import getAmount from 'commonFunctions/getAmount'
 import { Paymentform } from './paymentForm'
+import orderSlipConfig from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
+import { DESCRIPTION } from 'components/fields/types'
+import { useGetProducts } from 'components/products/useGetProducts'
 
 const formatDateFromFirebase = date => {
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
 }
 export default function PaymentDetails (props) {
+  const [products] = useGetProducts()
   const [data, setData] = useState({})
   const [totals, setTotals] = useState([])
   const [subTotal, setSubTotal] = useState(0)
   const [qty, setQty] = useState(0)
   useEffect(() => {
     loadData(props?.id)
-  }, [props?.id])
+  }, [props?.id, products])
 
   const loadData = (id) => {
     db.collection(SCHEDULES).doc(id)
@@ -30,8 +34,10 @@ export default function PaymentDetails (props) {
           const firebaseData = doc.data()
           setData({ ...firebaseData })
           const totals = {}
-          for (const field of menu) {
-            totals[field] = { qty: firebaseData[field], price: getAmount(field) }
+          for (const obj of products) {
+            for (const product of obj.productList) {
+              totals[product?.code] = { qty: firebaseData[product?.code], price: product?.price, description: product?.description }
+            }
           }
           setTotals({
             ...totals
@@ -62,7 +68,6 @@ export default function PaymentDetails (props) {
     }
     return fieldData
   }
-
   return (
     <Wrapper>
       <Actions>
@@ -77,7 +82,7 @@ export default function PaymentDetails (props) {
             <div>
               {data && [
                 [ORDER_NO, BRANCH],
-                [ACCOUNT_NAME, CONTACT_NUMBER],
+                [CUSTOMER, CONTACT_NUMBER],
                 [DATE_ORDER_PLACED, ORDER_VIA],
                 [DATE_START, DATE_END]].map((fieldName, index) => {
                 return (
@@ -98,13 +103,16 @@ export default function PaymentDetails (props) {
               <table style={{ width: '100%' }}>
                 <tr style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', backgroundColor: 'pink', padding: '.5rem .5rem' }}>
                   <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
-                    Menu
+                    Code
                   </th>
                   <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
-                    Qty
+                    Product
                   </th>
                   <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
                     Price
+                  </th>
+                  <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
+                    Qty
                   </th>
                   <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
                     Amount
@@ -115,13 +123,16 @@ export default function PaymentDetails (props) {
                     ? (
                       <tr key={index} style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', padding: '.5rem .5rem' }}>
                         <td style={{ flex: '1' }}>
-                          {LABELS[total]}
+                          {total}
                         </td>
-                        <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
-                          {totals[total]?.qty}
+                        <td style={{ flex: '1' }}>
+                          {totals[total]?.description}
                         </td>
                         <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
                           {totals[total]?.price}
+                        </td>
+                        <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
+                          {totals[total]?.qty}
                         </td>
                         <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
                           {(parseInt(totals[total]?.qty) * parseInt(totals[total]?.price)).toFixed(2)}
@@ -137,10 +148,11 @@ export default function PaymentDetails (props) {
                   <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
                     Total
                   </th>
-                  <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
+                  <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }} />
+                  <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }} />
+                  <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
                     {qty}
                   </th>
-                  <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }} />
                   <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
                     {subTotal}
                   </th>

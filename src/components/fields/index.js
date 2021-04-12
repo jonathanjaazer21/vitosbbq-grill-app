@@ -1,6 +1,7 @@
 import DateTimePicker from './dateTimePicker'
 import DropdownList from './dropdownList'
 import Input from './input'
+import TextArea from './textArea'
 import {
   CHIPS,
   DATE_PICKER,
@@ -9,7 +10,8 @@ import {
   DROP_DOWN_LIST,
   HIDDEN,
   INPUT,
-  NUMBER
+  NUMBER,
+  TEXT_AREA
 } from './types'
 import classes from './index.module.css'
 import Chips from './chips'
@@ -86,9 +88,9 @@ const DescriptionComponent = props => {
                 style={
                   index >= 2
                     ? {
-                        display: 'flex',
-                        justifyContent: 'flex-end'
-                      }
+                      display: 'flex',
+                      justifyContent: 'flex-end'
+                    }
                     : {}
                 }
               >
@@ -139,8 +141,15 @@ const fields = {
   },
   [INPUT]: props => {
     return (
-      <RenderComponent {...props}>
+      <RenderComponent label={props?.label} isInline={props?.isInline} isInlineBlock={props?.isInlineBlock}>
         <Input {...props} />
+      </RenderComponent>
+    )
+  },
+  [TEXT_AREA]: props => {
+    return (
+      <RenderComponent {...props}>
+        <TextArea {...props} />
       </RenderComponent>
     )
   },

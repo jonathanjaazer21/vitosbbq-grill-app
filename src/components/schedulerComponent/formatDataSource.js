@@ -24,10 +24,14 @@ import {
   SPICED_VINEGAR,
   BC_SAUCE,
   ATCHARA,
-  BASTING_SAUCE
+  BASTING_SAUCE,
+  DELIVERY_DATE
 } from 'components/SchedulerComponent/orderSlip/types'
 
 export const formatDate = date => {
+  if (date === null) {
+    return ''
+  }
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
 }
 export default function (dataSource) {
@@ -36,30 +40,32 @@ export default function (dataSource) {
     const startTime = obj[DATE_START]
     const endTime = obj[DATE_END]
     const dateOrder = obj[DATE_ORDER_PLACED]
+    const deliveryDate = obj[DELIVERY_DATE]
     newDataSource.push({
       ...obj,
       [DATE_START]: formatDate(startTime),
       [DATE_END]: formatDate(endTime),
       [DATE_ORDER_PLACED]: formatDate(dateOrder),
-      [CH_8]: obj[CH_8].toString(),
-      [CH_12]: obj[CH_12].toString(),
-      [BC_2]: obj[BC_2].toString(),
-      [BC_4]: obj[BC_4].toString(),
-      [JV_4]: obj[JV_4].toString(),
-      [JV_2]: obj[JV_2].toString(),
-      [BCJ_4]: obj[BCJ_4].toString(),
-      [BCJ_2]: obj[BCJ_2].toString(),
-      [BCJ_1]: obj[BCJ_1].toString(),
-      [FCH_8]: obj[FCH_8].toString(),
-      [FCH_12]: obj[FCH_12].toString(),
-      [FBC_4]: obj[FBC_4].toString(),
-      [ATCHARA]: obj[ATCHARA].toString(),
-      [BC_SAUCE]: obj[BC_SAUCE].toString(),
-      [SPICED_VINEGAR]: obj[SPICED_VINEGAR].toString(),
-      [BASTING_SAUCE]: obj[BASTING_SAUCE].toString(),
-      [CHILI_OIL]: obj[CHILI_OIL].toString(),
-      [REPAER]: obj[REPAER].toString(),
-      [BAO]: obj[BAO].toString(),
+      [DELIVERY_DATE]: formatDate(deliveryDate)
+      // [CH_8]: obj[CH_8].toString(),
+      // [CH_12]: obj[CH_12].toString(),
+      // [BC_2]: obj[BC_2].toString(),
+      // [BC_4]: obj[BC_4].toString(),
+      // [JV_4]: obj[JV_4].toString(),
+      // [JV_2]: obj[JV_2].toString(),
+      // [BCJ_4]: obj[BCJ_4].toString(),
+      // [BCJ_2]: obj[BCJ_2].toString(),
+      // [BCJ_1]: obj[BCJ_1].toString(),
+      // [FCH_8]: obj[FCH_8].toString(),
+      // [FCH_12]: obj[FCH_12].toString(),
+      // [FBC_4]: obj[FBC_4].toString(),
+      // [ATCHARA]: obj[ATCHARA].toString(),
+      // [BC_SAUCE]: obj[BC_SAUCE].toString(),
+      // [SPICED_VINEGAR]: obj[SPICED_VINEGAR].toString(),
+      // [BASTING_SAUCE]: obj[BASTING_SAUCE].toString(),
+      // [CHILI_OIL]: obj[CHILI_OIL].toString(),
+      // [REPAER]: obj[REPAER].toString(),
+      // [BAO]: obj[BAO].toString(),
     })
   }
   return newDataSource

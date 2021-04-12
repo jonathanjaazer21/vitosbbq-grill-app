@@ -32,6 +32,8 @@ import {
   CONTACT_NUMBER,
   EIGHT,
   ORDER_NO,
+  ORDER_VIA,
+  PARTNER_MERCHANT_ORDER_NO,
   TWELVE,
   _ID
 } from 'components/SchedulerComponent/orderSlip/types'
@@ -41,7 +43,9 @@ import Backdrop from 'components/backdrop'
 import { selectOrderComponentSlice } from 'components/SchedulerComponent/orderSlip/orderSlipSlice'
 
 import './app.component.css'
+import { useGetDropdowns } from './dropdowns'
 function SchedulerComponent ({ setLoading }) {
+  const dropdowns = useGetDropdowns()
   const dispatch = useDispatch()
   const selectOrderSlice = useSelector(selectOrderComponentSlice)
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
@@ -115,6 +119,7 @@ function SchedulerComponent ({ setLoading }) {
   const onActionBegin = args => {
     if (args.requestType === 'eventChange') {
       const dataToBeSend = schedulerSchema(args.data)
+      delete dataToBeSend.RecurrenceRule
       updateData({
         data: { ...dataToBeSend },
         collection: SCHEDULES,
@@ -124,16 +129,17 @@ function SchedulerComponent ({ setLoading }) {
       const data = args.addedRecords[0]
       const orderNo = data?.branch ? selectOrderSlice[data[BRANCH]] : selectOrderSlice.Libis
       const dataToBeSend = schedulerSchema({ ...data, [ORDER_NO]: orderNo })
-      addData({
+      delete dataToBeSend.RecurrenceRule
+      const result = addData({
         data: dataToBeSend,
-        collection: SCHEDULES
+        collection: SCHEDULES,
+        id: null
       })
     } else if (args.requestType === 'eventRemove') {
       const { deletedRecords } = args
-
       deleteData({ id: deletedRecords[0]._id, collection: SCHEDULES })
     } else {
-      console.log('other action is triggered', args)
+      console.log('other action is triggered')
     }
   }
 
@@ -150,14 +156,19 @@ function SchedulerComponent ({ setLoading }) {
   }
 
   const { branchColors } = schedulerComponentSlice
-  const onEventRendered = args => {
+  const onEventRendered = (args, branchDropdown) => {
     const { element, data } = args
     element.style.background = branchColors[data[BRANCH]]
+    if (!branchDropdown.includes(data[BRANCH])) {
+      element.hidden = true
+    }
   }
 
-  const onPopUpOpen = args => {
+  const onPopUpOpen = (args) => {
     const { data } = args
     const header = args.element.querySelector('.e-title-text')
+    const partnerMerchant = args.element.querySelector(`#${PARTNER_MERCHANT_ORDER_NO}`)
+    const orderVia = args.element.querySelector('#orderVia_hidden')
     if (header) {
       if (data?.orderNo) {
         header.innerHTML = 'Update Order'
@@ -165,12 +176,12 @@ function SchedulerComponent ({ setLoading }) {
         header.innerHTML = 'New Order'
       }
     }
-
     if (args.type === 'Editor') {
-      // for (const key in DROPDOWN_DATAS) {
-      //   const element = args.element.querySelector(`#${key}`)
-      //   element.setAttribute('value', DROPDOWN_DATAS[key][0])
-      // }
+      args.element.onkeyup = (e) => {
+        if (!orderVia.value?.includes('Partner Merchant')) {
+          partnerMerchant.value = ''
+        }
+      }
     }
   }
 
@@ -180,26 +191,30 @@ function SchedulerComponent ({ setLoading }) {
 
   return (
     <>
-      <ScheduleComponent
-        startHour='10:00'
-        endHour='19:00'
-        editorTemplate={OrderSlip}
-        eventSettings={eventSettings}
-        actionBegin={onActionBegin}
-        navigating={onNavigation}
-        eventRendered={onEventRendered}
-        popupOpen={onPopUpOpen}
-        height='92vh'
-        width='100%'
-      >
-        <ViewsDirective>
-          <ViewDirective option='Week' />
-          <ViewDirective option='Month' />
-          <ViewDirective option='Agenda' />
-        </ViewsDirective>
-        <Inject services={[Week, Month, Agenda, DragAndDrop, Resize]} />
-      </ScheduleComponent>
+      {
+        dropdowns[BRANCH].length > 0 &&
+          <ScheduleComponent
+          startHour='10:00'
+          endHour='19:00'
+          editorTemplate={OrderSlip}
+          eventSettings={eventSettings}
+          actionBegin={onActionBegin}
+          navigating={onNavigation}
+          eventRendered={(args) => onEventRendered(args, dropdowns[BRANCH])}
+          popupOpen={onPopUpOpen}
+          height='92vh'
+          width='100%'
+        >
+          <ViewsDirective>
+            <ViewDirective option='Week' />
+            <ViewDirective option='Month' />
+            <ViewDirective option='Agenda' />
+          </ViewsDirective>
+          <Inject services={[Week, Month, Agenda, DragAndDrop, Resize]} />
+        </ScheduleComponent>
+      }
     </>
+
   )
 }
 

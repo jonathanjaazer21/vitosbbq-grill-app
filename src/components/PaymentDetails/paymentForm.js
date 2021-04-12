@@ -11,8 +11,9 @@ import { updateData } from 'services'
 import { useSelector } from 'react-redux'
 import { selectTableSlice } from 'components/Table/tableSlice'
 import { useGetDropdowns } from 'components/PaymentDetails/dropdowns'
+import { Uploads } from 'components/uploads'
 
-export function Paymentform (props) {
+export function Paymentform(props) {
   const tableSlice = useSelector(selectTableSlice)
   const [others, setOthers] = useState({ 'Senior Citizen': 0 })
   const [formFields, setFormFields] = useState({})
@@ -25,55 +26,22 @@ export function Paymentform (props) {
     const newOthers = {}
     const { dataList } = tableSlice
     const data = dataList.find(row => row._id === props?.id)
-    for (const obj of config) {
+    // this is only for dropdowns
+    for (const obj of dropdowns) {
       newFormFields[obj?.name] = typeof data[obj?.name] !== 'undefined' ? data[obj?.name] : ''
     }
+
     for (const key in data.others) {
       newOthers[key] = data.others[key]
     }
     setOthers(newOthers)
     setFormFields(newFormFields)
     calculateBalance()
-  }, [props?.subTotal, props?.id])
+  }, [props?.subTotal, props?.id, dropdowns])
 
   useEffect(() => {
     calculateBalance()
   }, [others, formFields[AMOUNT_PAID]])
-  const config = [
-    {
-      name: DATE_PAYMENT,
-      type: DATE_PICKER,
-      label: PAYMENT_LABELS[DATE_PAYMENT]
-    },
-    {
-      name: MODE_PAYMENT,
-      type: DROP_DOWN_LIST,
-      label: PAYMENT_LABELS[MODE_PAYMENT],
-      dataSource: dropdowns[MODE_PAYMENT]
-    },
-    {
-      name: SOURCE,
-      type: DROP_DOWN_LIST,
-      label: PAYMENT_LABELS[SOURCE],
-      dataSource: dropdowns[SOURCE]
-    },
-    {
-      name: REF_NO,
-      type: INPUT,
-      label: PAYMENT_LABELS[REF_NO]
-    },
-    {
-      name: ACCOUNT_NUMBER,
-      type: DROP_DOWN_LIST,
-      label: PAYMENT_LABELS[ACCOUNT_NUMBER],
-      dataSource: dropdowns[ACCOUNT_NUMBER]
-    },
-    {
-      name: AMOUNT_PAID,
-      type: NUMBER,
-      label: PAYMENT_LABELS[AMOUNT_PAID]
-    }
-  ]
 
   const calculateBalance = () => {
     const amountPaid = formFields[AMOUNT_PAID]
@@ -111,23 +79,39 @@ export function Paymentform (props) {
   }
 
   const handleSubmit = () => {
+    const d = new Date(formFields[DATE_PAYMENT])
+    if (Object.prototype.toString.call(d) === '[object Date]') {
+      // it is a date
+      if (isNaN(d.getTime())) { // d.valueOf() could also work
+        alert('Date is invalid')
+        // date is not valid
+        return
+      } else {
+        // date is valid
+      }
+    } else {
+      // not a date
+    }
     updateData({ data: { ...formFields, [DATE_PAYMENT]: new Date(formFields[DATE_PAYMENT]), others }, collection: SCHEDULES, id: props?.id })
     props.onBack()
   }
+
   return (
     <>
       <Wrapper>
-        {config.map(customProps => {
+        {dropdowns.map(customProps => {
           return (
             <Container key={customProps?.name}>
               {fields[customProps?.type]({
                 ...customProps,
+                // this value is applied only for dropdowns field
                 value: formFields[customProps?.name],
                 onChange: (e) => handleChangeFormFields(e, customProps?.name, customProps.type)
               })}
             </Container>
           )
         })}
+        <Uploads id={props?.id} />
         <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', padding: '1rem 0rem' }}>
           <div style={{ flex: '1' }}>Others</div>
           <div>

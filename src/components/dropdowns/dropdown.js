@@ -2,11 +2,10 @@ import fields from 'components/fields'
 import Input from 'components/fields/input'
 import { StyledDropdown, ChipContainer, Chips, Chip, ChipValue, ChipButton, Footer } from './styles'
 import { INPUT } from 'components/fields/types'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { AiOutlineCloseCircle } from 'react-icons/ai'
 import { GrAdd } from 'react-icons/gr'
 import { Button } from 'antd'
-import { useState } from 'react/cjs/react.development'
 import { updateData } from 'services'
 
 export default function Dropdown(props) {
@@ -52,7 +51,7 @@ export default function Dropdown(props) {
         name: props.name,
         list: props.list
       }
-      const collection = 'dropdowns'
+      const collection = props?.collectionName
       const id = props.id
       updateData({ data, collection, id })
     }
@@ -96,7 +95,6 @@ export default function Dropdown(props) {
         </Chips>
 
       </ChipContainer>
-
       <Footer display={!props.isEditable}>
         <Button
           size='small'

@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react'
 import { Container } from 'commonStyles'
-import { Header, Body } from './styles'
+import { Header, Body, Footer } from './styles'
 import Dropdown from './dropdown'
-import { Button } from 'antd'
+import { Button, Divider } from 'antd'
 import { addData, deleteData, getData } from 'services'
+import { Dropdowngroup } from './dropdownGroup'
+import { useGetDropdownGroup } from './useDropdownGroup'
 
-export default function Dropdowns (props) {
+export default function Dropdowns({ collectionName, withDropdownGroup }) {
   const [dropdowns, setDropdowns] = useState({})
+  const [groupDropdowns, saveGroupDropdowns] = useGetDropdownGroup('orderVia')
 
   useEffect(() => {
     loadDropdowns()
-  }, [])
+  }, [collectionName])
 
   const loadDropdowns = async () => {
-    const data = await getData('dropdowns')
+    const data = await getData(collectionName)
     const dropdownList = {}
     for (const obj of data) {
       dropdownList[obj._id] = { name: obj.name, list: [...obj.list], isEditable: false }
@@ -56,13 +59,13 @@ export default function Dropdowns (props) {
       name: '',
       list: []
     }
-    const docId = await addData({ data, collection: 'dropdowns' })
+    const docId = await addData({ data, collection: collectionName })
     setDropdowns({ ...dropdowns, [docId]: { ...data } })
   }
 
   const handleRemove = async (id) => {
     console.log('id', id)
-    const result = await deleteData({ id, collection: 'dropdowns' })
+    const result = await deleteData({ id, collection: collectionName })
     if (result === 'success') {
       const dropdownsCopy = { ...dropdowns }
       delete dropdownsCopy[id]
@@ -71,11 +74,14 @@ export default function Dropdowns (props) {
   }
   return (
     <Container>
-      <Header>
+      <Divider />
+      <h3 style={{ padding: '1rem 0 0 0' }}>Dropdowns </h3>
+      <Header display>
         <Button type='primary' danger onClick={() => handleAddDropdowns()}>Add</Button>
       </Header>
       <Body>
         {Object.keys(dropdowns).map(data => <Dropdown
+          collectionName={collectionName}
           key={data}
           id={data}
           name={dropdowns[data]?.name}
@@ -85,11 +91,35 @@ export default function Dropdowns (props) {
           handleChange={(e) => handleChange(e, data)}
           handleChangeList={(list) => handleChangeList(data, list)}
           handleRemove={() => handleRemove(data)}
-                                            />)}
+        />)}
       </Body>
-      <div>
-        footer
-      </div>
+      <Divider />
+      <h3 style={withDropdownGroup ? { padding: '1rem 0 0 0' } : { display: 'none' }}>Dropdown Groups</h3>
+      <Header display={withDropdownGroup}>
+        <Button type='primary' danger onClick={() => { }}>Add</Button>
+      </Header>
+      <Footer display={withDropdownGroup}>
+        {groupDropdowns.map(groupDropdown => {
+          const groups = []
+          for (const key in groupDropdown) {
+            if (key === '_id' || key === 'name') {
+            } else {
+              groups.push({
+                name: key,
+                values: groupDropdown[key]
+              })
+            }
+          }
+          return (
+            <Dropdowngroup
+              key={groupDropdowns.name}
+              groupName={groupDropdown.name}
+              groups={groups}
+            />
+          )
+        })}
+
+      </Footer>
     </Container>
   )
 }

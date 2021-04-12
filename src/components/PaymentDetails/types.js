@@ -11,5 +11,6 @@ export const PAYMENT_LABELS = {
   [SOURCE]: 'Source',
   [ACCOUNT_NUMBER]: 'Account Number',
   [AMOUNT_PAID]: 'Amount Paid',
+  totalAmountPaid: 'Amount Paid',
   [REF_NO]: 'Ref No'
 }

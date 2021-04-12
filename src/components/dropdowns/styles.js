@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const Header = styled.div`
-  display: flex;
+  display: ${props => props.display ? 'flex' : 'none'};
   width:100%;
 `
 
@@ -29,6 +29,13 @@ export const StyledDropdown = styled.div`
 `
 export const ChipContainer = styled.div`
   height:8rem;
+  overflow:auto;
+  width:100%;
+`
+
+export const GroupContainer = styled.div`
+  height:8rem;
+  width:100%;
   overflow:auto;
 `
 
@@ -73,7 +80,7 @@ export const ChipButton = styled.button`
 
 export const Footer = styled.div`
   display:${props => props.display ? 'flex' : 'none'};
-  justify-content: flex-end;
-  padding:1rem 0rem 0rem;
+  justify-content: flex-start;
+  padding:1rem;
   width:100%;
 `

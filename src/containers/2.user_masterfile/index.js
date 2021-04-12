@@ -12,6 +12,7 @@ import {
 } from 'components/sideNav/2.menu/menuData'
 import Table, { toolbarOptions, editSettings } from 'components/Table'
 import { clearTable, setTable } from 'components/Table/tableSlice'
+import Users from 'components/users'
 
 function UserMasterfile () {
   const dispatch = useDispatch()
@@ -50,7 +51,7 @@ function UserMasterfile () {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={['1s']} delay={['0.2s']}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
-            <Table toolbar={toolbarOptions} editSettings={editSettings} />
+            <Users />
           </Animate>
         </RightContent>
       </Container>

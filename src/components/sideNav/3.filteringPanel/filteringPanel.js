@@ -29,6 +29,9 @@ import { selectSchedulerComponentSlice } from 'components/SchedulerComponent/sch
 import { useSelector } from 'react-redux'
 import { Body, Header } from './styles'
 import formatDataSource from 'components/SchedulerComponent/formatDataSource'
+import { selectUserSlice } from 'containers/0.login/loginSlice'
+import { useGetProducts } from 'components/products/useGetProducts'
+import sortByDate from 'commonFunctions/sort'
 
 const normalizeHour = date => {
   const dateArray = date.split(':')
@@ -49,9 +52,8 @@ const getOnlyDate = dateTime => {
   return `${dateTimeSplit[1]} ${dateTimeSplit[2]} ${dateTimeSplit[3]}`
 }
 
-const sumUp = filteredData => {
+const sumUp = (filteredData, productList) => {
   const newFilteredData = []
-
   for (const obj of filteredData) {
     let _index = ''
     const isExist = newFilteredData.some((data, index) => {
@@ -60,58 +62,53 @@ const sumUp = filteredData => {
       _index = index
       return normalizeHour(startTime1[4]) === normalizeHour(startTime2[4])
     })
+
+    // put data into the product schema
+    const productWithData = {}
+    for (const key in productList) {
+      productWithData[key] = parseInt(obj[key])
+    }
+
     if (isExist) {
       const _newFilteredObj = { ...newFilteredData[_index] }
       newFilteredData.splice(_index, 1)
-      _newFilteredObj[CH_8] =
-        parseInt(_newFilteredObj[CH_8]) + parseInt(obj[CH_8])
-      _newFilteredObj[CH_12] =
-        parseInt(_newFilteredObj[CH_12]) + parseInt(obj[CH_12])
-      _newFilteredObj[BC_2] =
-        parseInt(_newFilteredObj[BC_2]) + parseInt(obj[BC_2])
-      _newFilteredObj[BC_4] =
-        parseInt(_newFilteredObj[BC_4]) + parseInt(obj[BC_4])
-      _newFilteredObj[JV_4] =
-        parseInt(_newFilteredObj[JV_4]) + parseInt(obj[JV_4])
-      _newFilteredObj[JV_2] =
-        parseInt(_newFilteredObj[JV_2]) + parseInt(obj[JV_2])
-      _newFilteredObj[BCJ_4] =
-        parseInt(_newFilteredObj[BCJ_4]) + parseInt(obj[BCJ_4])
-      _newFilteredObj[BCJ_2] =
-        parseInt(_newFilteredObj[BCJ_2]) + parseInt(obj[BCJ_2])
-      _newFilteredObj[BCJ_1] =
-        parseInt(_newFilteredObj[BCJ_1]) + parseInt(obj[BCJ_1])
-      newFilteredData.push(_newFilteredObj)
+      for (const key in productList) {
+        _newFilteredObj[key] =
+          parseInt(_newFilteredObj[key]) + parseInt(obj[key])
+      }
+      newFilteredData.push({ ..._newFilteredObj })
     } else {
       newFilteredData.push({
         [DATE_START]: obj[DATE_START],
         [DATE_END]: obj[DATE_END],
-        [CH_8]: obj[CH_8],
-        [CH_12]: obj[CH_12],
-        [BC_2]: obj[BC_2],
-        [BC_4]: obj[BC_4],
-        [JV_4]: obj[JV_4],
-        [JV_2]: obj[JV_2],
-        [BCJ_4]: obj[BCJ_4],
-        [BCJ_2]: obj[BCJ_2],
-        [BCJ_1]: obj[BCJ_1],
-        [BRANCH]: obj[BRANCH] // this to identify the color of panel
+        [BRANCH]: obj[BRANCH], // this to identify the color of panel
+        ...productWithData
       })
     }
   }
   return newFilteredData
 }
 
-function FilteringPanel({ isToggled }) {
+function FilteringPanel ({ isToggled }) {
+  const listOfProducts = {}
+  const [products] = useGetProducts()
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
-  const [branchValue, setBranchValue] = useState(DROPDOWN_DATAS[BRANCH][0])
+
+  // produced a property of products
+  for (const obj of products) {
+    for (const product of obj.productList) {
+      listOfProducts[product?.code] = product?.description
+    }
+  }
+  const userSlice = useSelector(selectUserSlice)
+  const branchFirstItem = userSlice.branches?.length > 0 ? userSlice.branches[0] : ''
+  const [branchValue, setBranchValue] = useState(branchFirstItem)
   const [dateValue, setDateValue] = useState(new Date())
   const [filteredDataSource, setFilteredDataSource] = useState([])
-
   useEffect(() => {
     const filteredDataCopy = [...handleFiltering(branchValue, dateValue)]
-    const sumUpData = [...sumUp(filteredDataCopy)]
+    const sumUpData = [...sumUp(filteredDataCopy, listOfProducts)]
     setFilteredDataSource(sumUpData)
   }, [schedulerComponentSlice.dataSource])
 
@@ -131,12 +128,12 @@ function FilteringPanel({ isToggled }) {
           {fields[DROP_DOWN_LIST]({
             name: BRANCH,
             label: LABELS[BRANCH],
-            dataSource: DROPDOWN_DATAS[BRANCH],
+            dataSource: userSlice.branches,
             value: branchValue,
             onChange: e => {
               setBranchValue(e.value)
               const filteredDataCopy = [...handleFiltering(e.value, dateValue)]
-              const sumUpData = [...sumUp(filteredDataCopy)]
+              const sumUpData = [...sumUp(filteredDataCopy, listOfProducts)]
               setFilteredDataSource([])
               setFilteredDataSource(sumUpData)
             }
@@ -153,7 +150,7 @@ function FilteringPanel({ isToggled }) {
               const filteredDataCopy = [
                 ...handleFiltering(branchValue, e.target.value)
               ]
-              const sumUpData = [...sumUp(filteredDataCopy)]
+              const sumUpData = [...sumUp(filteredDataCopy, listOfProducts)]
               setFilteredDataSource([])
               setFilteredDataSource(sumUpData)
             }
@@ -161,47 +158,19 @@ function FilteringPanel({ isToggled }) {
         </div>
       </Header>
       <Body isToggled={isToggled}>
-        {filteredDataSource.map((data, index) => {
+        {sortByDate(filteredDataSource, DATE_START).map((data, index) => {
           const startTime = data[DATE_START]?.toString().split(' ')
           const endTime = data[DATE_END]?.toString().split(' ')
-          const chips = [
-            {
-              label: LABELS[CH_8],
-              value: data[CH_8]
-            },
-            {
-              label: LABELS[CH_12],
-              value: data[CH_12]
-            },
-            {
-              label: LABELS[BC_2],
-              value: data[BC_2]
-            },
-            {
-              label: LABELS[BC_4],
-              value: data[BC_4]
-            },
-            {
-              label: LABELS[JV_4],
-              value: data[JV_4]
-            },
-            {
-              label: LABELS[JV_2],
-              value: data[JV_2]
-            },
-            {
-              label: LABELS[BCJ_4],
-              value: data[BCJ_4]
-            },
-            {
-              label: LABELS[BCJ_2],
-              value: data[BCJ_2]
-            },
-            {
-              label: LABELS[BCJ_1],
-              value: data[BCJ_1]
+          const chips = Object.keys(listOfProducts).map(product => {
+            if (data[product]) {
+              return {
+                label: listOfProducts[product],
+                value: data[product]
+              }
+            } else {
+              return null
             }
-          ]
+          })
 
           const { branchColors } = schedulerComponentSlice
           return (
@@ -227,9 +196,11 @@ function FilteringPanel({ isToggled }) {
                 </div>
                 <div className={classes.chips}>
                   <div>
-                    {chips.map((chip, index) => (
-                      <div key={index}>{`${chip.label}: ${chip.value}`}</div>
-                    ))}
+                    {chips.map((chip, index) => {
+                      return chip !== null && (
+                        <div key={index}>{`${chip.label}: ${chip.value}`}</div>
+                      )
+                    })}
 
                     {/* <div>{`${chips[1].label}: ${chips[1].value}`}</div>
                     <div>{`${chips[2].label}: ${chips[2].value}`}</div>
