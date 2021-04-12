@@ -6,8 +6,7 @@ import Animate, { FadeIn } from 'animate-css-styled-components'
 import { useDispatch } from 'react-redux'
 import { navigateTo } from 'components/sideNav/sideNavSlice'
 import {
-  MASTER_DATA,
-  DROPDOWN_MASTERFILE
+  MASTER_DATA
 } from 'components/sideNav/2.menu/menuData'
 import Dropdowns from 'components/dropdowns'
 
@@ -16,8 +15,8 @@ export default function (props) {
   const [toggle, setToggle] = useState(true)
 
   useEffect(() => {
-    dispatch(navigateTo([MASTER_DATA, DROPDOWN_MASTERFILE]))
-  }, [])
+    dispatch(navigateTo([MASTER_DATA, props?.breadcrumbs]))
+  }, [props?.breadcrumbs])
 
   return (
     <Wrapper>
@@ -26,7 +25,7 @@ export default function (props) {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={['1s']} delay={['0.2s']}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
-            <Dropdowns />
+            <Dropdowns collectionName={props?.collectionName} withDropdownGroup={props.withDropdownGroup} />
           </Animate>
         </RightContent>
       </Container>

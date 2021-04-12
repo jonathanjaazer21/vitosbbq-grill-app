@@ -9,23 +9,24 @@ import {
   SubItem,
   SubMenuContainer
 } from './styles'
-import menuData from './menuData'
+import { useSelectMenus } from './menuData'
 import { useSelector } from 'react-redux'
 import { selectSideNav } from '../sideNavSlice'
+import { selectMenuSlice } from './menuSlice'
 
 const menus = {}
 function Menu ({ isToggled }) {
+  const { menuData } = useSelector(selectMenuSlice)
   const sideNavSlice = useSelector(selectSideNav)
   const [state, setState] = useState(menus)
 
   for (const obj of menuData) {
     menus[obj.title] = sideNavSlice.selectedMenu.includes(obj.title)
   }
-
   return (
     <Wrapper>
-      {menuData.map(({ title, Icon, subMenu }) => (
-        <MenuItem key={title}>
+      {menuData.map(({ title, Icon, subMenu, display }) => (
+        <MenuItem key={title} style={display ? {} : { display: 'none' }}>
           {/* main title */}
           <TitleItem
             active={sideNavSlice.selectedMenu.includes(title)}
@@ -42,6 +43,7 @@ function Menu ({ isToggled }) {
           <SubMenuContainer active={state[title]} isToggled={isToggled}>
             {subMenu.map(subItem => (
               <SubItem
+                style={subItem.display ? {} : { display: 'none' }}
                 to={subItem.path}
                 key={subItem.title}
                 active={sideNavSlice.selectedMenu.includes(subItem.title)}

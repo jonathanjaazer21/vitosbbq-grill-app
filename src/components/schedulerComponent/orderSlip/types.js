@@ -20,6 +20,8 @@ export const ORDER_NO = 'orderNo'
 export const INDICATE_REASON = 'indicateReason'
 export const CH_8 = 'ch8'
 export const CH_12 = 'ch12'
+export const CL_8 = 'cl8'
+export const CL_12 = 'cl12'
 export const BC_2 = 'bc2'
 export const BC_4 = 'bc4'
 export const JV_4 = 'jc4'
@@ -38,13 +40,28 @@ export const CHILI_OIL = 'chiliOil'
 export const REPAER = 'reaper'
 export const BAO = 'bao'
 export const TOTAL = 'total'
+export const DELIVERY_DATE = 'deliveryDate'
+export const MENU_GROUP_HEADERS = 'menu_group_headers'
+export const REMARKS = 'remarks'
+
+export const M_A = 'M-A'
+export const CH_8_PS = 'CH8-PS'
+export const M_B = 'M-B'
+export const PRT = 'PRT'
+export const JV_1 = 'JV_1'
+
+export const PARTNER_MERCHANT_ORDER_NO = 'partnerMerchantOrderNo'
+
+// this is not included in the database post of data, this is only for viewing in print document particular field
+export const TIME_SLOT = 'timeSlot'
 
 export const LABELS = {
   [STATUS]: 'Status',
   [INDICATE_REASON]: 'Reason',
   [BRANCH]: 'Branch',
-  [CUSTOMER]: 'Customer',
+  [CUSTOMER]: 'Customer name',
   [CONTACT_NUMBER]: 'Contact number',
+  [DELIVERY_DATE]: 'Delivery Date/Time',
   [DATE_ORDER_PLACED]: 'Date Order Placed',
   [DATE_START]: 'Date/time start', // cannot be change
   [DATE_END]: 'Date/time end', // cannot be change
@@ -53,15 +70,21 @@ export const LABELS = {
   [MERCHANT_ORDER]: 'Merchant Order #',
   [ACCOUNT_NAME]: 'Account Name',
   [ORDER_NO]: 'Order #',
-  [CH_8]: 'C-CH8',
-  [CH_12]: 'C-CH12',
-  [BC_2]: 'C-BC2',
-  [BC_4]: 'C-BC4',
-  [JV_4]: 'JV4',
-  [JV_2]: 'JV2',
-  [BCJ_4]: 'BCJ4',
-  [BCJ_2]: 'BCJ2',
+  [CH_8]: '8"',
+  [CH_12]: '12"',
+  [CL_8]: 'CALI 8',
+  [CL_12]: 'CALI 12',
+  [BC_4]: 'BC FULL [4]',
+  [BC_2]: 'BC HALF [2]',
+  [BCJ_4]: 'BCJ [4]',
+  [BCJ_2]: 'BCJ HALF [2]',
   [BCJ_1]: 'BCJ1',
+  [M_A]: 'A - 2pc 8" w/ JV',
+  [CH_8_PS]: '*add 8" STICK',
+  [M_B]: 'B - 1pc BC w/ JV',
+  [JV_4]: 'JAVA FULL [4]',
+  [JV_2]: 'JAVA HALF [2]',
+  [JV_1]: 'JAVA SOLO [1]',
   [FCH_8]: 'FCH8',
   [FCH_12]: 'FCH12',
   [FBC_4]: 'FBC4',
@@ -70,7 +93,11 @@ export const LABELS = {
   [SPICED_VINEGAR]: 'X-SVN',
   [BASTING_SAUCE]: 'X-BTS',
   [CHILI_OIL]: 'X-DCO',
-  [REPAER]: 'REAPER (2 Stick 8)',
-  [BAO]: 'BAO',
-  [TOTAL]: 'TOTAL'
+  [REPAER]: 'RP',
+  [BAO]: 'BAO-B-Q',
+  [PRT]: 'PARTY TRAY',
+  [TOTAL]: 'TOTAL',
+  [REMARKS]: 'Remarks',
+  [TIME_SLOT]: 'Time slot',
+  [PARTNER_MERCHANT_ORDER_NO]: 'Partner Merchant Order #'
 }

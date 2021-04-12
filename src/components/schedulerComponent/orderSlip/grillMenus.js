@@ -1,55 +1,135 @@
-import React, { useEffect, useState } from 'react'
-import fields from 'components/fields'
-import calculateSubTotal from '../../../commonFunctions/calculateSubTotal'
+import React, { useState, useEffect } from 'react'
+import { Item, Wrapper, Container } from './styles'
+import Input from 'components/fields/input'
+import { getData } from 'services'
+import { PRODUCTS } from 'services/collectionNames'
+
 import Print from 'components/print'
+import sort from 'commonFunctions/sort'
 
-export default function ({ orderSlipConfig, data, menu }) {
-  const initialState = () => {
-    const _data = {}
-    for (const value of menu) {
-      const { dataSource } = orderSlipConfig.find(config => config?.name === value)
-      const qty = typeof data[value] === 'undefined' ? '0' : data[value]
-      _data[value] = { qty, price: dataSource[2] }
+const Header = () => {
+  return (
+    <div style={{ padding: '.3rem' }}>
+      <Container>
+        <Item>
+          Code
+        </Item>
+        <Item>
+          Product
+        </Item>
+        <Item right>
+          Price
+        </Item>
+        <Item right>
+          Qty
+        </Item>
+        <Item right>
+          Total
+        </Item>
+      </Container>
+    </div>
+  )
+}
+
+const Product = ({ groupHeader, productList, productData, setProductData }) => {
+  return (
+    <div>
+      <div style={{ padding: '.3rem', color: 'red' }}>{groupHeader}</div>
+      {productList.map(data => {
+        const total = parseInt(productData[data?.code][0]) * parseInt(data?.price)
+        return (
+          <Container key={data?.code}>
+            <Item>
+              {data?.code}
+            </Item>
+            <Item>
+              {data?.description}
+            </Item>
+            <Item right>
+              {data?.price.toFixed(2)}
+            </Item>
+            <Item right>
+              <div style={{ marginTop: '-.3rem', paddingLeft: '2rem' }}>
+                <Input
+                  isNumber
+                  name={data?.code}
+                  onChange={(e) => { setProductData(e, data?.code, data?.price) }}
+                  value={productData && productData[data?.code][0]}
+                />
+              </div>
+            </Item>
+            <Item right>
+              {total.toFixed(2)}
+            </Item>
+          </Container>
+        )
+      })}
+    </div>
+  )
+}
+
+const Footer = ({ total }) => {
+  return (
+    <Container>
+      <Item>
+        Total
+      </Item>
+      <Item right>
+        {total.toFixed(2)}
+      </Item>
+    </Container>
+  )
+}
+export default function (props) {
+  const [productList, setProductList] = useState([])
+  const [productData, setProductData] = useState({})
+
+  const handleChange = (e, code, price) => {
+    if (e.target.value === '') {
+      setProductData({ ...productData, [code]: ['0', price] })
+    } else {
+      setProductData({ ...productData, [code]: [e.target.value, price] })
     }
-    return _data
   }
-  const [totals, setTotals] = useState(initialState())
-  const [subTotal, setSubTotal] = useState(0)
-  const [qty, setQty] = useState(0)
 
-  const menus = orderSlipConfig.map(customProps => {
-    if (menu.includes(customProps?.name)) {
-      return fields[customProps.type]({ ...data, ...customProps, totals, setTotals: setTotals })
+  const calculateSubTotal = (productDataList) => {
+    let subTotal = 0
+
+    for (const array in productDataList) {
+      subTotal += parseInt(productDataList[array][1]) * parseInt(productDataList[array][0])
     }
-  })
+    return subTotal
+  }
 
   useEffect(() => {
-    const result = calculateSubTotal(totals)
-    setQty(result.qty)
-    setSubTotal(result.subTotal)
-  }, [totals])
+    loadProducts()
+  }, [])
+
+  const loadProducts = async () => {
+    const productData = {}
+    const result = await getData(PRODUCTS)
+    for (const obj of result) {
+      for (const product of obj.productList) {
+        productData[product.code] = props[product.code] ? [parseInt(props[product.code]), product?.price] : [0, product?.price]
+      }
+    }
+    setProductData(productData)
+    setProductList(sort(result, 'no'))
+  }
+
   return (
-    <div style={{ width: '100%' }}>
-      {menus}
-      <br />
-      <br />
-      <div style={{ display: 'flex', width: '100%' }}>
-        <div style={{ flex: '1' }}>Total</div>
-        <div style={{ flex: '1' }}>{qty}</div>
-        <div style={{ flex: '1' }} />
-        <div style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>{subTotal}</div>
-      </div>
-      <br />
-      <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
-        <Print
-          orderSlipConfig={orderSlipConfig}
-          data={data}
-          menu={menu}
-          totals={totals}
-          subTotal={subTotal}
-          qty={qty}
-        />
-      </div>
-    </div>
+    <Wrapper>
+      <Header />
+      {productList.map(data =>
+        <Product
+          key={data?.groupHeader}
+          groupHeader={data?.groupHeader}
+          productList={data?.productList}
+          productData={productData}
+          setProductData={handleChange}
+        />)}
+      <Footer total={calculateSubTotal(productData)} />
+      <Print data={props} totals={productData} subTotal={calculateSubTotal(productData)} productList={productList} />
+    </Wrapper>
   )
 }

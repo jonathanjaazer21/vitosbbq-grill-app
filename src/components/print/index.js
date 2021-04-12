@@ -1,13 +1,15 @@
-import { BRANCH, CONTACT_NUMBER, CUSTOMER, DATE_END, DATE_ORDER_PLACED, DATE_START, INDICATE_REASON, LABELS, ORDER_NO, ORDER_VIA, STATUS } from 'components/SchedulerComponent/orderSlip/types'
+import { ACCOUNT_NAME, BRANCH, CONTACT_NUMBER, CUSTOMER, DATE_END, DATE_ORDER_PLACED, DATE_START, DELIVERY_DATE, INDICATE_REASON, LABELS, ORDER_NO, ORDER_VIA, PARTNER_MERCHANT_ORDER_NO, STATUS, TIME_SLOT } from 'components/SchedulerComponent/orderSlip/types'
 import Print from './print'
-import { Container, Header, Body, Footer, Description, Label, Label2 } from './styles'
+import { Container, Header, Body, Footer, Description, Label, Label2, HeaderContent } from './styles'
 import cookedChefLogo from 'images/cookedChef.jpg'
 import vitosLogo from 'images/vitosLogo.jpg'
+import { useState } from 'react'
+import { useGetBranches } from 'commonFunctions/useGetBranches'
 
 export const formatDate = (date) => {
   if (date) {
     const dateSplit = date.toString().split(' ')
-    return `${dateSplit[1]} ${dateSplit[2]}, ${dateSplit[3]}`
+    return `${dateSplit[1]} ${dateSplit[2]}, ${dateSplit[3]} ${dateSplit[0]}`
   } else {
     return date
   }
@@ -33,78 +35,131 @@ export const normalizeHour = date => {
   }
 }
 
-const PrintDocument = ({ orderSlipConfig = [], data, menu, totals, qty, subTotal }) => {
+const PrintDocument = ({ orderSlipConfig = [], data, menu, totals, qty, subTotal, productList }) => {
+  const branch = useGetBranches(data[BRANCH])
   const checkData = (field) => {
     let fieldData = ''
     if (field === DATE_ORDER_PLACED) {
       fieldData = formatDate(data[field])
-    } else if (field === DATE_START) {
-      fieldData = normalizeHour(data[field])
+    } else if (field === DELIVERY_DATE) {
+      fieldData = formatDate(data[field])
     } else if (field === DATE_END) {
       fieldData = normalizeHour(data[field])
+    } else if (field === TIME_SLOT) {
+      if (data[DATE_START] || data[DATE_END]) {
+        const start = normalizeHour(data[DATE_START]).split(' ')
+        const end = normalizeHour(data[DATE_END]).split(' ')
+        fieldData = `${start[3]} ${start[4]} - ${end[3]} ${end[4]}`
+      }
+    } else if (field === BRANCH) {
+      if (data[ORDER_NO]) {
+        const splittedOrderNo = data[ORDER_NO].split('-')
+        fieldData = `${splittedOrderNo[0]}-${data[field].toUpperCase()} ${branch.branchAddress}`
+      }
+    } else if (field === ORDER_VIA) {
+      if (data[field]) {
+        const splittedOrderVia = data[field].split('-col-')
+        fieldData = `${splittedOrderVia[0]} ${splittedOrderVia[1]}`
+      }
+    } else if (field === PARTNER_MERCHANT_ORDER_NO) {
+      return data[ORDER_VIA]?.includes('Partner Merchant') ? data[field] : ''
     } else {
       fieldData = data[field]
     }
     return fieldData
+  }
+
+  const changedLabel = (field) => {
+    if (field === DATE_ORDER_PLACED) {
+      return 'Date placed'
+    }
+    if (field === DATE_START) {
+      return 'Order date'
+    }
+    if (field === PARTNER_MERCHANT_ORDER_NO) {
+      return data[ORDER_VIA]?.includes('Partner Merchant') ? LABELS[field] : ''
+    }
+    return LABELS[field]
   }
   return (
     <Container>
       <img src={cookedChefLogo} height={500} style={{ position: 'absolute', zIndex: '-999', opacity: '0.1' }} />
       <Header>
         <img src={vitosLogo} height={100} style={{ borderRadius: '50%' }} />
-        <h2 style={{ marginLeft: '1rem' }}>VITO'S GRILL</h2>
+        <HeaderContent>
+          <h2 style={{ marginLeft: '1rem' }}>VITO'S BBQ</h2>
+          <h2 style={{ marginLeft: '1rem' }}>ORDER FORM</h2>
+        </HeaderContent>
       </Header>
-      <br />
-      {[
-        [ORDER_NO, BRANCH],
-        [STATUS, INDICATE_REASON],
-        [CUSTOMER, CONTACT_NUMBER],
-        [DATE_ORDER_PLACED, ORDER_VIA],
-        [DATE_START, DATE_END]].map((fieldName, index) => {
-          return (
-            <Body key={index}>
-              <Description>
-                <Label>{LABELS[fieldName[0]]}</Label>
-                <div>{checkData(fieldName[0])}</div>
-              </Description>
-              <Description>
-                <Label2>{LABELS[fieldName[1]]}</Label2>
-                <div>{checkData(fieldName[1])}</div>
-              </Description>
-            </Body>
-          )
-        })}
+      <HeaderContent>
+        <h3>ORDER DETAILS</h3>
+      </HeaderContent>
+      {
+        [
+          [ORDER_NO, BRANCH],
+          [PARTNER_MERCHANT_ORDER_NO, null],
+          [CUSTOMER, DATE_ORDER_PLACED],
+          [CONTACT_NUMBER, DELIVERY_DATE],
+          [TIME_SLOT, null],
+          [ORDER_VIA, ACCOUNT_NAME]].map((fieldName, index) => {
+            return (
+              <div key={index} style={{ display: 'flex', width: '90vw', justifyContent: 'space-evenly' }}>
+                <Body>
+                  <Description>
+                    <Label>{changedLabel(fieldName[0])}: </Label>
+                    <div style={{ marginLeft: '.5rem' }}>{checkData(fieldName[0])}</div>
+                  </Description>
+                </Body>
+                <Body>
+                  <Description>
+                    <Label>{changedLabel(fieldName[1])}:</Label>
+                    <div style={{ marginLeft: '.5rem' }}>{checkData(fieldName[1])}</div>
+                  </Description>
+                </Body>
+              </div>
+            )
+          })
+      }
       <Footer>
-        <table style={{ width: '100%' }}>
+        <table style={{ width: '100%', fontSize: '10px' }}>
           <tr style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', backgroundColor: 'pink', padding: '.5rem .5rem' }}>
             <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
-              Menu
+              Code
             </th>
             <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
-              Qty
+              Product
             </th>
             <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
               Price
             </th>
             <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
+              Qty
+            </th>
+            <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
               Amount
             </th>
           </tr>
-          {Object.keys(totals).map((total, index) => {
-            return totals[total]?.qty > 0
+          {Object.keys(totals).map((productName, index) => {
+            const product = totals[productName]
+            const qty = product[0]
+            const price = product[1]
+            return qty > 0
               ? (
-                <tr key={index} style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', padding: '.5rem .5rem' }}>
+                <tr key={index} style={{ display: 'flex', justifyContent: 'flex-start', width: '100%' }}>
                   <td style={{ flex: '1' }}>
-                    {LABELS[total]}
+                    {productName}
                   </td>
-                  <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
-                    {totals[total]?.qty}
-                  </td>
-                  <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
-                    {totals[total]?.price}
+                  <td style={{ flex: '1' }}>
+                    {productName}
                   </td>
                   <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
-                    {(parseInt(totals[total]?.qty) * parseInt(totals[total]?.price)).toFixed(2)}
+                    {price.toFixed(2)}
+                  </td>
+                  <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
+                    {qty}
+                  </td>
+                  <td style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
+                    {(parseInt(qty) * parseInt(price)).toFixed(2)}
                   </td>
                 </tr>
               )
@@ -113,13 +168,11 @@ const PrintDocument = ({ orderSlipConfig = [], data, menu, totals, qty, subTotal
 
         </table>
         <table style={{ width: '100%' }}>
-          <tr style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', borderTop: '1px solid #eee', padding: '.5rem .5rem' }}>
+          <tr style={{ display: 'flex', justifyContent: 'flex-start', width: '100%', borderTop: '1px solid #eee' }}>
             <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
               Total
             </th>
-            <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }}>
-              {qty}
-            </th>
+            <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-start' }} />
             <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }} />
             <th style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}>
               {subTotal}
@@ -127,14 +180,23 @@ const PrintDocument = ({ orderSlipConfig = [], data, menu, totals, qty, subTotal
           </tr>
         </table>
       </Footer>
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', backgroundColor: 'pink', width: '90vw' }}>
+        <Label>Remarks</Label>
+        <div>
+          <textarea value={data?.remarks} style={{ width: '100%', border: 'none', height: '5rem' }} />
+        </div>
+      </div>
     </Container>
   )
 }
 export default (props) => {
+  const [triggeredClicked, setTriggeredClicked] = useState(false)
+  // const printDocument = triggeredClicked ? <PrintDocument {...props} /> : <div />
   return (
     <Print
       component={<PrintDocument {...props} />}
       button='Print'
+      triggeredClicked={() => setTriggeredClicked(true)}
     />
   )
 }

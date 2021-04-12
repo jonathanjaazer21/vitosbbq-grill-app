@@ -6,7 +6,11 @@ export const userSlice = createSlice({
   initialState: {
     displayName: '',
     email: '',
-    photoURL: ''
+    photoURL: '',
+    roles: [],
+    branches: [],
+    modules: [],
+    isEnabled: false
   },
   reducers: {
     setAccountInfo: (state, action) => {
@@ -14,6 +18,9 @@ export const userSlice = createSlice({
       state.displayName = payload.displayName
       state.email = payload.email
       state.photoURL = payload.photoURL
+      state.roles = payload.roles
+      state.branches = payload.branches
+      state.isEnabled = payload.isEnabled
     },
     clearAccountInfo: state => {
       state.displayName = ''

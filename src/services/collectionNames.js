@@ -1,2 +1,6 @@
 export const SCHEDULES = 'schedules'
 export const BRANCHES = 'branches'
+export const DROPDOWNS = 'dropdowns'
+export const ROLES = 'roles'
+export const USERS = 'users'
+export const PRODUCTS = 'products'

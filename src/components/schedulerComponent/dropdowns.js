@@ -3,6 +3,8 @@ import { BRANCH, ORDER_VIA, PAYMENT_MODE, STATUS } from './orderSlip/types'
 import db from 'services/firebase'
 import { getData } from 'services'
 import { BRANCHES } from 'services/collectionNames'
+import { useSelector } from 'react-redux'
+import { selectUserSlice } from 'containers/0.login/loginSlice'
 
 const getWhereData = (name) => {
   return new Promise((resolve, reject) => {
@@ -35,7 +37,8 @@ const getBranch = async () => {
   return data
 }
 
-export function useGetDropdowns () {
+export function useGetDropdowns() {
+  const userSlice = useSelector(selectUserSlice)
   const [dropdowns, setDropdowns] = useState({
     [STATUS]: [],
     [PAYMENT_MODE]: [],
@@ -51,7 +54,7 @@ export function useGetDropdowns () {
     const status = await getWhereData(STATUS)
     const orderVia = await getWhereData(ORDER_VIA)
     const paymentMode = await getWhereData(PAYMENT_MODE)
-    const branch = await getBranch()
+    const branch = userSlice.branches
     setDropdowns({ ...dropdowns, [STATUS]: status, [ORDER_VIA]: orderVia, [PAYMENT_MODE]: paymentMode, [BRANCH]: branch })
   }
   return dropdowns

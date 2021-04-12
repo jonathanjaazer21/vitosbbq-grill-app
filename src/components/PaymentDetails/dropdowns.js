@@ -1,6 +1,7 @@
+import { DATE_PICKER, DROP_DOWN_LIST, INPUT, NUMBER } from 'components/fields/types'
 import { useState, useEffect } from 'react'
 import db from 'services/firebase'
-import { ACCOUNT_NUMBER, MODE_PAYMENT, SOURCE } from './types'
+import { ACCOUNT_NUMBER, AMOUNT_PAID, DATE_PAYMENT, MODE_PAYMENT, PAYMENT_LABELS, REF_NO, SOURCE } from './types'
 
 const getWhereData = (name) => {
   return new Promise((resolve, reject) => {
@@ -10,7 +11,7 @@ const getWhereData = (name) => {
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           if (doc.exists) {
-            const data = doc.data()
+            const data = doc?.data()
             resolve(data.list)
           } else {
             resolve([])
@@ -24,12 +25,8 @@ const getWhereData = (name) => {
   })
 }
 
-export function useGetDropdowns() {
-  const [dropdowns, setDropdowns] = useState({
-    [SOURCE]: [],
-    [MODE_PAYMENT]: [],
-    [ACCOUNT_NUMBER]: []
-  })
+export function useGetDropdowns () {
+  const [dropdowns, setDropdowns] = useState([])
 
   useEffect(() => {
     loadDropdowns()
@@ -39,7 +36,41 @@ export function useGetDropdowns() {
     const source = await getWhereData(SOURCE)
     const accountNumber = await getWhereData(ACCOUNT_NUMBER)
     const modePayment = await getWhereData(MODE_PAYMENT)
-    setDropdowns({ ...dropdowns, [SOURCE]: source, [ACCOUNT_NUMBER]: accountNumber, [MODE_PAYMENT]: modePayment })
+    setDropdowns([
+      {
+        name: DATE_PAYMENT,
+        type: DATE_PICKER,
+        label: PAYMENT_LABELS[DATE_PAYMENT]
+      },
+      {
+        name: MODE_PAYMENT,
+        type: DROP_DOWN_LIST,
+        label: PAYMENT_LABELS[MODE_PAYMENT],
+        dataSource: modePayment
+      },
+      {
+        name: SOURCE,
+        type: DROP_DOWN_LIST,
+        label: PAYMENT_LABELS[SOURCE],
+        dataSource: source
+      },
+      {
+        name: REF_NO,
+        type: INPUT,
+        label: PAYMENT_LABELS[REF_NO]
+      },
+      {
+        name: ACCOUNT_NUMBER,
+        type: DROP_DOWN_LIST,
+        label: PAYMENT_LABELS[ACCOUNT_NUMBER],
+        dataSource: accountNumber
+      },
+      {
+        name: AMOUNT_PAID,
+        type: NUMBER,
+        label: PAYMENT_LABELS[AMOUNT_PAID]
+      }
+    ])
   }
   return dropdowns
 }

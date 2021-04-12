@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "vitos-grill"
+    "default": "vitos-grill",
+    "vitosbbqgrill/Production": "vitosbbqgrill",
+    "vitosbbq-5c83f/Production": "vitosbbq-5c83f"
   }
 }

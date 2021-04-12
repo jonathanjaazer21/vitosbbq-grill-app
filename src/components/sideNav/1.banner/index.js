@@ -6,7 +6,7 @@ function Banner () {
   return (
     <Wrapper>
       <Logo src={logo} />
-      <CompanyName>Vito's Grill</CompanyName>
+      <CompanyName>Vito's BBQ</CompanyName>
     </Wrapper>
   )
 }

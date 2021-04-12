@@ -13,22 +13,35 @@ export const Header = styled.div`
   justify-content: flex-start;
   align-items:center;
 `
+export const HeaderContent = styled.div`
+  display:flex;
+  flex-direction:column;
+  justify-content: flex-start;
+  align-items:flex-start;
+  width:100%;
+  margin-left:2rem;
+
+  h3 {
+    margin-left:2rem;
+  }
+`
+
 export const Body = styled.div`
   display: flex;
-  padding: .5rem;
-  justify-content: space-between;
-  width:60vw;
+  justify-content: flex-start;
+  width:100%;
 `
 export const Footer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 2rem 0rem;
+  width:90vw;
   justify-content: space-between;
-  width:60vw;
 `
 export const Description = styled.div`
   display:flex;
-  flex-direction:column;
+  padding:.5rem;
+  justify-content:flex-start;
 `
 
 export const Label = styled.div`

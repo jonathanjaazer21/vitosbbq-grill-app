@@ -1,11 +1,13 @@
+import { PARTNER_MERCHANT_ORDER_NO } from 'components/SchedulerComponent/orderSlip/types'
 import React from 'react'
+import classes from './index.module.css'
 
-function Input(props) {
+const Input = React.forwardRef((props, ref) => {
   return (
     <input
       id={props.name}
       className='e-field e-input'
-      type='text'
+      type={props.isNumber ? 'number' : 'text'}
       name={props.name}
       value={props.value}
       style={{ width: '100%' }}
@@ -15,6 +17,6 @@ function Input(props) {
       onBlur={props?.onBlur}
     />
   )
-}
+})
 
 export default Input
