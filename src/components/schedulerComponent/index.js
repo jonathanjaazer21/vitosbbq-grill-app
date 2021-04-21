@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react"
 import {
   ScheduleComponent,
   ViewDirective,
@@ -8,23 +8,23 @@ import {
   Month,
   Agenda,
   DragAndDrop,
-  Resize
-} from '@syncfusion/ej2-react-schedule'
-import OrderSlip from 'components/SchedulerComponent/orderSlip'
+  Resize,
+} from "@syncfusion/ej2-react-schedule"
+import OrderSlip from "components/SchedulerComponent/orderSlip"
 import {
   selectSchedulerComponentSlice,
   updateSchedules,
   setSchedules,
   clearSchedules,
   setBranchColors,
-  removeSchedule
-} from './schedulerComponentSlice'
-import { useSelector, useDispatch } from 'react-redux'
-import schedulerSchema from './schedulerSchema'
-import { addData, updateData, deleteData } from 'services'
-import { BRANCHES, SCHEDULES } from 'services/collectionNames'
-import formatDataSource from './formatDataSource'
-import db from 'services/firebase'
+  removeSchedule,
+} from "./schedulerComponentSlice"
+import { useSelector, useDispatch } from "react-redux"
+import schedulerSchema from "./schedulerSchema"
+import { addData, updateData, deleteData } from "services"
+import { BRANCHES, SCHEDULES } from "services/collectionNames"
+import formatDataSource from "./formatDataSource"
+import db from "services/firebase"
 import {
   BC,
   BC_HALF,
@@ -35,16 +35,16 @@ import {
   ORDER_VIA,
   PARTNER_MERCHANT_ORDER_NO,
   TWELVE,
-  _ID
-} from 'components/SchedulerComponent/orderSlip/types'
-import { DROPDOWN_DATAS } from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
-import identifyDateRange, { getDaysInMonthUTC } from './identifyDateRange'
-import Backdrop from 'components/backdrop'
-import { selectOrderComponentSlice } from 'components/SchedulerComponent/orderSlip/orderSlipSlice'
+  _ID,
+} from "components/SchedulerComponent/orderSlip/types"
+import { DROPDOWN_DATAS } from "components/SchedulerComponent/orderSlip/orderSlipConfig"
+import identifyDateRange, { getDaysInMonthUTC } from "./identifyDateRange"
+import Backdrop from "components/backdrop"
+import { selectOrderComponentSlice } from "components/SchedulerComponent/orderSlip/orderSlipSlice"
 
-import './app.component.css'
-import { useGetDropdowns } from './dropdowns'
-function SchedulerComponent ({ setLoading }) {
+import "./app.component.css"
+import { useGetDropdowns } from "./dropdowns"
+function SchedulerComponent({ setLoading }) {
   const dropdowns = useGetDropdowns()
   const dispatch = useDispatch()
   const selectOrderSlice = useSelector(selectOrderComponentSlice)
@@ -55,31 +55,31 @@ function SchedulerComponent ({ setLoading }) {
     setLoading(true)
     const unsubscribe = db
       .collection(SCHEDULES)
-      .orderBy('StartTime', 'asc')
+      .orderBy("StartTime", "asc")
       .onSnapshot(function (snapshot) {
         const schedules = []
         for (const obj of snapshot.docChanges()) {
-          if (obj.type === 'modified') {
-            const data = obj.doc.data()
-            const newData = {
-              ...data,
-              Subject: data.customer
-            }
-            dispatch(updateSchedules(newData))
-          } else if (obj.type === 'added') {
+          if (obj.type === "modified") {
             const data = obj.doc.data()
             const newData = {
               ...data,
               Subject: data.customer,
-              [_ID]: obj.doc.id
+            }
+            dispatch(updateSchedules(newData))
+          } else if (obj.type === "added") {
+            const data = obj.doc.data()
+            const newData = {
+              ...data,
+              Subject: data.customer,
+              [_ID]: obj.doc.id,
             }
             schedules.push(newData)
             // dispatch(setSchedules(newData))
-          } else if (obj.type === 'removed') {
+          } else if (obj.type === "removed") {
             const _id = obj.doc.id
             dispatch(removeSchedule({ _id: _id }))
           } else {
-            console.log('nothing', obj.type)
+            console.log("nothing", obj.type)
           }
         }
         if (schedules.length > 0) {
@@ -96,18 +96,18 @@ function SchedulerComponent ({ setLoading }) {
   useEffect(() => {
     const unsubscribe = db.collection(BRANCHES).onSnapshot(function (snapshot) {
       for (const obj of snapshot.docChanges()) {
-        if (obj.type === 'modified') {
+        if (obj.type === "modified") {
           const data = obj.doc.data()
           dispatch(
             setBranchColors({ branch: data.branchName, color: data.color })
           )
-        } else if (obj.type === 'added') {
+        } else if (obj.type === "added") {
           const data = obj.doc.data()
           dispatch(
             setBranchColors({ branch: data.branchName, color: data.color })
           )
         } else {
-          console.log('nothing')
+          console.log("nothing")
         }
       }
     })
@@ -116,34 +116,36 @@ function SchedulerComponent ({ setLoading }) {
     }
   }, [])
 
-  const onActionBegin = args => {
-    if (args.requestType === 'eventChange') {
+  const onActionBegin = (args) => {
+    if (args.requestType === "eventChange") {
       const dataToBeSend = schedulerSchema(args.data)
       delete dataToBeSend.RecurrenceRule
       updateData({
         data: { ...dataToBeSend },
         collection: SCHEDULES,
-        id: args.data[_ID]
+        id: args.data[_ID],
       })
-    } else if (args.requestType === 'eventCreate') {
+    } else if (args.requestType === "eventCreate") {
       const data = args.addedRecords[0]
-      const orderNo = data?.branch ? selectOrderSlice[data[BRANCH]] : selectOrderSlice.Libis
+      const orderNo = data?.branch
+        ? selectOrderSlice[data[BRANCH]]
+        : selectOrderSlice.Libis
       const dataToBeSend = schedulerSchema({ ...data, [ORDER_NO]: orderNo })
       delete dataToBeSend.RecurrenceRule
       const result = addData({
         data: dataToBeSend,
         collection: SCHEDULES,
-        id: null
+        id: null,
       })
-    } else if (args.requestType === 'eventRemove') {
+    } else if (args.requestType === "eventRemove") {
       const { deletedRecords } = args
       deleteData({ id: deletedRecords[0]._id, collection: SCHEDULES })
     } else {
-      console.log('other action is triggered')
+      console.log("other action is triggered")
     }
   }
 
-  const onNavigation = args => {
+  const onNavigation = (args) => {
     // console.log(args.currentDate)
     // console.log('monthList', monthList)
     // const monthDays = getDaysInMonthUTC(args.currentDate)
@@ -166,55 +168,55 @@ function SchedulerComponent ({ setLoading }) {
 
   const onPopUpOpen = (args) => {
     const { data } = args
-    const header = args.element.querySelector('.e-title-text')
-    const partnerMerchant = args.element.querySelector(`#${PARTNER_MERCHANT_ORDER_NO}`)
-    const orderVia = args.element.querySelector('#orderVia_hidden')
+    const header = args.element.querySelector(".e-title-text")
+    const partnerMerchant = args.element.querySelector(
+      `#${PARTNER_MERCHANT_ORDER_NO}`
+    )
+    const orderVia = args.element.querySelector("#orderVia_hidden")
     if (header) {
       if (data?.orderNo) {
-        header.innerHTML = 'Update Order'
+        header.innerHTML = "Update Order"
       } else {
-        header.innerHTML = 'New Order'
+        header.innerHTML = "New Order"
       }
     }
-    if (args.type === 'Editor') {
-      args.element.onkeyup = (e) => {
-        if (!orderVia.value?.includes('Partner Merchant')) {
-          partnerMerchant.value = ''
-        }
-      }
+    if (args.type === "Editor") {
+      // args.element.onkeyup = (e) => {
+      //   if (!orderVia.value?.includes('Partner Merchant')) {
+      //     partnerMerchant.value = ''
+      //   }
+      // }
     }
   }
 
   const eventSettings = {
-    dataSource: dataSource
+    dataSource: dataSource,
   }
 
   return (
     <>
-      {
-        dropdowns[BRANCH].length > 0 &&
-          <ScheduleComponent
-          startHour='10:00'
-          endHour='19:00'
+      {dropdowns[BRANCH].length > 0 && (
+        <ScheduleComponent
+          startHour="10:00"
+          endHour="19:00"
           editorTemplate={OrderSlip}
           eventSettings={eventSettings}
           actionBegin={onActionBegin}
           navigating={onNavigation}
           eventRendered={(args) => onEventRendered(args, dropdowns[BRANCH])}
           popupOpen={onPopUpOpen}
-          height='92vh'
-          width='100%'
+          height="92vh"
+          width="100%"
         >
           <ViewsDirective>
-            <ViewDirective option='Week' />
-            <ViewDirective option='Month' />
-            <ViewDirective option='Agenda' />
+            <ViewDirective option="Week" />
+            <ViewDirective option="Month" />
+            <ViewDirective option="Agenda" />
           </ViewsDirective>
           <Inject services={[Week, Month, Agenda, DragAndDrop, Resize]} />
         </ScheduleComponent>
-      }
+      )}
     </>
-
   )
 }
 

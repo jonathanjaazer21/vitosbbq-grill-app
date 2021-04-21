@@ -8,3 +8,9 @@ export const CHIPS = 'chips'
 export const BUTTON = 'button'
 export const NUMBER = 'number'
 export const TEXT_AREA = 'textArea'
+export const BLANK_FIELD = 'blankField'
+export const HEADER_FIELD = 'headerField'
+
+// this type is a special case
+export const ORDER_VIA_TYPE = 'orderViaType'
+export const STATUS_REASON = 'statusReason'

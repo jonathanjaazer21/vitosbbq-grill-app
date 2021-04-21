@@ -15,7 +15,8 @@ export const orderComponentSlice = createSlice({
   name: ORDER_SLIP_COMPONENT,
   initialState: {
     Libis: '',
-    Ronac: ''
+    Ronac: '',
+    orderViaField: null
   },
   reducers: {
     setOrderNo: (state, action) => {
@@ -23,17 +24,28 @@ export const orderComponentSlice = createSlice({
         Libis: `LB001-${orderNoDate()}-685`,
         Ronac: `RSJ002-${orderNoDate()}-685`
       }
-      state[action.payload.branch] = `${_default[action.payload.branch]}${incrementedValue(action.payload.value)}`
+      state[action.payload.branch] = `${
+        _default[action.payload.branch]
+      }${incrementedValue(action.payload.value)}`
     },
     clearOrderNos: (state) => {
       state.Libis = ''
       state.Ronac = ''
+    },
+    setOrderViaField: (state, action) => {
+      state.orderViaField = action.payload
+    },
+    clearOrderViaField: (state) => {
+      state.orderViaField = null
     }
   }
 })
 
 export const {
-  setOrderNo, clearOrderNos
+  setOrderNo,
+  clearOrderNos,
+  setOrderViaField,
+  clearOrderViaField
 } = orderComponentSlice.actions
-export const selectOrderComponentSlice = state => state[ORDER_SLIP_COMPONENT]
+export const selectOrderComponentSlice = (state) => state[ORDER_SLIP_COMPONENT]
 export default orderComponentSlice.reducer

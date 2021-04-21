@@ -3,14 +3,18 @@ import DropdownList from './dropdownList'
 import Input from './input'
 import TextArea from './textArea'
 import {
+  BLANK_FIELD,
   CHIPS,
   DATE_PICKER,
   DATE_TIME_PICKER,
   DESCRIPTION,
   DROP_DOWN_LIST,
+  HEADER_FIELD,
   HIDDEN,
   INPUT,
   NUMBER,
+  ORDER_VIA_TYPE,
+  STATUS_REASON,
   TEXT_AREA
 } from './types'
 import classes from './index.module.css'
@@ -20,6 +24,8 @@ import { Description } from 'containers/0.login/styles'
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import Number from './number'
+import OrderVia from './orderVia'
+import StatusField from './statusField'
 
 const RenderComponent = ({ label, children, isInline, isInlineBlock }) => {
   if (isInline) {
@@ -53,15 +59,19 @@ const RenderComponent = ({ label, children, isInline, isInlineBlock }) => {
   )
 }
 
-const DescriptionComponent = props => {
+const DescriptionComponent = (props) => {
   const prices = [props[props.name], props.dataSource[2]]
   const total = prices[0] * prices[1]
   const [amount, setAmount] = useState(isNaN(total) ? '0.00' : total.toFixed(2))
-  const computeHandler = e => {
+  const computeHandler = (e) => {
     const newTotal = e.target.value * prices[1]
     setAmount(newTotal.toFixed(2))
-    const qty = isNaN(e.target.value) || e.target.value === '' ? '0' : e.target.value
-    props.setTotals({ ...props.totals, [props.name]: { qty, price: props.dataSource[2] } })
+    const qty =
+      isNaN(e.target.value) || e.target.value === '' ? '0' : e.target.value
+    props.setTotals({
+      ...props.totals,
+      [props.name]: { qty, price: props.dataSource[2] }
+    })
   }
 
   const renderData = (data, index) => {
@@ -88,9 +98,9 @@ const DescriptionComponent = props => {
                 style={
                   index >= 2
                     ? {
-                      display: 'flex',
-                      justifyContent: 'flex-end'
-                    }
+                        display: 'flex',
+                        justifyContent: 'flex-end'
+                      }
                     : {}
                 }
               >
@@ -110,7 +120,7 @@ const DescriptionComponent = props => {
 }
 
 const fields = {
-  [DATE_TIME_PICKER]: props => {
+  [DATE_TIME_PICKER]: (props) => {
     return (
       <RenderComponent
         label={props.label}
@@ -121,7 +131,7 @@ const fields = {
       </RenderComponent>
     )
   },
-  [DATE_PICKER]: props => {
+  [DATE_PICKER]: (props) => {
     return (
       <RenderComponent
         label={props.label}
@@ -132,38 +142,66 @@ const fields = {
       </RenderComponent>
     )
   },
-  [DROP_DOWN_LIST]: props => {
+  [DROP_DOWN_LIST]: (props) => {
     return (
       <RenderComponent {...props} isInline={props.isInline}>
         <DropdownList {...props} />
       </RenderComponent>
     )
   },
-  [INPUT]: props => {
+  [INPUT]: (props) => {
     return (
-      <RenderComponent label={props?.label} isInline={props?.isInline} isInlineBlock={props?.isInlineBlock}>
+      <RenderComponent
+        label={props?.label}
+        isInline={props?.isInline}
+        isInlineBlock={props?.isInlineBlock}
+      >
         <Input {...props} />
       </RenderComponent>
     )
   },
-  [TEXT_AREA]: props => {
+  // this is a special case
+  [ORDER_VIA_TYPE]: (props) => {
+    return (
+      <RenderComponent
+        label={props?.label}
+        isInline={props?.isInline}
+        isInlineBlock={props?.isInlineBlock}
+      >
+        <OrderVia {...props} />
+      </RenderComponent>
+    )
+  },
+  // this is a special case
+  [STATUS_REASON]: (props) => {
+    return (
+      <RenderComponent
+        label={props?.label}
+        isInline={props?.isInline}
+        isInlineBlock={props?.isInlineBlock}
+      >
+        <StatusField {...props} />
+      </RenderComponent>
+    )
+  },
+  [TEXT_AREA]: (props) => {
     return (
       <RenderComponent {...props}>
         <TextArea {...props} />
       </RenderComponent>
     )
   },
-  [NUMBER]: props => {
+  [NUMBER]: (props) => {
     return (
       <RenderComponent {...props}>
         <Number {...props} />
       </RenderComponent>
     )
   },
-  [DESCRIPTION]: props => {
+  [DESCRIPTION]: (props) => {
     return <DescriptionComponent {...props} />
   },
-  [HIDDEN]: props => {
+  [HIDDEN]: (props) => {
     return (
       <input
         id={props.name}
@@ -174,7 +212,17 @@ const fields = {
       />
     )
   },
-  [CHIPS]: props => {
+  [BLANK_FIELD]: (props) => {
+    return <RenderComponent {...props} />
+  },
+  [HEADER_FIELD]: (props) => {
+    return (
+      <RenderComponent>
+        <b>{props.label}</b>
+      </RenderComponent>
+    )
+  },
+  [CHIPS]: (props) => {
     return <Chips {...props} />
   }
 }
