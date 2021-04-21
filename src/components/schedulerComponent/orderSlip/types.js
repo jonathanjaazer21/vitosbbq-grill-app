@@ -50,26 +50,27 @@ export const M_B = 'M-B'
 export const PRT = 'PRT'
 export const JV_1 = 'JV_1'
 
+export const ORDER_VIA_PARTNER = 'orderViaPartner'
 export const PARTNER_MERCHANT_ORDER_NO = 'partnerMerchantOrderNo'
 
 // this is not included in the database post of data, this is only for viewing in print document particular field
 export const TIME_SLOT = 'timeSlot'
 
 export const LABELS = {
-  [STATUS]: 'Status',
-  [INDICATE_REASON]: 'Reason',
-  [BRANCH]: 'Branch',
-  [CUSTOMER]: 'Customer name',
-  [CONTACT_NUMBER]: 'Contact number',
+  [STATUS]: 'STATUS',
+  [INDICATE_REASON]: 'REASON',
+  [BRANCH]: 'BRANCH',
+  [CUSTOMER]: 'CUSTOMER NAME',
+  [CONTACT_NUMBER]: 'CONTACT_NUMBER',
   [DELIVERY_DATE]: 'Delivery Date/Time',
-  [DATE_ORDER_PLACED]: 'Date Order Placed',
-  [DATE_START]: 'Date/time start', // cannot be change
-  [DATE_END]: 'Date/time end', // cannot be change
-  [ORDER_VIA]: 'Order via',
-  [PAYMENT_MODE]: 'Payment mode',
-  [MERCHANT_ORDER]: 'Merchant Order #',
-  [ACCOUNT_NAME]: 'Account Name',
-  [ORDER_NO]: 'Order #',
+  [DATE_ORDER_PLACED]: 'DATE/TIME PLACED',
+  [DATE_START]: 'DATE/TIME START', // cannot be change
+  [DATE_END]: 'DATE/TIME END', // cannot be change
+  [ORDER_VIA]: 'ORDER VIA {DIRECT}',
+  [PAYMENT_MODE]: 'PAYMENT CODE',
+  [MERCHANT_ORDER]: 'MERCHANT ORDER #',
+  [ACCOUNT_NAME]: 'ACCOUNT NAME',
+  [ORDER_NO]: 'ORDER #',
   [CH_8]: '8"',
   [CH_12]: '12"',
   [CL_8]: 'CALI 8',
@@ -97,7 +98,8 @@ export const LABELS = {
   [BAO]: 'BAO-B-Q',
   [PRT]: 'PARTY TRAY',
   [TOTAL]: 'TOTAL',
-  [REMARKS]: 'Remarks',
-  [TIME_SLOT]: 'Time slot',
-  [PARTNER_MERCHANT_ORDER_NO]: 'Partner Merchant Order #'
+  [REMARKS]: 'NOTES',
+  [TIME_SLOT]: 'TIME SLOT',
+  [PARTNER_MERCHANT_ORDER_NO]: 'PARTNER MERCHANT ORDER #',
+  [ORDER_VIA_PARTNER]: 'ORDER VIA {PARTNER MERCHANT}'
 }

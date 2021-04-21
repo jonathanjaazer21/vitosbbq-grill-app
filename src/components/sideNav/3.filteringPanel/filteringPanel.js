@@ -33,7 +33,7 @@ import { selectUserSlice } from 'containers/0.login/loginSlice'
 import { useGetProducts } from 'components/products/useGetProducts'
 import sortByDate from 'commonFunctions/sort'
 
-const normalizeHour = date => {
+const normalizeHour = (date) => {
   const dateArray = date.split(':')
   if (dateArray[0] > 12) {
     const hour = dateArray[0] - 12
@@ -47,7 +47,7 @@ const normalizeHour = date => {
   }
 }
 
-const getOnlyDate = dateTime => {
+const getOnlyDate = (dateTime) => {
   const dateTimeSplit = dateTime.toString().split(' ')
   return `${dateTimeSplit[1]} ${dateTimeSplit[2]} ${dateTimeSplit[3]}`
 }
@@ -102,7 +102,8 @@ function FilteringPanel ({ isToggled }) {
     }
   }
   const userSlice = useSelector(selectUserSlice)
-  const branchFirstItem = userSlice.branches?.length > 0 ? userSlice.branches[0] : ''
+  const branchFirstItem =
+    userSlice.branches?.length > 0 ? userSlice.branches[0] : ''
   const [branchValue, setBranchValue] = useState(branchFirstItem)
   const [dateValue, setDateValue] = useState(new Date())
   const [filteredDataSource, setFilteredDataSource] = useState([])
@@ -113,7 +114,7 @@ function FilteringPanel ({ isToggled }) {
   }, [schedulerComponentSlice.dataSource])
 
   const handleFiltering = (branch, date) => {
-    const filteredData = dataSource.filter(data => {
+    const filteredData = dataSource.filter((data) => {
       const dateStart = getOnlyDate(data[DATE_START])
       const dateFilter = getOnlyDate(date)
       return data[BRANCH] === branch && dateStart === dateFilter
@@ -130,7 +131,7 @@ function FilteringPanel ({ isToggled }) {
             label: LABELS[BRANCH],
             dataSource: userSlice.branches,
             value: branchValue,
-            onChange: e => {
+            onChange: (e) => {
               setBranchValue(e.value)
               const filteredDataCopy = [...handleFiltering(e.value, dateValue)]
               const sumUpData = [...sumUp(filteredDataCopy, listOfProducts)]
@@ -145,7 +146,7 @@ function FilteringPanel ({ isToggled }) {
             value: dateValue,
             disabled: false,
             label: 'Date',
-            onChange: e => {
+            onChange: (e) => {
               setDateValue(e.target.value)
               const filteredDataCopy = [
                 ...handleFiltering(branchValue, e.target.value)
@@ -161,7 +162,7 @@ function FilteringPanel ({ isToggled }) {
         {sortByDate(filteredDataSource, DATE_START).map((data, index) => {
           const startTime = data[DATE_START]?.toString().split(' ')
           const endTime = data[DATE_END]?.toString().split(' ')
-          const chips = Object.keys(listOfProducts).map(product => {
+          const chips = Object.keys(listOfProducts).map((product) => {
             if (data[product]) {
               return {
                 label: listOfProducts[product],
@@ -197,8 +198,13 @@ function FilteringPanel ({ isToggled }) {
                 <div className={classes.chips}>
                   <div>
                     {chips.map((chip, index) => {
-                      return chip !== null && (
-                        <div key={index}>{`${chip.label}: ${chip.value}`}</div>
+                      return (
+                        chip !== null && (
+                          <div
+                            key={index}
+                          >{`${chip.label}: ${chip.value}`}
+                          </div>
+                        )
                       )
                     })}
 

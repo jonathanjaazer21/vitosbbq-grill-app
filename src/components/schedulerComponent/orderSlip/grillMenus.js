@@ -3,6 +3,7 @@ import { Item, Wrapper, Container } from './styles'
 import Input from 'components/fields/input'
 import { getData } from 'services'
 import { PRODUCTS } from 'services/collectionNames'
+import formatNumber from 'commonFunctions/formatNumber'
 
 import Print from 'components/print'
 import sort from 'commonFunctions/sort'
@@ -11,21 +12,11 @@ const Header = () => {
   return (
     <div style={{ padding: '.3rem' }}>
       <Container>
-        <Item>
-          Code
-        </Item>
-        <Item>
-          Product
-        </Item>
-        <Item right>
-          Price
-        </Item>
-        <Item right>
-          Qty
-        </Item>
-        <Item right>
-          Total
-        </Item>
+        <Item>Code</Item>
+        <Item>Product</Item>
+        <Item right>Price</Item>
+        <Item right>Qty</Item>
+        <Item right>Total</Item>
       </Container>
     </div>
   )
@@ -35,32 +26,27 @@ const Product = ({ groupHeader, productList, productData, setProductData }) => {
   return (
     <div>
       <div style={{ padding: '.3rem', color: 'red' }}>{groupHeader}</div>
-      {productList.map(data => {
-        const total = parseInt(productData[data?.code][0]) * parseInt(data?.price)
+      {productList.map((data) => {
+        const total =
+          parseInt(productData[data?.code][0]) * parseInt(data?.price)
         return (
           <Container key={data?.code}>
-            <Item>
-              {data?.code}
-            </Item>
-            <Item>
-              {data?.description}
-            </Item>
-            <Item right>
-              {data?.price.toFixed(2)}
-            </Item>
+            <Item>{data?.code}</Item>
+            <Item>{data?.description}</Item>
+            <Item right>{formatNumber(data?.price.toFixed(2))}</Item>
             <Item right>
               <div style={{ marginTop: '-.3rem', paddingLeft: '2rem' }}>
                 <Input
                   isNumber
                   name={data?.code}
-                  onChange={(e) => { setProductData(e, data?.code, data?.price) }}
+                  onChange={(e) => {
+                    setProductData(e, data?.code, data?.price)
+                  }}
                   value={productData && productData[data?.code][0]}
                 />
               </div>
             </Item>
-            <Item right>
-              {total.toFixed(2)}
-            </Item>
+            <Item right>{formatNumber(total.toFixed(2))}</Item>
           </Container>
         )
       })}
@@ -71,12 +57,8 @@ const Product = ({ groupHeader, productList, productData, setProductData }) => {
 const Footer = ({ total }) => {
   return (
     <Container>
-      <Item>
-        Total
-      </Item>
-      <Item right>
-        {total.toFixed(2)}
-      </Item>
+      <Item>Total</Item>
+      <Item right>{formatNumber(total.toFixed(2))}</Item>
     </Container>
   )
 }
@@ -96,7 +78,9 @@ export default function (props) {
     let subTotal = 0
 
     for (const array in productDataList) {
-      subTotal += parseInt(productDataList[array][1]) * parseInt(productDataList[array][0])
+      subTotal +=
+        parseInt(productDataList[array][1]) *
+        parseInt(productDataList[array][0])
     }
     return subTotal
   }
@@ -110,7 +94,13 @@ export default function (props) {
     const result = await getData(PRODUCTS)
     for (const obj of result) {
       for (const product of obj.productList) {
-        productData[product.code] = props[product.code] ? [parseInt(props[product.code]), product?.price] : [0, product?.price]
+        productData[product.code] = props[product.code]
+          ? [
+              parseInt(props[product.code]),
+              product?.price,
+              product?.description
+            ]
+          : [0, product?.price, product?.description]
       }
     }
     setProductData(productData)
@@ -120,16 +110,22 @@ export default function (props) {
   return (
     <Wrapper>
       <Header />
-      {productList.map(data =>
+      {productList.map((data) => (
         <Product
           key={data?.groupHeader}
           groupHeader={data?.groupHeader}
           productList={data?.productList}
           productData={productData}
           setProductData={handleChange}
-        />)}
+        />
+      ))}
       <Footer total={calculateSubTotal(productData)} />
-      <Print data={props} totals={productData} subTotal={calculateSubTotal(productData)} productList={productList} />
+      <Print
+        data={props}
+        totals={productData}
+        subTotal={calculateSubTotal(productData)}
+        productList={productList}
+      />
     </Wrapper>
   )
 }

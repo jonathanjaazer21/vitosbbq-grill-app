@@ -1,7 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import fields from 'components/fields'
-import { DATE_PICKER, DROP_DOWN_LIST, INPUT, NUMBER } from 'components/fields/types'
-import { ACCOUNT_NUMBER, AMOUNT_PAID, DATE_PAYMENT, MODE_PAYMENT, PAYMENT_LABELS, REF_NO, SOURCE } from './types'
+import {
+  DATE_PICKER,
+  DROP_DOWN_LIST,
+  INPUT,
+  NUMBER
+} from 'components/fields/types'
+import {
+  ACCOUNT_NUMBER,
+  AMOUNT_PAID,
+  DATE_PAYMENT,
+  MODE_PAYMENT,
+  PAYMENT_LABELS,
+  REF_NO,
+  SOURCE
+} from './types'
 import { Container, Wrapper } from './styles'
 import CustomDialog from 'components/dialog'
 import { AiOutlineMinus } from 'react-icons/ai'
@@ -12,8 +25,9 @@ import { useSelector } from 'react-redux'
 import { selectTableSlice } from 'components/Table/tableSlice'
 import { useGetDropdowns } from 'components/PaymentDetails/dropdowns'
 import { Uploads } from 'components/uploads'
+import formatNumber from 'commonFunctions/formatNumber'
 
-export function Paymentform(props) {
+export function Paymentform (props) {
   const tableSlice = useSelector(selectTableSlice)
   const [others, setOthers] = useState({ 'Senior Citizen': 0 })
   const [formFields, setFormFields] = useState({})
@@ -25,10 +39,11 @@ export function Paymentform(props) {
     const newFormFields = {}
     const newOthers = {}
     const { dataList } = tableSlice
-    const data = dataList.find(row => row._id === props?.id)
+    const data = dataList.find((row) => row._id === props?.id)
     // this is only for dropdowns
     for (const obj of dropdowns) {
-      newFormFields[obj?.name] = typeof data[obj?.name] !== 'undefined' ? data[obj?.name] : ''
+      newFormFields[obj?.name] =
+        typeof data[obj?.name] !== 'undefined' ? data[obj?.name] : ''
     }
 
     for (const key in data.others) {
@@ -45,7 +60,11 @@ export function Paymentform(props) {
 
   const calculateBalance = () => {
     const amountPaid = formFields[AMOUNT_PAID]
-    const paid = isNaN(amountPaid) ? 0 : amountPaid === '' ? 0 : parseInt(amountPaid)
+    const paid = isNaN(amountPaid)
+      ? 0
+      : amountPaid === ''
+        ? 0
+        : parseInt(amountPaid)
     let newBalance = parseInt(props?.subTotal) - paid
     for (const key in others) {
       const value = others[key]
@@ -82,7 +101,8 @@ export function Paymentform(props) {
     const d = new Date(formFields[DATE_PAYMENT])
     if (Object.prototype.toString.call(d) === '[object Date]') {
       // it is a date
-      if (isNaN(d.getTime())) { // d.valueOf() could also work
+      if (isNaN(d.getTime())) {
+        // d.valueOf() could also work
         alert('Date is invalid')
         // date is not valid
         return
@@ -92,50 +112,104 @@ export function Paymentform(props) {
     } else {
       // not a date
     }
-    updateData({ data: { ...formFields, [DATE_PAYMENT]: new Date(formFields[DATE_PAYMENT]), others }, collection: SCHEDULES, id: props?.id })
+    updateData({
+      data: {
+        ...formFields,
+        [DATE_PAYMENT]: new Date(formFields[DATE_PAYMENT]),
+        others
+      },
+      collection: SCHEDULES,
+      id: props?.id
+    })
     props.onBack()
   }
 
   return (
     <>
       <Wrapper>
-        {dropdowns.map(customProps => {
+        {dropdowns.map((customProps) => {
           return (
             <Container key={customProps?.name}>
               {fields[customProps?.type]({
                 ...customProps,
                 // this value is applied only for dropdowns field
                 value: formFields[customProps?.name],
-                onChange: (e) => handleChangeFormFields(e, customProps?.name, customProps.type)
+                onChange: (e) =>
+                  handleChangeFormFields(
+                    e,
+                    customProps?.name,
+                    customProps.type
+                  )
               })}
             </Container>
           )
         })}
         <Uploads id={props?.id} />
-        <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', padding: '1rem 0rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            padding: '1rem 0rem'
+          }}
+        >
           <div style={{ flex: '1' }}>Others</div>
           <div>
-            <CustomDialog label='Less' others={others} setOthers={handleOthers} />
+            <CustomDialog
+              label='Less'
+              others={others}
+              setOthers={handleOthers}
+            />
           </div>
         </div>
 
         {Object.keys(others).map((fieldName, index) => {
           return (
             <Container key={index}>
-              {fields[NUMBER]({ name: fieldName, label: fieldName, value: others[fieldName], onChange: (e) => handleChange(e, fieldName) })}
+              {fields[NUMBER]({
+                name: fieldName,
+                label: fieldName,
+                value: others[fieldName],
+                onChange: (e) => handleChange(e, fieldName)
+              })}
 
-              <div style={{ flex: '.2', display: 'flex', justifyContent: 'flex-end', width: '100%', alignItems: 'center' }}>
-                <Button type='secondary' shape='circle' icon={<AiOutlineMinus onClick={() => handleRemove(fieldName)} />} disabled={fieldName === 'Senior Citizen'} />
+              <div
+                style={{
+                  flex: '.2',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  width: '100%',
+                  alignItems: 'center'
+                }}
+              >
+                <Button
+                  type='secondary'
+                  shape='circle'
+                  icon={
+                    <AiOutlineMinus onClick={() => handleRemove(fieldName)} />
+                  }
+                  disabled={fieldName === 'Senior Citizen'}
+                />
               </div>
             </Container>
           )
         })}
-        <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', padding: '1rem 0rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
+            padding: '1rem 0rem'
+          }}
+        >
           <div style={{ flex: '1' }}>Balance</div>
-          <div>{balance.toFixed(2)}</div>
+          <div>{formatNumber(balance.toFixed(2))}</div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button type='primary' danger onClick={handleSubmit}> Submit</Button>
+          <Button type='primary' danger onClick={handleSubmit}>
+            {' '}
+            Submit
+          </Button>
         </div>
       </Wrapper>
     </>
