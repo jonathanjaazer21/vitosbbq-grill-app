@@ -28,7 +28,7 @@ import {
   DELIVERY_DATE
 } from 'components/SchedulerComponent/orderSlip/types'
 
-export const formatDate = date => {
+export const formatDate = (date) => {
   if (date === null) {
     return ''
   }
@@ -40,13 +40,13 @@ export default function (dataSource) {
     const startTime = obj[DATE_START]
     const endTime = obj[DATE_END]
     const dateOrder = obj[DATE_ORDER_PLACED]
-    const deliveryDate = obj[DELIVERY_DATE]
+    // const deliveryDate = obj[DELIVERY_DATE]
     newDataSource.push({
       ...obj,
       [DATE_START]: formatDate(startTime),
       [DATE_END]: formatDate(endTime),
-      [DATE_ORDER_PLACED]: formatDate(dateOrder),
-      [DELIVERY_DATE]: formatDate(deliveryDate)
+      [DATE_ORDER_PLACED]: formatDate(dateOrder)
+      // [DELIVERY_DATE]: formatDate(deliveryDate)
       // [CH_8]: obj[CH_8].toString(),
       // [CH_12]: obj[CH_12].toString(),
       // [BC_2]: obj[BC_2].toString(),

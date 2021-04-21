@@ -1,9 +1,13 @@
 import {
+  BLANK_FIELD,
   DATE_TIME_PICKER,
   DESCRIPTION,
   DROP_DOWN_LIST,
+  HEADER_FIELD,
   HIDDEN,
   INPUT,
+  ORDER_VIA_TYPE,
+  STATUS_REASON,
   TEXT_AREA
 } from 'components/fields/types'
 import {
@@ -47,6 +51,7 @@ import {
   M_B,
   ORDER_NO,
   ORDER_VIA,
+  ORDER_VIA_PARTNER,
   PARTNER_MERCHANT_ORDER_NO,
   PAYMENT_MODE,
   PRT,
@@ -54,6 +59,7 @@ import {
   REPAER,
   SPICED_VINEGAR,
   STATUS,
+  TIME_SLOT,
   TOTAL,
   TWELVE,
   _ID
@@ -90,6 +96,18 @@ export const DROPDOWN_DATAS = {
 }
 export default [
   {
+    name: BLANK_FIELD,
+    type: BLANK_FIELD,
+    isInlineBlock: true
+  },
+  {
+    name: DATE_ORDER_PLACED,
+    type: DATE_TIME_PICKER,
+    label: LABELS[DATE_ORDER_PLACED],
+    default: 'StartTime',
+    isInlineBlock: true
+  },
+  {
     name: BRANCH,
     type: DROP_DOWN_LIST,
     label: LABELS[BRANCH],
@@ -109,23 +127,17 @@ export default [
     label: LABELS[CUSTOMER],
     isInlineBlock: true
   },
-  {
-    name: DELIVERY_DATE,
-    type: DATE_TIME_PICKER,
-    label: LABELS[DELIVERY_DATE],
-    default: 'StartTime',
-    isInlineBlock: true
-  },
+  // {
+  //   name: DELIVERY_DATE,
+  //   type: DATE_TIME_PICKER,
+  //   label: LABELS[DELIVERY_DATE],
+  //   default: 'StartTime',
+  //   isInlineBlock: true
+  // },
   {
     name: CONTACT_NUMBER,
     type: INPUT,
     label: LABELS[CONTACT_NUMBER],
-    isInlineBlock: true
-  },
-  {
-    name: STATUS,
-    type: DROP_DOWN_LIST,
-    label: LABELS[STATUS],
     isInlineBlock: true
   },
   {
@@ -135,29 +147,25 @@ export default [
     isInlineBlock: true
   },
   {
-    name: PARTNER_MERCHANT_ORDER_NO,
-    type: INPUT,
-    label: LABELS[PARTNER_MERCHANT_ORDER_NO],
-    isInlineBlock: true
-  },
-  {
     name: ACCOUNT_NAME,
     type: INPUT,
     label: LABELS[ACCOUNT_NAME],
     isInlineBlock: true
   },
+  // {
+  //   name: PARTNER_MERCHANT_ORDER_NO,
+  //   type: INPUT,
+  //   label: LABELS[PARTNER_MERCHANT_ORDER_NO],
+  //   isInlineBlock: true
+  // },
   {
-    name: INDICATE_REASON,
-    type: INPUT,
-    label: LABELS[INDICATE_REASON],
-    isInlineBlock: true
+    name: ORDER_VIA_PARTNER,
+    type: ORDER_VIA_TYPE
   },
   {
-    name: DATE_ORDER_PLACED,
-    type: DATE_TIME_PICKER,
-    label: LABELS[DATE_ORDER_PLACED],
-    default: 'StartTime',
-    isInlineBlock: true
+    name: HEADER_FIELD,
+    type: HEADER_FIELD,
+    label: LABELS[TIME_SLOT]
   },
   {
     name: DATE_START,
@@ -180,6 +188,22 @@ export default [
     type: TEXT_AREA,
     label: LABELS[REMARKS]
   },
+  {
+    name: STATUS_REASON,
+    type: STATUS_REASON
+  },
+  // {
+  //   name: STATUS,
+  //   type: DROP_DOWN_LIST,
+  //   label: LABELS[STATUS],
+  //   isInlineBlock: true,
+  // },
+  // {
+  //   name: INDICATE_REASON,
+  //   type: INPUT,
+  //   label: LABELS[INDICATE_REASON],
+  //   isInlineBlock: true,
+  // },
   // this is important do not remove
   {
     name: _ID,
