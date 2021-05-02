@@ -9,6 +9,7 @@ import {
   Agenda,
   DragAndDrop,
   Resize,
+  Day,
 } from "@syncfusion/ej2-react-schedule"
 import OrderSlip from "components/SchedulerComponent/orderSlip"
 import {
@@ -197,10 +198,18 @@ function SchedulerComponent({ setLoading }) {
     <>
       {dropdowns[BRANCH].length > 0 && (
         <ScheduleComponent
-          startHour="10:00"
+          startHour="09:00"
           endHour="19:00"
           editorTemplate={OrderSlip}
           eventSettings={eventSettings}
+          views={[
+            {
+              option: "Day",
+              startHour: "09:00",
+              endHour: "19:00",
+              timeScale: { enable: true, slotCount: 3 },
+            },
+          ]}
           actionBegin={onActionBegin}
           navigating={onNavigation}
           eventRendered={(args) => onEventRendered(args, dropdowns[BRANCH])}
@@ -209,11 +218,12 @@ function SchedulerComponent({ setLoading }) {
           width="100%"
         >
           <ViewsDirective>
+            <ViewDirective option="Day" />
             <ViewDirective option="Week" />
             <ViewDirective option="Month" />
             <ViewDirective option="Agenda" />
           </ViewsDirective>
-          <Inject services={[Week, Month, Agenda, DragAndDrop, Resize]} />
+          <Inject services={[Day, Week, Month, Agenda]} />
         </ScheduleComponent>
       )}
     </>
