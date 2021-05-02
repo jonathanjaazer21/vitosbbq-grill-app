@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import fields from 'components/fields'
-import classes from './filteringPanel.module.css'
-import { DATE_PICKER, DROP_DOWN_LIST } from 'components/fields/types'
+import React, { useState, useEffect } from "react"
+import fields from "components/fields"
+import classes from "./filteringPanel.module.css"
+import { DATE_PICKER, DROP_DOWN_LIST } from "components/fields/types"
 import {
   BCJ_1,
   BCJ_2,
@@ -19,22 +19,22 @@ import {
   JV_2,
   JV_4,
   LABELS,
-  _ID
-} from 'components/SchedulerComponent/orderSlip/types'
-import Animate, { FadeInLeft } from 'animate-css-styled-components'
-import { DROPDOWN_DATAS } from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
+  _ID,
+} from "components/SchedulerComponent/orderSlip/types"
+import Animate, { FadeInLeft } from "animate-css-styled-components"
+import { DROPDOWN_DATAS } from "components/SchedulerComponent/orderSlip/orderSlipConfig"
 
-import { selectSchedulerComponentSlice } from 'components/SchedulerComponent/schedulerComponentSlice'
+import { selectSchedulerComponentSlice } from "components/SchedulerComponent/schedulerComponentSlice"
 
-import { useSelector } from 'react-redux'
-import { Body, Header } from './styles'
-import formatDataSource from 'components/SchedulerComponent/formatDataSource'
-import { selectUserSlice } from 'containers/0.login/loginSlice'
-import { useGetProducts } from 'components/products/useGetProducts'
-import sortByDate from 'commonFunctions/sort'
+import { useSelector } from "react-redux"
+import { Body, Header } from "./styles"
+import formatDataSource from "components/SchedulerComponent/formatDataSource"
+import { selectUserSlice } from "containers/0.login/loginSlice"
+import { useGetProducts } from "components/products/useGetProducts"
+import sortByDate from "commonFunctions/sort"
 
 const normalizeHour = (date) => {
-  const dateArray = date.split(':')
+  const dateArray = date.split(":")
   if (dateArray[0] > 12) {
     const hour = dateArray[0] - 12
     return `${hour}:${dateArray[1]} PM`
@@ -48,17 +48,17 @@ const normalizeHour = (date) => {
 }
 
 const getOnlyDate = (dateTime) => {
-  const dateTimeSplit = dateTime.toString().split(' ')
+  const dateTimeSplit = dateTime.toString().split(" ")
   return `${dateTimeSplit[1]} ${dateTimeSplit[2]} ${dateTimeSplit[3]}`
 }
 
 const sumUp = (filteredData, productList) => {
   const newFilteredData = []
   for (const obj of filteredData) {
-    let _index = ''
+    let _index = ""
     const isExist = newFilteredData.some((data, index) => {
-      const startTime1 = data[DATE_START]?.toString().split(' ')
-      const startTime2 = obj[DATE_START]?.toString().split(' ')
+      const startTime1 = data[DATE_START]?.toString().split(" ")
+      const startTime2 = obj[DATE_START]?.toString().split(" ")
       _index = index
       return normalizeHour(startTime1[4]) === normalizeHour(startTime2[4])
     })
@@ -82,14 +82,14 @@ const sumUp = (filteredData, productList) => {
         [DATE_START]: obj[DATE_START],
         [DATE_END]: obj[DATE_END],
         [BRANCH]: obj[BRANCH], // this to identify the color of panel
-        ...productWithData
+        ...productWithData,
       })
     }
   }
   return newFilteredData
 }
 
-function FilteringPanel ({ isToggled }) {
+function FilteringPanel({ isToggled }) {
   const listOfProducts = {}
   const [products] = useGetProducts()
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
@@ -103,7 +103,7 @@ function FilteringPanel ({ isToggled }) {
   }
   const userSlice = useSelector(selectUserSlice)
   const branchFirstItem =
-    userSlice.branches?.length > 0 ? userSlice.branches[0] : ''
+    userSlice.branches?.length > 0 ? userSlice.branches[0] : ""
   const [branchValue, setBranchValue] = useState(branchFirstItem)
   const [dateValue, setDateValue] = useState(new Date())
   const [filteredDataSource, setFilteredDataSource] = useState([])
@@ -137,7 +137,7 @@ function FilteringPanel ({ isToggled }) {
               const sumUpData = [...sumUp(filteredDataCopy, listOfProducts)]
               setFilteredDataSource([])
               setFilteredDataSource(sumUpData)
-            }
+            },
           })}
         </div>
         <div>
@@ -145,28 +145,28 @@ function FilteringPanel ({ isToggled }) {
             name: DATE_PICKER,
             value: dateValue,
             disabled: false,
-            label: 'Date',
+            label: "Date",
             onChange: (e) => {
               setDateValue(e.target.value)
               const filteredDataCopy = [
-                ...handleFiltering(branchValue, e.target.value)
+                ...handleFiltering(branchValue, e.target.value),
               ]
               const sumUpData = [...sumUp(filteredDataCopy, listOfProducts)]
               setFilteredDataSource([])
               setFilteredDataSource(sumUpData)
-            }
+            },
           })}
         </div>
       </Header>
       <Body isToggled={isToggled}>
         {sortByDate(filteredDataSource, DATE_START).map((data, index) => {
-          const startTime = data[DATE_START]?.toString().split(' ')
-          const endTime = data[DATE_END]?.toString().split(' ')
+          const startTime = data[DATE_START]?.toString().split(" ")
+          const endTime = data[DATE_END]?.toString().split(" ")
           const chips = Object.keys(listOfProducts).map((product) => {
             if (data[product]) {
               return {
                 label: listOfProducts[product],
-                value: data[product]
+                value: data[product],
               }
             } else {
               return null
@@ -178,7 +178,7 @@ function FilteringPanel ({ isToggled }) {
             <Animate
               key={data[_ID]}
               Animation={[FadeInLeft]}
-              duration={['1s']}
+              duration={["1s"]}
               delay={[`0.${1 + index}s`]}
             >
               <div
@@ -200,9 +200,8 @@ function FilteringPanel ({ isToggled }) {
                     {chips.map((chip, index) => {
                       return (
                         chip !== null && (
-                          <div
-                            key={index}
-                          >{`${chip.label}: ${chip.value}`}
+                          <div key={index}>
+                            {`${chip.label}: ${chip.value}`}
                           </div>
                         )
                       )

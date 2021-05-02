@@ -1,12 +1,12 @@
-import styled from 'styled-components'
+import styled from "styled-components"
 
 export const Sidenav = styled.div`
   position: fixed;
-  width: ${props => (props.isToggled ? '320px' : '75px')};
+  width: ${(props) => (props.isToggled ? "320px" : "75px")};
   height: 100%;
   display: flex;
   flex-direction: column;
-  background-color: ${props =>
+  background-color: ${(props) =>
     props.isToggled ? props.theme.backgroundColor : props.theme.primaryColor};
   overflow-x: hidden;
   overflow-y: auto;
@@ -14,18 +14,25 @@ export const Sidenav = styled.div`
   z-index: 999;
   @media (max-width: 768px) {
     width: 75px;
-    background-color: ${props => props.theme.primaryColor};
+    background-color: ${(props) => props.theme.primaryColor};
   }
 `
 export const Header = styled.div`
   width: 100%;
-  color: ${props => props.theme.whiteText};
+  color: ${(props) => props.theme.whiteText};
 `
 
 export const Body = styled.div`
   display: flex;
   flex-direction: column;
-  padding: ${props => props.theme.menuPadding};
+  padding: ${(props) => props.theme.menuPadding};
 `
 
 export const Footer = styled.div``
+
+export const ToggleableContainer = styled.div`
+  z-index: 1000;
+  width: 375px;
+  background-color: red;
+  height: 100%;
+`

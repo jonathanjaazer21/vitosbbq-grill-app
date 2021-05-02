@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { Item, Wrapper, Container } from './styles'
-import Input from 'components/fields/input'
-import { getData } from 'services'
-import { PRODUCTS } from 'services/collectionNames'
-import formatNumber from 'commonFunctions/formatNumber'
+import React, { useState, useEffect } from "react"
+import { Item, Wrapper, Container } from "./styles"
+import Input from "components/fields/input"
+import { getData } from "services"
+import { PRODUCTS } from "services/collectionNames"
+import formatNumber from "commonFunctions/formatNumber"
 
-import Print from 'components/print'
-import sort from 'commonFunctions/sort'
+import Print from "components/print"
+import sort from "commonFunctions/sort"
 
 const Header = () => {
   return (
-    <div style={{ padding: '.3rem' }}>
+    <div style={{ padding: ".3rem" }}>
       <Container>
         <Item>Code</Item>
         <Item>Product</Item>
@@ -25,7 +25,7 @@ const Header = () => {
 const Product = ({ groupHeader, productList, productData, setProductData }) => {
   return (
     <div>
-      <div style={{ padding: '.3rem', color: 'red' }}>{groupHeader}</div>
+      <div style={{ padding: ".3rem", color: "red" }}>{groupHeader}</div>
       {productList.map((data) => {
         const total =
           parseInt(productData[data?.code][0]) * parseInt(data?.price)
@@ -35,7 +35,7 @@ const Product = ({ groupHeader, productList, productData, setProductData }) => {
             <Item>{data?.description}</Item>
             <Item right>{formatNumber(data?.price.toFixed(2))}</Item>
             <Item right>
-              <div style={{ marginTop: '-.3rem', paddingLeft: '2rem' }}>
+              <div style={{ marginTop: "-.3rem", paddingLeft: "2rem" }}>
                 <Input
                   isNumber
                   name={data?.code}
@@ -67,8 +67,8 @@ export default function (props) {
   const [productData, setProductData] = useState({})
 
   const handleChange = (e, code, price) => {
-    if (e.target.value === '') {
-      setProductData({ ...productData, [code]: ['0', price] })
+    if (e.target.value === "") {
+      setProductData({ ...productData, [code]: ["0", price] })
     } else {
       setProductData({ ...productData, [code]: [e.target.value, price] })
     }
@@ -98,13 +98,13 @@ export default function (props) {
           ? [
               parseInt(props[product.code]),
               product?.price,
-              product?.description
+              product?.description,
             ]
           : [0, product?.price, product?.description]
       }
     }
     setProductData(productData)
-    setProductList(sort(result, 'no'))
+    setProductList(sort(result, "no"))
   }
 
   return (
