@@ -1,2 +1,3 @@
 import FilteringPanel from "./FilteringPanel"
-export { FilteringPanel }
+import Reports from "./Reports"
+export { FilteringPanel, Reports }

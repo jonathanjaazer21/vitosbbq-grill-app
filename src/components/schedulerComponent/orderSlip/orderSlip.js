@@ -1,36 +1,35 @@
-import React, { useEffect, useState } from 'react'
-import fields from 'components/fields'
-import orderSlipConfig from './orderSlipConfig'
-import classes from './orderSlip.module.css'
-import GrillMenus from './grillMenus'
-import { TextBoxComponent } from '@syncfusion/ej2-react-inputs'
+import React, { useEffect, useState } from "react"
+import fields from "components/fields"
+import orderSlipConfig from "./orderSlipConfig"
+import classes from "./orderSlip.module.css"
+import GrillMenus from "./grillMenus"
+import { TextBoxComponent } from "@syncfusion/ej2-react-inputs"
 
 import {
   LABELS,
   ORDER_NO,
   ORDER_VIA,
-  PARTNER_MERCHANT_ORDER_NO
-} from 'components/SchedulerComponent/orderSlip/types'
-import { useDispatch, useSelector } from 'react-redux'
-import { setOrderNo, clearOrderNos, setOrderViaField } from './orderSlipSlice'
-import { selectSchedulerComponentSlice } from '../schedulerComponentSlice'
-import orderNoDate from './orderNoDate'
-import { useGetDropdowns } from '../dropdowns'
-import { DROP_DOWN_LIST, INPUT, ORDER_VIA_TYPE } from 'components/fields/types'
-import { useGetDropdownGroup } from 'components/dropdowns/useDropdownGroup'
-import { useOrderViaField } from './useOrderViaField'
-import Input from 'components/fields/input'
-import OrderVia from 'components/fields/orderVia'
+  PARTNER_MERCHANT_ORDER_NO,
+  REMARKS,
+} from "components/SchedulerComponent/orderSlip/types"
+import { useDispatch, useSelector } from "react-redux"
+import { setOrderNo, clearOrderNos, setOrderViaField } from "./orderSlipSlice"
+import { selectSchedulerComponentSlice } from "../schedulerComponentSlice"
+import orderNoDate from "./orderNoDate"
+import { useGetDropdowns } from "../dropdowns"
+import { DROP_DOWN_LIST, INPUT, ORDER_VIA_TYPE } from "components/fields/types"
+import { useGetDropdownGroup } from "components/dropdowns/useDropdownGroup"
+import { useOrderViaField } from "./useOrderViaField"
+import Input from "components/fields/input"
+import OrderVia from "components/fields/orderVia"
 
-function OrderSlip (props) {
+function OrderSlip(props) {
   const dispatch = useDispatch()
   const selectSchedulerComponent = useSelector(selectSchedulerComponentSlice)
   const dropdowns = useGetDropdowns()
-  const [
-    isDisplayedDirect,
-    isDisplayedPartner,
-    handleOrderVia
-  ] = useOrderViaField()
+  // this is for orderVia and Partner Merchant field
+  const [isDisplayedDirect, isDisplayedPartner, handleOrderVia] =
+    useOrderViaField()
   // const [groupDropdowns] = useGetDropdownGroup('orderVia')
   const { dataSource } = selectSchedulerComponent
   useEffect(() => {
@@ -43,12 +42,12 @@ function OrderSlip (props) {
     )
     let latestNumber = 0
     for (const obj of filteredLibis) {
-      const splitedObj = obj[ORDER_NO].split('-685')
+      const splitedObj = obj[ORDER_NO].split("-685")
       if (latestNumber < parseInt(splitedObj[1])) {
         latestNumber = parseInt(splitedObj[1])
       }
     }
-    dispatch(setOrderNo({ branch: 'Libis', value: parseInt(latestNumber) + 1 }))
+    dispatch(setOrderNo({ branch: "Libis", value: parseInt(latestNumber) + 1 }))
   }
 
   const countRonac = () => {
@@ -57,19 +56,19 @@ function OrderSlip (props) {
     )
     let latestNumber = 0
     for (const obj of filteredRonac) {
-      const splitedObj = obj[ORDER_NO].split('-685')
+      const splitedObj = obj[ORDER_NO].split("-685")
       if (latestNumber < parseInt(splitedObj[1])) {
         latestNumber = parseInt(splitedObj[1])
       }
     }
-    dispatch(setOrderNo({ branch: 'Ronac', value: parseInt(latestNumber) + 1 }))
+    dispatch(setOrderNo({ branch: "Ronac", value: parseInt(latestNumber) + 1 }))
   }
 
   return props !== undefined ? (
     <div className={classes.container}>
       {orderSlipConfig.map((customProps) => {
         const dataSource =
-          typeof dropdowns[customProps.name] === 'undefined'
+          typeof dropdowns[customProps.name] === "undefined"
             ? []
             : dropdowns[customProps.name]
         if (customProps.type === DROP_DOWN_LIST) {
@@ -88,10 +87,11 @@ function OrderSlip (props) {
             handleOrderVia(e, customProps)
           }
         }
+
         return fields[customProps.type]({
           ...props,
           ...customProps,
-          dataSource
+          dataSource,
         })
       })}
       <GrillMenus {...props} />

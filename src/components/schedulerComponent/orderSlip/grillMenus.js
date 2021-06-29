@@ -22,25 +22,47 @@ const Header = () => {
   )
 }
 
-const Product = ({ groupHeader, productList, productData, setProductData }) => {
+const Product = ({
+  groupHeader,
+  productList,
+  productData,
+  setProductData,
+  handleCustomPrice,
+}) => {
   return (
     <div>
       <div style={{ padding: ".3rem", color: "red" }}>{groupHeader}</div>
       {productList.map((data) => {
+        const retainedPrice = [...productData[data?.code]]
         const total =
-          parseInt(productData[data?.code][0]) * parseInt(data?.price)
+          parseInt(productData[data?.code][0]) * parseInt(retainedPrice[1])
         return (
           <Container key={data?.code}>
             <Item>{data?.code}</Item>
             <Item>{data?.description}</Item>
-            <Item right>{formatNumber(data?.price.toFixed(2))}</Item>
+            <Item right>
+              {data?.price === 0 ? (
+                <div style={{ marginTop: "-.3rem", paddingLeft: "2rem" }}>
+                  <Input
+                    isNumber
+                    name={`customPrice${data?.code}`}
+                    onChange={(e) => {
+                      handleCustomPrice(e, data?.code)
+                    }}
+                    value={productData && productData[data?.code][1]}
+                  />
+                </div>
+              ) : (
+                formatNumber(data?.price.toFixed(2))
+              )}
+            </Item>
             <Item right>
               <div style={{ marginTop: "-.3rem", paddingLeft: "2rem" }}>
                 <Input
                   isNumber
                   name={data?.code}
                   onChange={(e) => {
-                    setProductData(e, data?.code, data?.price)
+                    setProductData(e, data?.code)
                   }}
                   value={productData && productData[data?.code][0]}
                 />
@@ -66,11 +88,32 @@ export default function (props) {
   const [productList, setProductList] = useState([])
   const [productData, setProductData] = useState({})
 
-  const handleChange = (e, code, price) => {
+  console.log("productData", productData)
+  const handleChange = (e, code) => {
+    const retainedData = [...productData[code]]
     if (e.target.value === "") {
-      setProductData({ ...productData, [code]: ["0", price] })
+      setProductData({ ...productData, [code]: ["0", retainedData[1]] })
     } else {
-      setProductData({ ...productData, [code]: [e.target.value, price] })
+      setProductData({
+        ...productData,
+        [code]: [e.target.value, retainedData[1]],
+      })
+    }
+  }
+
+  const handleCustomPrice = (e, code) => {
+    const retainedData = [...productData[code]]
+    const convertedPrice = parseInt(e.target.value)
+    if (!isNaN(convertedPrice)) {
+      setProductData({
+        ...productData,
+        [code]: [retainedData[0], convertedPrice],
+      })
+    } else {
+      setProductData({
+        ...productData,
+        [code]: [retainedData[0], convertedPrice],
+      })
     }
   }
 
@@ -117,6 +160,7 @@ export default function (props) {
           productList={data?.productList}
           productData={productData}
           setProductData={handleChange}
+          handleCustomPrice={handleCustomPrice}
         />
       ))}
       <Footer total={calculateSubTotal(productData)} />

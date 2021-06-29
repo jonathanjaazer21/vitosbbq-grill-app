@@ -31,6 +31,8 @@ function FilteringPanel({ isToggled }) {
     getDataByBranch,
     getDataByDate,
   ] = useSchedulerFilter()
+
+  console.log("printDataFetched", dataFetched)
   return (
     <Grid>
       <Select

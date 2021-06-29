@@ -1,6 +1,6 @@
 import orderSlipConfig, {
-  DROPDOWN_DATAS
-} from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
+  DROPDOWN_DATAS,
+} from "components/SchedulerComponent/orderSlip/orderSlipConfig"
 import {
   ACCOUNT_NAME,
   ATCHARA,
@@ -40,22 +40,22 @@ import {
   SPICED_VINEGAR,
   STATUS,
   TWELVE,
-  _ID
-} from 'components/SchedulerComponent/orderSlip/types'
+  _ID,
+} from "components/SchedulerComponent/orderSlip/types"
 
 const schedulerSchema = {}
 for (const obj of orderSlipConfig) {
   if (obj.name) {
-    schedulerSchema[obj.name] = ''
+    schedulerSchema[obj.name] = ""
   }
 }
 
 // for number only
-const checkIfValidNumber = number => {
+const checkIfValidNumber = (number) => {
   if (isNaN(number)) {
     return 0
   } else {
-    if (number.trim() !== '') {
+    if (number.trim() !== "") {
       return parseInt(number)
     } else {
       return 0
@@ -86,7 +86,7 @@ export default function (data) {
       [ACCOUNT_NAME]: data[ACCOUNT_NAME],
       [ID]: data[ID],
       [GUID]: data?.Guid ? data?.Guid : null,
-      [_ID]: data[_ID]
+      [_ID]: data[_ID],
     }
   } else {
     return {}

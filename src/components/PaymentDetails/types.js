@@ -4,13 +4,15 @@ export const SOURCE = 'source'
 export const ACCOUNT_NUMBER = 'accountNumber'
 export const AMOUNT_PAID = 'amountPaid'
 export const REF_NO = 'refNo'
+export const OTHERS_DEDUCTION = 'othersDeduction'
 
 export const PAYMENT_LABELS = {
+  [OTHERS_DEDUCTION]: 'Others/Deduction',
   [DATE_PAYMENT]: 'Date Payment',
   [MODE_PAYMENT]: 'Mode Payment',
   [SOURCE]: 'Source',
   [ACCOUNT_NUMBER]: 'Account Number',
-  [AMOUNT_PAID]: 'Amount Paid',
+  [AMOUNT_PAID]: 'Total due',
   totalAmountPaid: 'Amount Paid',
   [REF_NO]: 'Ref No'
 }

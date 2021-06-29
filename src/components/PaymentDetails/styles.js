@@ -1,58 +1,60 @@
-import styled from 'styled-components'
+import styled from "styled-components"
 
 export const Wrapper = styled.div`
-  display:flex;
-  flex-direction:column;
-  width:100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `
 
 export const Actions = styled.div`
-  display:flex;
+  display: flex;
   background-color: white;
-  padding:1rem;
+  padding: 1rem;
 `
 export const Container = styled.div`
-  display:flex;
-  background-color:white;
-  width:100%;
+  display: flex;
+  background-color: white;
+  width: 100%;
+  background-color: ${({ backgroundColor }) =>
+    backgroundColor ? backgroundColor : "none"};
 `
 
 export const Panel = styled.div`
-  flex:1;
-  padding:1rem;
+  flex: 1;
+  padding: 1rem;
 `
 export const Paper = styled.div`
   display: flex;
   flex-direction: column;
-  background-color:white;
+  background-color: white;
   border: solid 1px pink;
-  padding:1rem 1rem;
+  padding: 1rem 1rem;
 
   && > h3 {
-    color:red;
+    color: red;
     font-weight: 500;
   }
 `
 
 export const Body = styled.div`
   display: flex;
-  padding: .5rem;
+  padding: 0.5rem;
   justify-content: space-between;
-  width:100%;
+  width: 100%;
 `
 
 export const Description = styled.div`
-  display:flex;
-  flex-direction:column;
+  display: flex;
+  flex-direction: column;
 `
 
 export const Label = styled.div`
-  font-size:14px;
+  font-size: 14px;
   color: grey;
 `
 export const Label2 = styled.div`
-  font-size:14px;
-  display:flex;
-  justify-content:flex-end;
+  font-size: 14px;
+  display: flex;
+  justify-content: flex-end;
   color: grey;
 `
