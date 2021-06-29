@@ -31,6 +31,7 @@ import {
   BC_HALF,
   BRANCH,
   CONTACT_NUMBER,
+  CUSTOMER,
   EIGHT,
   ORDER_NO,
   ORDER_VIA,
@@ -45,12 +46,34 @@ import { selectOrderComponentSlice } from "components/SchedulerComponent/orderSl
 
 import "./app.component.css"
 import { useGetDropdowns } from "./dropdowns"
+import { selectUserSlice } from "containers/0.login/loginSlice"
 function SchedulerComponent({ setLoading }) {
   const dropdowns = useGetDropdowns()
   const dispatch = useDispatch()
+  const userComponentSlice = useSelector(selectUserSlice)
   const selectOrderSlice = useSelector(selectOrderComponentSlice)
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
+  const [eventSettings, setEventSettings] = useState({
+    dataSource: dataSource,
+    allowDeleting: false,
+  })
+
+  const [stop, setStop] = useState(false)
+  useEffect(() => {
+    if (userComponentSlice?.roles.includes("Admin")) {
+      if (stop === false) {
+        setEventSettings({
+          ...eventSettings,
+          dataSource: dataSource,
+          allowDeleting: true,
+        })
+      }
+    }
+    if (dataSource.length > 0) {
+      setStop(true)
+    }
+  }, [userComponentSlice, dataSource])
 
   useEffect(() => {
     setLoading(true)
@@ -119,7 +142,9 @@ function SchedulerComponent({ setLoading }) {
 
   const onActionBegin = (args) => {
     if (args.requestType === "eventChange") {
-      const dataToBeSend = schedulerSchema(args.data)
+      const data = { ...args.data }
+      data.Subject = data[CUSTOMER]
+      const dataToBeSend = schedulerSchema(data)
       delete dataToBeSend.RecurrenceRule
       updateData({
         data: { ...dataToBeSend },
@@ -127,7 +152,9 @@ function SchedulerComponent({ setLoading }) {
         id: args.data[_ID],
       })
     } else if (args.requestType === "eventCreate") {
+      console.log("args", args)
       const data = args.addedRecords[0]
+      data.Subject = data[CUSTOMER]
       const orderNo = data?.branch
         ? selectOrderSlice[data[BRANCH]]
         : selectOrderSlice.Libis
@@ -182,16 +209,16 @@ function SchedulerComponent({ setLoading }) {
       }
     }
     if (args.type === "Editor") {
+      const textArea = args.element.querySelector("#remarks")
+      if (textArea.value === "") {
+        textArea.value = "RIDER DETAILS: \nNAME:\nCONTACT NUMBER:"
+      }
       // args.element.onkeyup = (e) => {
       //   if (!orderVia.value?.includes('Partner Merchant')) {
       //     partnerMerchant.value = ''
       //   }
       // }
     }
-  }
-
-  const eventSettings = {
-    dataSource: dataSource,
   }
 
   return (

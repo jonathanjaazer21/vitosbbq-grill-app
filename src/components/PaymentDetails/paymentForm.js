@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import fields from 'components/fields'
+import React, { useEffect, useState } from "react"
+import fields from "components/fields"
 import {
   DATE_PICKER,
   DROP_DOWN_LIST,
   INPUT,
-  NUMBER
-} from 'components/fields/types'
+  NUMBER,
+} from "components/fields/types"
 import {
   ACCOUNT_NUMBER,
   AMOUNT_PAID,
@@ -13,23 +13,23 @@ import {
   MODE_PAYMENT,
   PAYMENT_LABELS,
   REF_NO,
-  SOURCE
-} from './types'
-import { Container, Wrapper } from './styles'
-import CustomDialog from 'components/dialog'
-import { AiOutlineMinus } from 'react-icons/ai'
-import { Button } from 'antd'
-import { SCHEDULES } from 'services/collectionNames'
-import { updateData } from 'services'
-import { useSelector } from 'react-redux'
-import { selectTableSlice } from 'components/Table/tableSlice'
-import { useGetDropdowns } from 'components/PaymentDetails/dropdowns'
-import { Uploads } from 'components/uploads'
-import formatNumber from 'commonFunctions/formatNumber'
+  SOURCE,
+} from "./types"
+import { Container, Wrapper } from "./styles"
+import CustomDialog from "components/dialog"
+import { AiOutlineMinus } from "react-icons/ai"
+import { Button } from "antd"
+import { SCHEDULES } from "services/collectionNames"
+import { updateData } from "services"
+import { useSelector } from "react-redux"
+import { selectTableSlice } from "components/Table/tableSlice"
+import { useGetDropdowns } from "components/PaymentDetails/dropdowns"
+import { Uploads } from "components/uploads"
+import formatNumber from "commonFunctions/formatNumber"
 
-export function Paymentform (props) {
+export function Paymentform(props) {
   const tableSlice = useSelector(selectTableSlice)
-  const [others, setOthers] = useState({ 'Senior Citizen': 0 })
+  const [others, setOthers] = useState({ "Amount Paid": 0 })
   const [formFields, setFormFields] = useState({})
   const [balance, setBalance] = useState(props?.subTotal)
   const dropdowns = useGetDropdowns()
@@ -43,12 +43,21 @@ export function Paymentform (props) {
     // this is only for dropdowns
     for (const obj of dropdowns) {
       newFormFields[obj?.name] =
-        typeof data[obj?.name] !== 'undefined' ? data[obj?.name] : ''
+        typeof data[obj?.name] !== "undefined" ? data[obj?.name] : ""
     }
 
     for (const key in data.others) {
       newOthers[key] = data.others[key]
     }
+
+    // to set a default value in the field of amount paid
+    if (
+      newFormFields[AMOUNT_PAID] === "0" ||
+      newFormFields[AMOUNT_PAID] === ""
+    ) {
+      newFormFields[AMOUNT_PAID] = props.subTotal
+    }
+
     setOthers(newOthers)
     setFormFields(newFormFields)
     calculateBalance()
@@ -59,19 +68,27 @@ export function Paymentform (props) {
   }, [others, formFields[AMOUNT_PAID]])
 
   const calculateBalance = () => {
-    const amountPaid = formFields[AMOUNT_PAID]
-    const paid = isNaN(amountPaid)
-      ? 0
-      : amountPaid === ''
-        ? 0
-        : parseInt(amountPaid)
-    let newBalance = parseInt(props?.subTotal) - paid
+    // console.log(props.subTotal)
+    // const amountPaid = formFields[AMOUNT_PAID]
+    // const paid = isNaN(amountPaid)
+    //   ? 0
+    //   : amountPaid === ''
+    //     ? 0
+    //     : parseInt(amountPaid)
+    // let newBalance = parseInt(props?.subTotal) - paid
+    // for (const key in others) {
+    //   const value = others[key]
+    //   console.log(key, value)
+    //   const discount = isNaN(value) ? 0 : value === '' ? 0 : parseInt(value)
+    //   newBalance = newBalance - discount
+    // }
+    // setBalance(newBalance)
+
+    let _newBalance = parseInt(props.subTotal) || 0
     for (const key in others) {
-      const value = others[key]
-      const discount = isNaN(value) ? 0 : value === '' ? 0 : parseInt(value)
-      newBalance = newBalance - discount
+      _newBalance = _newBalance - others[key]
     }
-    setBalance(newBalance)
+    setBalance(_newBalance)
   }
 
   const handleOthers = (data) => {
@@ -99,11 +116,11 @@ export function Paymentform (props) {
 
   const handleSubmit = () => {
     const d = new Date(formFields[DATE_PAYMENT])
-    if (Object.prototype.toString.call(d) === '[object Date]') {
+    if (Object.prototype.toString.call(d) === "[object Date]") {
       // it is a date
       if (isNaN(d.getTime())) {
         // d.valueOf() could also work
-        alert('Date is invalid')
+        alert("Date is invalid")
         // date is not valid
         return
       } else {
@@ -116,10 +133,10 @@ export function Paymentform (props) {
       data: {
         ...formFields,
         [DATE_PAYMENT]: new Date(formFields[DATE_PAYMENT]),
-        others
+        others,
       },
       collection: SCHEDULES,
-      id: props?.id
+      id: props?.id,
     })
     props.onBack()
   }
@@ -128,18 +145,22 @@ export function Paymentform (props) {
     <>
       <Wrapper>
         {dropdowns.map((customProps) => {
+          console.log("dropdownspaymentdetails", dropdowns)
           return (
             <Container key={customProps?.name}>
               {fields[customProps?.type]({
                 ...customProps,
                 // this value is applied only for dropdowns field
                 value: formFields[customProps?.name],
-                onChange: (e) =>
-                  handleChangeFormFields(
-                    e,
-                    customProps?.name,
-                    customProps.type
-                  )
+                onChange: (e) => {
+                  if (customProps?.name !== AMOUNT_PAID) {
+                    handleChangeFormFields(
+                      e,
+                      customProps?.name,
+                      customProps.type
+                    )
+                  }
+                },
               })}
             </Container>
           )
@@ -147,16 +168,16 @@ export function Paymentform (props) {
         <Uploads id={props?.id} />
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            padding: '1rem 0rem'
+            display: "flex",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            padding: "1rem 0rem",
           }}
         >
-          <div style={{ flex: '1' }}>Others</div>
+          <div style={{ flex: "1" }}>Others</div>
           <div>
             <CustomDialog
-              label='Less'
+              label="Less"
               others={others}
               setOthers={handleOthers}
             />
@@ -170,25 +191,25 @@ export function Paymentform (props) {
                 name: fieldName,
                 label: fieldName,
                 value: others[fieldName],
-                onChange: (e) => handleChange(e, fieldName)
+                onChange: (e) => handleChange(e, fieldName),
               })}
 
               <div
                 style={{
-                  flex: '.2',
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  width: '100%',
-                  alignItems: 'center'
+                  flex: ".2",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  width: "100%",
+                  alignItems: "center",
                 }}
               >
                 <Button
-                  type='secondary'
-                  shape='circle'
+                  type="secondary"
+                  shape="circle"
                   icon={
                     <AiOutlineMinus onClick={() => handleRemove(fieldName)} />
                   }
-                  disabled={fieldName === 'Senior Citizen'}
+                  disabled={fieldName === "Amount Paid"}
                 />
               </div>
             </Container>
@@ -196,18 +217,18 @@ export function Paymentform (props) {
         })}
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'flex-start',
-            alignItems: 'center',
-            padding: '1rem 0rem'
+            display: "flex",
+            justifyContent: "flex-start",
+            alignItems: "center",
+            padding: "1rem 0rem",
           }}
         >
-          <div style={{ flex: '1' }}>Balance</div>
+          <div style={{ flex: "1" }}>Balance</div>
           <div>{formatNumber(balance.toFixed(2))}</div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Button type='primary' danger onClick={handleSubmit}>
-            {' '}
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button type="primary" danger onClick={handleSubmit}>
+            {" "}
             Submit
           </Button>
         </div>

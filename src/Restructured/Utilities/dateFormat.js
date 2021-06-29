@@ -4,6 +4,11 @@ export const formatDateDashWithTime = (date) => {
   return _formattedDate
 }
 
+export const formatDateLong = (date) => {
+  const _formattedDate = moment(date).format("MMMM DD YYYY dddd")
+  return _formattedDate.toUpperCase()
+}
+
 export const formatDateDash = (date) => {
   const _formattedDate = moment(date).format("MM-DD-YYYY")
   return _formattedDate

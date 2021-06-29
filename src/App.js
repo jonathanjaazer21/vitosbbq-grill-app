@@ -12,6 +12,7 @@ import PaymentTransaction from "containers/1.payment_transaction"
 import "antd/dist/antd.css"
 import DropdownMasterfile from "containers/4.dropdown_masterfile"
 import ProductMasterfile from "containers/5.product_masterfile"
+import ReportsContainer from "containers/6.reports"
 import { DROPDOWNS, PRODUCTS, ROLES, USERS } from "services/collectionNames"
 import {
   DROPDOWN_MASTERFILE,
@@ -22,6 +23,9 @@ import {
 import { addData, getData } from "services"
 import adminPhoto from "images/admin-bro.png"
 import { selectMenuSlice, setMenu } from "components/sideNav/2.menu/menuSlice"
+import { Reports } from "Restructured/Components/Features"
+import ExcelExporter from "Restructured/Components/Features/ExcelExporter"
+import DirectAndThirdParty from "containers/7.directAndThirdParty"
 function App() {
   const dispatch = useDispatch()
   const [menu, handleMenu] = useSelectMenus()
@@ -116,36 +120,42 @@ function App() {
             <Route exact path="/">
               <GrillReservation />
             </Route>
-            <Route path="/dashboard/grillReservation">
+            <Route exact path="/dashboard/grillReservation">
               <GrillReservation />
             </Route>
-            <Route path="/dashboard/paymentTransaction">
+            <Route exact path="/dashboard/paymentTransaction">
               <PaymentTransaction />
             </Route>
-            <Route path="/masterData/userMasterFile">
+            <Route exact path="/masterData/userMasterFile">
               <UserMasterfile />
             </Route>
-            <Route path="/masterData/branchMasterFile">
+            <Route exact path="/masterData/branchMasterFile">
               <BranchMasterfile />
             </Route>
-            <Route path="/masterData/dropdownMasterfile">
+            <Route exact path="/masterData/dropdownMasterfile">
               <DropdownMasterfile
                 collectionName={DROPDOWNS}
                 breadcrumbs={DROPDOWN_MASTERFILE}
                 withDropdownGroup
               />
             </Route>
-            <Route path="/masterData/rolesMasterfile">
+            <Route exact path="/masterData/rolesMasterfile">
               <DropdownMasterfile
                 collectionName={ROLES}
                 breadcrumbs={ROLES_MASTERFILE}
               />
             </Route>
-            <Route path="/masterData/productMasterfile">
+            <Route exact path="/masterData/productMasterfile">
               <ProductMasterfile
                 collectionName={PRODUCTS}
                 breadcrumbs={PRODUCTS_MASTERFILE}
               />
+            </Route>
+            <Route exact path="/reports/paymentTransaction">
+              <ReportsContainer />
+            </Route>
+            <Route exact path="/reports/directAndThirdParty">
+              <DirectAndThirdParty />
             </Route>
             <Route path="*">
               <div>Invalid url</div>
@@ -172,6 +182,11 @@ function App() {
   }
   const renderIfVerified = isLoggedIn ? <Routing /> : <UnAuthenticatedRouting />
   return isLoading ? <Backdrop /> : renderIfVerified
+  return (
+    <div>
+      <Reports />
+    </div>
+  )
 }
 
 export default App

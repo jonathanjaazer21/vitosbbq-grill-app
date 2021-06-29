@@ -110,6 +110,11 @@ export default function PaymentDetails (props) {
     }
     return fieldData
   }
+  console.log('data', data)
+  const backgroundColors = {
+    FULFILLED: '#ccccff',
+    PAID: '#ffffcc'
+  }
   return (
     <Wrapper>
       <Actions>
@@ -124,7 +129,8 @@ export default function PaymentDetails (props) {
           <BiArrowBack size={20} />
         </button>
       </Actions>
-      <Container>
+      {/* // #ffffcc */}
+      <Container backgroundColor={backgroundColors[data[STATUS]]}>
         <Panel>
           <Paper>
             <h3>Order Details</h3>

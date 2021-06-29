@@ -51,10 +51,8 @@ function useSchedulerFilter() {
             ..._data,
           })
         })
-        const {
-          _products,
-          _productLabels,
-        } = FilteringPanelMethods.produceProductList(_dataFetched)
+        const { _products, _productLabels } =
+          FilteringPanelMethods.produceProductList(_dataFetched)
         setProducts(_products)
         setProductLabels(_productLabels)
       })
@@ -78,12 +76,11 @@ function useSchedulerFilter() {
           const _dataFetched = []
           querySnapshot.forEach((doc) => {
             const _data = doc.data()
-            const _productList = FilteringPanelMethods.produceProductListWithData(
-              {
+            const _productList =
+              FilteringPanelMethods.produceProductListWithData({
                 products,
                 dataList: _data,
-              }
-            )
+              })
             const _startTime = formatDateFromDatabase(_data.StartTime)
             const _endTime = formatDateFromDatabase(_data.EndTime)
             _dataFetched.push({

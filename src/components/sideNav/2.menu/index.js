@@ -25,23 +25,29 @@ function Menu ({ isToggled }) {
   }
   return (
     <Wrapper>
-      {menuData.map(({ title, Icon, subMenu, display }) => (
+      {menuData.map(({ title, Icon, subMenu, display, path }) => (
         <MenuItem key={title} style={display ? {} : { display: 'none' }}>
           {/* main title */}
-          <TitleItem
-            active={sideNavSlice.selectedMenu.includes(title)}
-            onClick={() => setState({ ...state, [title]: !state[title] })}
-          >
-            <div>
-              <Icon isToggled={isToggled} />
-            </div>
-            <MenuText isToggled={isToggled}>{title}</MenuText>
-            {state[title] ? <ArrowUp /> : <ArrowDown />}
-          </TitleItem>
+          {subMenu.length > 0 ? (
+            <TitleItem
+              active={sideNavSlice.selectedMenu.includes(title)}
+              onClick={() => setState({ ...state, [title]: !state[title] })}
+            >
+              <div>
+                <Icon isToggled={isToggled} />
+              </div>
+              <MenuText isToggled={isToggled}>{title}</MenuText>
+              {state[title] ? <ArrowUp /> : <ArrowDown />}
+            </TitleItem>
+          ) : (
+            <SubItem isToggled={isToggled} to={path}>
+              {title}
+            </SubItem>
+          )}
 
           {/* sub items */}
           <SubMenuContainer active={state[title]} isToggled={isToggled}>
-            {subMenu.map(subItem => (
+            {subMenu.map((subItem) => (
               <SubItem
                 style={subItem.display ? {} : { display: 'none' }}
                 to={subItem.path}
