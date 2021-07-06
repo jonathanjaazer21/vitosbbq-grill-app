@@ -15,14 +15,19 @@ export default function (listOfDateFiltered, schedules, products) {
     const formattedDate = formatDateDash(utcDate)
     const dateProperty = dataOfEachDate[formattedDate]
 
-    // select only the product that contains a value greater than zero
+    // include custom prices if it exists
     const objProducts = {}
     for (const code of products) {
       if (typeof obj[code] !== "undefined" && parseInt(obj[code]) > 0) {
         objProducts[code] = obj[code]
       }
+      if (
+        typeof obj[`customPrice${code}`] !== "undefined" &&
+        parseInt(obj[`customPrice${code}`]) > 0
+      ) {
+        objProducts[`customPrice${code}`] = obj[`customPrice${code}`]
+      }
     }
-
     // DIRECT data
     if (typeof obj[ORDER_VIA] !== "undefined") {
       if (obj[ORDER_VIA]) {

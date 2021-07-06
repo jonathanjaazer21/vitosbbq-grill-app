@@ -142,7 +142,10 @@ function SchedulerComponent({ setLoading }) {
 
   const onActionBegin = (args) => {
     if (args.requestType === "eventChange") {
-      const data = { ...args.data }
+      const data = {
+        ...args.data,
+        amountPaid: selectOrderSlice?.totalAmountPaid,
+      }
       data.Subject = data[CUSTOMER]
       const dataToBeSend = schedulerSchema(data)
       delete dataToBeSend.RecurrenceRule
@@ -152,13 +155,16 @@ function SchedulerComponent({ setLoading }) {
         id: args.data[_ID],
       })
     } else if (args.requestType === "eventCreate") {
-      console.log("args", args)
       const data = args.addedRecords[0]
       data.Subject = data[CUSTOMER]
       const orderNo = data?.branch
         ? selectOrderSlice[data[BRANCH]]
         : selectOrderSlice.Libis
-      const dataToBeSend = schedulerSchema({ ...data, [ORDER_NO]: orderNo })
+      const dataToBeSend = schedulerSchema({
+        ...data,
+        [ORDER_NO]: orderNo,
+        amountPaid: selectOrderSlice?.totalAmountPaid,
+      })
       delete dataToBeSend.RecurrenceRule
       const result = addData({
         data: dataToBeSend,

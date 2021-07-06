@@ -17,6 +17,7 @@ export const orderComponentSlice = createSlice({
     Libis: "",
     Ronac: "",
     orderViaField: null,
+    totalAmountPaid: "0.00",
   },
   reducers: {
     setOrderNo: (state, action) => {
@@ -38,6 +39,12 @@ export const orderComponentSlice = createSlice({
     clearOrderViaField: (state) => {
       state.orderViaField = null
     },
+    setAmountPaid: (state, action) => {
+      state.totalAmountPaid = action.payload
+    },
+    clearAmountPaid: (state) => {
+      state.totalAmountPaid = "0.00"
+    },
   },
 })
 
@@ -46,6 +53,8 @@ export const {
   clearOrderNos,
   setOrderViaField,
   clearOrderViaField,
+  setAmountPaid,
+  clearAmountPaid,
 } = orderComponentSlice.actions
 export const selectOrderComponentSlice = (state) => state[ORDER_SLIP_COMPONENT]
 export default orderComponentSlice.reducer

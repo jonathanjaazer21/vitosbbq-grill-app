@@ -1,9 +1,10 @@
 import db from "services/firebase"
 
-export default class ScheduleServices {
-  static async getSchedules() {
+export default class ReceivingReportServices {
+  static async getRRByCode(code) {
     return new Promise((res, rej) => {
-      db.collection("scheduler")
+      db.collection("receivingReports")
+        .where(code, "!=", "0")
         .get()
         .then((querySnapshot) => {
           const _dataFetched = []
@@ -22,22 +23,19 @@ export default class ScheduleServices {
     })
   }
 
-  static async getSchedulesByCode(code) {
-    // if (!code) return []
+  static async getRR() {
     return new Promise((res, rej) => {
-      db.collection("schedules")
-        .where(code, "!=", "0")
+      db.collection("receivingReports")
         .get()
         .then((querySnapshot) => {
           const _dataFetched = []
           querySnapshot.forEach((doc) => {
             const _data = doc.data()
-            console.log("As", doc)
             _dataFetched.push({
               ..._data,
+              _id: doc.id,
             })
           })
-          console.log("Datafetched", _dataFetched)
           res(_dataFetched)
         })
         .catch((error) => {
