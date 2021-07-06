@@ -7,6 +7,8 @@ import formatNumber from "commonFunctions/formatNumber"
 
 import Print from "components/print"
 import sort from "commonFunctions/sort"
+import { useDispatch } from "react-redux"
+import { setAmountPaid } from "./orderSlipSlice"
 
 const Header = () => {
   return (
@@ -77,6 +79,10 @@ const Product = ({
 }
 
 const Footer = ({ total }) => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(setAmountPaid(total.toFixed(2)))
+  }, [total])
   return (
     <Container>
       <Item>Total</Item>
@@ -137,13 +143,27 @@ export default function (props) {
     const result = await getData(PRODUCTS)
     for (const obj of result) {
       for (const product of obj.productList) {
-        productData[product.code] = props[product.code]
-          ? [
-              parseInt(props[product.code]),
-              product?.price,
-              product?.description,
-            ]
-          : [0, product?.price, product?.description]
+        if (product?.price > 0) {
+          productData[product.code] = props[product.code]
+            ? [
+                parseInt(props[product.code]),
+                product?.price,
+                product?.description,
+              ]
+            : [0, product?.price, product?.description]
+        } else {
+          productData[product.code] = props[product.code]
+            ? [
+                parseInt(props[product.code]),
+                parseInt(props[`customPrice${product.code}`]) || 0,
+                product?.description,
+              ]
+            : [
+                0,
+                parseInt(props[`customPrice${product.code}`]) || 0,
+                product?.description,
+              ]
+        }
       }
     }
     setProductData(productData)

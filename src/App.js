@@ -26,6 +26,7 @@ import { selectMenuSlice, setMenu } from "components/sideNav/2.menu/menuSlice"
 import { Reports } from "Restructured/Components/Features"
 import ExcelExporter from "Restructured/Components/Features/ExcelExporter"
 import DirectAndThirdParty from "containers/7.directAndThirdParty"
+import Inventory from "containers/8.inventory"
 function App() {
   const dispatch = useDispatch()
   const [menu, handleMenu] = useSelectMenus()
@@ -125,6 +126,9 @@ function App() {
             </Route>
             <Route exact path="/dashboard/paymentTransaction">
               <PaymentTransaction />
+            </Route>
+            <Route exact path="/dashboard/inventory">
+              <Inventory />
             </Route>
             <Route exact path="/masterData/userMasterFile">
               <UserMasterfile />

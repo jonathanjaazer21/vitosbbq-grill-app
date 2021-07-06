@@ -135,7 +135,6 @@ export default class ExcelFormatter {
   }
 
   static transformGroupByDate(excelReport, data, sourceSummary) {
-    console.log("sourceSummaryw", excelReport)
     const dates = []
     for (const obj of data) {
       const startTime = formatDateFromDatabase(obj[DATE_START])
@@ -213,7 +212,7 @@ export default class ExcelFormatter {
     const filteredDataByDate = data.filter((obj) => {
       const dateStart = formatDateFromDatabase(obj[DATE_START])
       const formatDateStart = formatDateDash(dateStart)
-      return dateValue === formatDateStart
+      return dateValue === formatDateStart && obj[SOURCE]
     })
     const filteredDataByOrderVia = filteredDataByDate.filter((obj) => {
       return obj[ORDER_VIA]

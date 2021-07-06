@@ -29,7 +29,7 @@ import formatNumber from "commonFunctions/formatNumber"
 
 export function Paymentform(props) {
   const tableSlice = useSelector(selectTableSlice)
-  const [others, setOthers] = useState({ "Amount Paid": 0 })
+  const [others, setOthers] = useState({ "Senior Citizen": 0 })
   const [formFields, setFormFields] = useState({})
   const [balance, setBalance] = useState(props?.subTotal)
   const dropdowns = useGetDropdowns()
@@ -209,7 +209,7 @@ export function Paymentform(props) {
                   icon={
                     <AiOutlineMinus onClick={() => handleRemove(fieldName)} />
                   }
-                  disabled={fieldName === "Amount Paid"}
+                  // disabled={fieldName === "Amount Paid"}
                 />
               </div>
             </Container>
