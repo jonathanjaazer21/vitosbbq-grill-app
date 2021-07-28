@@ -77,3 +77,7 @@ export const sumArrayOfObjectsGrouping = (data, field1, field2) => {
   console.log("newDataByGroup", newDataByGroup)
   return newDataByGroup
 }
+
+export const sumNumbers = (array) => {
+  return array.reduce((a, b) => Number(a) + Number(b), 0)
+}

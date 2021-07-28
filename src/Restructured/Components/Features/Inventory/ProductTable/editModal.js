@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { Modal, Button, Input, Divider, Select } from "antd"
-import useProductServices from "./useProductServices"
-import { addData } from "services"
+import useProductServices from "../ProductCards/useProductServices"
+import { updateData } from "services"
 import { useSelector } from "react-redux"
 import { selectUserSlice } from "containers/0.login/loginSlice"
 import { Option } from "antd/lib/mentions"
@@ -25,60 +25,37 @@ const ReceivingModal = (props) => {
   const [visible, setVisible] = useState(false)
 
   const handleSubmit = async () => {
-    console.log("imp", importObj)
-    const date = formatDateDash(new Date())
-    const dateString = date.split("-").join("")
-    const verifyGeneratedObj =
-      await ReceivingReportServices.getRRByGeneratedNoObj(importObj.branch)
-    const _generatedNoString = generatedNoString(verifyGeneratedObj.length)
-    const dataToBeSend = {
-      ...importObj,
-      rrNo: `${importObj.branch.toUpperCase()}-${_generatedNoString}-${dateString}`,
-      receivedBy: {
-        displayName: userComponentSlice?.displayName,
-        email: userComponentSlice?.email,
-        roles: userComponentSlice?.roles,
-      },
-      date: new Date(),
-    }
-    const result = addData({
-      data: dataToBeSend,
+    updateData({
+      data: importObj,
       collection: "receivingReports",
-      id: null,
+      id: props.id,
     })
     setVisible(false)
   }
 
   useEffect(() => {
-    const date = formatDateDash(new Date())
-    const dateString = date.split("-").join("")
-    if (visible === false) {
-      setImportObj({
-        ...produceStateProperty(productList),
-        branch: "Libis",
-        dateString: dateString,
-      })
-    }
     if (visible) {
-      props.setModalState(true)
+      loadProductList()
     }
-  }, [visible, productList])
+  }, [visible])
+
+  const loadProductList = async () => {
+    const productList = await ReceivingReportServices.getRRById(props.id)
+    setImportObj({ ...productList })
+  }
+
   return (
     <>
-      <Button type="danger" onClick={() => setVisible(true)}>
-        Create Receiving Report
-      </Button>
+      <Button onClick={() => setVisible(true)}>Edit</Button>
       <Modal
-        title="Create Receiving Report"
+        title="Edit Receiving Report"
         centered
         visible={visible}
         onOk={() => {
           handleSubmit()
-          props.setModalState(false)
         }}
         onCancel={() => {
           setVisible(false)
-          props.setModalState(false)
         }}
         width={1000}
       >
@@ -100,17 +77,7 @@ const ReceivingModal = (props) => {
             }}
           >
             <label>Branch</label>
-            <Select
-              style={{ width: "13rem" }}
-              value={importObj.branch}
-              onChange={(value) => {
-                console.log("e", value)
-                setImportObj({
-                  ...importObj,
-                  branch: value,
-                })
-              }}
-            >
+            <Select style={{ width: "13rem" }} value={importObj.branch}>
               <Option value="Libis">Libis</Option>
               <Option value="Ronac">Ronac</Option>
             </Select>
@@ -121,6 +88,7 @@ const ReceivingModal = (props) => {
             <label>Invoice No</label>
             <Input
               name="invoiceNo"
+              value={importObj.invoiceNo}
               onChange={(e) =>
                 setImportObj({ ...importObj, invoiceNo: e.target.value })
               }
@@ -133,6 +101,7 @@ const ReceivingModal = (props) => {
             <label>Delivery No</label>
             <Input
               name="deliveryNo"
+              value={importObj.deliveryNo}
               onChange={(e) =>
                 setImportObj({ ...importObj, deliveryNo: e.target.value })
               }
@@ -145,6 +114,7 @@ const ReceivingModal = (props) => {
             <label>Purchase Order No</label>
             <Input
               name="purchaseOrderNo"
+              value={importObj.purchaseOrderNo}
               onChange={(e) =>
                 setImportObj({ ...importObj, purchaseOrderNo: e.target.value })
               }

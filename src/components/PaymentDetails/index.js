@@ -38,6 +38,8 @@ import orderSlipConfig from "components/SchedulerComponent/orderSlip/orderSlipCo
 import { DESCRIPTION } from "components/fields/types"
 import { useGetProducts } from "components/products/useGetProducts"
 import formatNumber from "commonFunctions/formatNumber"
+import { Flex, Grid } from "Restructured/Styles"
+import { PARTNER_MERCHANT_ORDER_NO } from "Restructured/Constants/schedules"
 
 const formatDateFromFirebase = (date) => {
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
@@ -59,30 +61,33 @@ export default function PaymentDetails(props) {
       .then((doc) => {
         if (doc.exists) {
           const firebaseData = doc.data()
-          console.log("firebaseData", firebaseData)
           setData({ ...firebaseData })
-          const totals = {}
+          const _totals = {}
           for (const obj of products) {
             for (const product of obj.productList) {
-              if (product?.price > 0) {
-                totals[product?.code] = {
-                  qty: firebaseData[product?.code],
-                  price: product?.price,
-                  description: product?.description,
-                }
-              } else {
-                totals[product?.code] = {
-                  qty: firebaseData[product?.code],
-                  price: parseInt(firebaseData[`customPrice${product?.code}`]),
-                  description: product?.description,
+              if (typeof firebaseData[product.code] !== "undefined") {
+                if (product?.price > 0) {
+                  _totals[product?.code] = {
+                    qty: firebaseData[product?.code],
+                    price: product?.price,
+                    description: product?.description,
+                  }
+                } else {
+                  _totals[product?.code] = {
+                    qty: firebaseData[product?.code],
+                    price: parseInt(
+                      firebaseData[`customPrice${product?.code}`]
+                    ),
+                    description: product?.description,
+                  }
                 }
               }
             }
           }
           setTotals({
-            ...totals,
+            ..._totals,
           })
-          const result = calculateSubTotal(totals)
+          const result = calculateSubTotal(_totals)
           setQty(result?.qty)
           setSubTotal(result?.subTotal)
         } else {
@@ -127,16 +132,23 @@ export default function PaymentDetails(props) {
   return (
     <Wrapper>
       <Actions>
-        <button
-          onClick={props.handleBack}
-          style={{
-            border: "none",
-            backgroundColor: "transparent",
-            cursor: "pointer",
-          }}
-        >
-          <BiArrowBack size={20} />
-        </button>
+        <Grid>
+          <Flex>
+            <button
+              onClick={props.handleBack}
+              style={{
+                border: "none",
+                backgroundColor: "transparent",
+                cursor: "pointer",
+              }}
+            >
+              <BiArrowBack size={20} />
+            </button>
+            <div style={{ marginTop: "-.3rem", marginLeft: "1rem" }}>
+              {`Partner Merchant Order No: ${data[PARTNER_MERCHANT_ORDER_NO]}`}
+            </div>
+          </Flex>
+        </Grid>
       </Actions>
       {/* // #ffffcc */}
       <Container backgroundColor={backgroundColors[data[STATUS]]}>

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import fields from "components/fields"
+import Input from "components/fields/input"
 import {
   DATE_PICKER,
   DROP_DOWN_LIST,
@@ -14,26 +15,28 @@ import {
   PAYMENT_LABELS,
   REF_NO,
   SOURCE,
+  TOTAL_DUE,
 } from "./types"
 import { Container, Wrapper } from "./styles"
 import CustomDialog from "components/dialog"
 import { AiOutlineMinus } from "react-icons/ai"
 import { Button } from "antd"
 import { SCHEDULES } from "services/collectionNames"
-import { updateData } from "services"
+import { updateData, update } from "services"
 import { useSelector } from "react-redux"
 import { selectTableSlice } from "components/Table/tableSlice"
 import { useGetDropdowns } from "components/PaymentDetails/dropdowns"
 import { Uploads } from "components/uploads"
 import formatNumber from "commonFunctions/formatNumber"
+import DiscountAndOthersDialog from "./DiscountAndOthersDialog"
 
 export function Paymentform(props) {
   const tableSlice = useSelector(selectTableSlice)
   const [others, setOthers] = useState({ "Senior Citizen": 0 })
   const [formFields, setFormFields] = useState({})
+  const [orderNo, setOrderNo] = useState("")
   const [balance, setBalance] = useState(props?.subTotal)
   const dropdowns = useGetDropdowns()
-
   useEffect(() => {
     setBalance(parseInt(props?.subTotal))
     const newFormFields = {}
@@ -57,17 +60,22 @@ export function Paymentform(props) {
     ) {
       newFormFields[AMOUNT_PAID] = props.subTotal
     }
+    newFormFields[TOTAL_DUE] = props.subTotal
+    newFormFields["discountAdditionalDetails"] = {
+      ...data["discountAdditionalDetails"],
+    }
 
+    setOrderNo(data?.orderNo)
     setOthers(newOthers)
     setFormFields(newFormFields)
-    calculateBalance()
+    calculateBalance(props.subTotal)
   }, [props?.subTotal, props?.id, dropdowns])
 
   useEffect(() => {
-    calculateBalance()
+    calculateBalance(formFields[AMOUNT_PAID])
   }, [others, formFields[AMOUNT_PAID]])
 
-  const calculateBalance = () => {
+  const calculateBalance = (amountPaid = 0) => {
     // console.log(props.subTotal)
     // const amountPaid = formFields[AMOUNT_PAID]
     // const paid = isNaN(amountPaid)
@@ -83,11 +91,11 @@ export function Paymentform(props) {
     //   newBalance = newBalance - discount
     // }
     // setBalance(newBalance)
-
     let _newBalance = parseInt(props.subTotal) || 0
     for (const key in others) {
       _newBalance = _newBalance - others[key]
     }
+    _newBalance = _newBalance - parseInt(amountPaid)
     setBalance(_newBalance)
   }
 
@@ -129,11 +137,11 @@ export function Paymentform(props) {
     } else {
       // not a date
     }
-    updateData({
+    update({
       data: {
         ...formFields,
         [DATE_PAYMENT]: new Date(formFields[DATE_PAYMENT]),
-        others,
+        others: { ...others },
       },
       collection: SCHEDULES,
       id: props?.id,
@@ -141,11 +149,20 @@ export function Paymentform(props) {
     props.onBack()
   }
 
+  const handleDiscountAdditionalDetails = (data, discName) => {
+    const _formFields = { ...formFields }
+    _formFields["discountAdditionalDetails"] = { ...data }
+    _formFields.amountPaid = (
+      Number(_formFields[TOTAL_DUE]) - Number(data[discName]?.amount)
+    ).toFixed(2)
+    setFormFields(_formFields)
+    setOthers({ [discName]: data[discName]?.amount })
+  }
+
   return (
     <>
       <Wrapper>
         {dropdowns.map((customProps) => {
-          console.log("dropdownspaymentdetails", dropdowns)
           return (
             <Container key={customProps?.name}>
               {fields[customProps?.type]({
@@ -153,7 +170,7 @@ export function Paymentform(props) {
                 // this value is applied only for dropdowns field
                 value: formFields[customProps?.name],
                 onChange: (e) => {
-                  if (customProps?.name !== AMOUNT_PAID) {
+                  if (customProps?.name !== TOTAL_DUE) {
                     handleChangeFormFields(
                       e,
                       customProps?.name,
@@ -176,10 +193,17 @@ export function Paymentform(props) {
         >
           <div style={{ flex: "1" }}>Others</div>
           <div>
-            <CustomDialog
+            {/* <CustomDialog
               label="Less"
               others={others}
               setOthers={handleOthers}
+            /> */}
+            <DiscountAndOthersDialog
+              totalDue={formFields[TOTAL_DUE]}
+              setDiscountAdditionalDetails={handleDiscountAdditionalDetails}
+              formFields={formFields}
+              others={others}
+              orderNo={orderNo}
             />
           </div>
         </div>
@@ -191,7 +215,7 @@ export function Paymentform(props) {
                 name: fieldName,
                 label: fieldName,
                 value: others[fieldName],
-                onChange: (e) => handleChange(e, fieldName),
+                // onChange: (e) => handleChange(e, fieldName),
               })}
 
               <div

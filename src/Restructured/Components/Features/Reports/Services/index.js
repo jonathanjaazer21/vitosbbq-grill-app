@@ -1,14 +1,17 @@
-import { BRANCH, DATE_ORDER_PLACED } from 'Restructured/Constants/schedules'
-import db from 'services/firebase'
+import { BRANCH, DATE_ORDER_PLACED } from "Restructured/Constants/schedules"
+import db from "services/firebase"
 export default class Services {
-  static async getSchedules (branch, dateFromTo) {
+  static async getSchedules(branch, dateFromTo) {
     if (dateFromTo === null) return []
-    const startTime = new Date(dateFromTo[0]?._d)
-    const endTime = new Date(dateFromTo[1]?._d)
+    const startTime = new Date(dateFromTo[0]?._d.setHours(0, 0, 0, 0))
+    const endTime = new Date(dateFromTo[1]?._d.setHours(23, 59, 59, 59))
+    // const endTime = new Date(
+    //   dateFromTo[1]?._d.setDate(dateFromTo[1]?._d.getDate())
+    // )
     return new Promise((resolve, reject) => {
-      db.collection('schedules')
-        .where('StartTime', '>=', startTime)
-        .where('StartTime', '<=', endTime)
+      db.collection("schedules")
+        .where("StartTime", ">=", startTime)
+        .where("StartTime", "<=", endTime)
         .get()
         .then((querySnapshot) => {
           const _dataFetched = []
@@ -23,7 +26,7 @@ export default class Services {
         })
         .catch((error) => {
           reject(error)
-          console.log('Error getting documents: ', error)
+          console.log("Error getting documents: ", error)
         })
     })
   }

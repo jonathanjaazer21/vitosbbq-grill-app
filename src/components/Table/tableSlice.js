@@ -1,11 +1,12 @@
-import { createSlice } from '@reduxjs/toolkit'
-import { TABLE_COMPONENT } from 'app/types'
+import { createSlice } from "@reduxjs/toolkit"
+import { TABLE_COMPONENT } from "app/types"
+import { replace, replaceArrayData } from "Restructured/Utilities/arrayFuntions"
 
 export const TableSlice = createSlice({
   name: TABLE_COMPONENT,
   initialState: {
     dataList: [],
-    headers: []
+    headers: [],
   },
   reducers: {
     setTable: (state, action) => {
@@ -20,9 +21,13 @@ export const TableSlice = createSlice({
     },
     updateTable: (state, action) => {
       const { payload } = action
-      const newDataList = state.dataList.filter(row => row._id !== payload.id)
-      newDataList.push(payload.data)
-      state.dataList = newDataList
+      const index = state.dataList.findIndex((row) => row._id === payload.id)
+      // const newDataList =
+      //   /*replace(state.dataList, index, payload.data)*/ state.dataList.filter(
+      //     (row) => row._id !== payload.id
+      //   )
+      // newDataList.push(payload.data)
+      state.dataList[index] = payload.data
     },
     deleteTable: (state, action) => {
       const { payload } = action
@@ -32,13 +37,14 @@ export const TableSlice = createSlice({
       }
       state.dataList = dataList
     },
-    clearTable: state => {
+    clearTable: (state) => {
       state.headers = []
       state.dataList = []
-    }
-  }
+    },
+  },
 })
 
-export const { updateTable, setTable, clearTable, deleteTable } = TableSlice.actions
-export const selectTableSlice = state => state[TABLE_COMPONENT]
+export const { updateTable, setTable, clearTable, deleteTable } =
+  TableSlice.actions
+export const selectTableSlice = (state) => state[TABLE_COMPONENT]
 export default TableSlice.reducer

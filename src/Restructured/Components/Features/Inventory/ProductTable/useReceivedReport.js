@@ -6,14 +6,36 @@ import {
   formatDateFromDatabase,
 } from "Restructured/Utilities/dateFormat"
 import sumArray from "Restructured/Utilities/sumArray"
+import db from "services/firebase"
 
-export default function () {
+export default function (props) {
   const [reportList, setReportList] = useState([])
-
+  const [originalReportList, setOriginalReportList] = useState([])
   useEffect(() => {
+    // const unsubscribe = db
+    //   .collection("receivingReports")
+    //   .onSnapshot(function (snapshot) {
+    //     const _reportList = [...originalReportList]
+    //     for (const obj of snapshot.docChanges()) {
+    //       if (obj.type === "modified") {
+    //         const data = obj.doc.data()
+    //         setOriginalReportList(data)
+    //         console.log("eventRealMod", data)
+    //         // setReportList(data)
+    //       } else if (obj.type === "added") {
+    //         const data = obj.doc.data()
+    //         console.log("eventReal", data)
+    //         // setReportList(data)
+    //       } else {
+    //         console.log("nothing")
+    //       }
+    //     }
+    //   })
+    // return () => {
+    //   unsubscribe()
+    // }
     loadReports()
   }, [])
-
   const loadProducts = async () => {
     const _productList = []
     const products = await ProductServices.getProducts()
@@ -30,7 +52,7 @@ export default function () {
     return _productList
   }
 
-  const loadReports = async () => {
+  const loadReports = async (/*report*/) => {
     const _reportList = []
     const report = await ReceivingReportServices.getRR()
     const _productList = await loadProducts()
@@ -61,10 +83,12 @@ export default function () {
         id: obj?._id,
         date: formattedDate,
         amount: totalAmount,
+        rrNo: obj?.rrNo,
       })
     }
     setReportList(_reportList)
+    return _reportList
   }
 
-  return [reportList]
+  return [reportList, loadReports]
 }

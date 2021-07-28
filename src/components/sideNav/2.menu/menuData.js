@@ -17,6 +17,7 @@ export const PRODUCTS_MASTERFILE = "Products Masterfile"
 export const REPORTS = "Reports"
 export const DIRECT_AND_THIRD_PARTY = "Direct and 3rd Party"
 export const INVENTORY = "Inventory"
+export const INCIDENT_REPORTS = "Incident Reports"
 
 export const useSelectMenus = () => {
   const [roles, setRoles] = useState([])
@@ -141,6 +142,12 @@ const menuData = (modules) => {
           active: false,
           path: "/reports/directAndThirdParty",
           display: modules.includes(DIRECT_AND_THIRD_PARTY),
+        },
+        {
+          title: INCIDENT_REPORTS,
+          active: false,
+          path: "/reports/incidentReports",
+          display: modules.includes(INCIDENT_REPORTS),
         },
       ],
     },
