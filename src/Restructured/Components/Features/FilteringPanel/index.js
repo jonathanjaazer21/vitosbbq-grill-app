@@ -18,6 +18,7 @@ import Print from "../Print"
 import FilteringPanelDocs from "../Print/Documents/filteringPanelDocs"
 import { FloatContainer } from "./styles"
 import { AiFillPrinter } from "react-icons/ai"
+import { STATUS } from "components/SchedulerComponent/orderSlip/types"
 
 function FilteringPanel({ isToggled }) {
   const [

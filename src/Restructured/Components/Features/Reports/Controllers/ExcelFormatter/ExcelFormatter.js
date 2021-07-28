@@ -237,7 +237,8 @@ export default class ExcelFormatter {
         if (typeof obj[AMOUNT_PAID] !== "undefined") {
           newData.push({
             [SOURCE]: obj[SOURCE],
-            [AMOUNT_PAID]: Number(obj[AMOUNT_PAID]) - Number(others),
+            [AMOUNT_PAID]: Number(obj[AMOUNT_PAID]),
+            // [AMOUNT_PAID]: Number(obj[AMOUNT_PAID]) - Number(others),
           })
         }
       }
@@ -267,7 +268,8 @@ export default class ExcelFormatter {
       if (typeof obj[AMOUNT_PAID] !== "undefined") {
         newData.push({
           [SOURCE]: obj[SOURCE],
-          [AMOUNT_PAID]: Number(obj[AMOUNT_PAID]) - Number(others),
+          [AMOUNT_PAID]: Number(obj[AMOUNT_PAID]),
+          // [AMOUNT_PAID]: Number(obj[AMOUNT_PAID]) - Number(others),
         })
       }
     }
@@ -328,7 +330,6 @@ export default class ExcelFormatter {
 
   static dataSummary(data) {
     const dataByDate = {}
-
     // produce group by date in the variable dataByDate
     for (const obj of data) {
       const startTime = formatDateFromDatabase(obj[DATE_START])
@@ -337,32 +338,50 @@ export default class ExcelFormatter {
 
       if (typeof dataByDate[dateFormatted] === "undefined") {
         if (typeof obj[AMOUNT_PAID] === "undefined") {
-          if (obj?.others) {
-            totalAmountPaid = calculateTotalAmountPaid(0, obj?.others)
-          }
+          // if (obj?.others) {
+          //   totalAmountPaid = calculateTotalAmountPaid(0, obj?.others)
+          // }
           dataByDate[dateFormatted] = [[dateFormatted, totalAmountPaid]]
         } else {
-          if (obj?.others) {
-            totalAmountPaid = calculateTotalAmountPaid(
-              parseInt(obj[AMOUNT_PAID]),
-              obj?.others
-            )
-          }
+          // if (obj?.others) {
+          //   totalAmountPaid = calculateTotalAmountPaid(
+          //     parseInt(obj[AMOUNT_PAID]),
+          //     obj?.others
+          //   )
+          // }
+          totalAmountPaid =
+            typeof obj[AMOUNT_PAID] === "undefined" ||
+            typeof obj[SOURCE] === "undefined" ||
+            obj[SOURCE] === ""
+              ? 0
+              : Number(obj[AMOUNT_PAID])
           dataByDate[dateFormatted] = [[dateFormatted, totalAmountPaid]]
         }
       } else {
         if (typeof obj[AMOUNT_PAID] === "undefined") {
-          if (obj?.others) {
-            totalAmountPaid = calculateTotalAmountPaid(0, obj?.others)
-          }
+          // if (obj?.others) {
+          //   totalAmountPaid = calculateTotalAmountPaid(0, obj?.others)
+          // }
+          totalAmountPaid =
+            typeof obj[AMOUNT_PAID] === "undefined" ||
+            typeof obj[SOURCE] === "undefined" ||
+            obj[SOURCE] === ""
+              ? 0
+              : Number(obj[AMOUNT_PAID])
           dataByDate[dateFormatted].push([dateFormatted, totalAmountPaid])
         } else {
-          if (obj?.others) {
-            totalAmountPaid = calculateTotalAmountPaid(
-              parseInt(obj[AMOUNT_PAID]),
-              obj?.others
-            )
-          }
+          // if (obj?.others) {
+          //   totalAmountPaid = calculateTotalAmountPaid(
+          //     parseInt(obj[AMOUNT_PAID]),
+          //     obj?.others
+          //   )
+          // }
+          totalAmountPaid =
+            typeof obj[AMOUNT_PAID] === "undefined" ||
+            typeof obj[SOURCE] === "undefined" ||
+            obj[SOURCE] === ""
+              ? 0
+              : Number(obj[AMOUNT_PAID])
           dataByDate[dateFormatted].push([dateFormatted, totalAmountPaid])
         }
       }
@@ -385,6 +404,7 @@ export default class ExcelFormatter {
       temporaryData: [],
     }
     for (const key in dataByDate) {
+      console.log("dateWithTotal", dataByDate[key])
       const dataWithTotal = sumArrayDatas(dataByDate[key], 1)
       excelFormatDataByDateWithTotal.dSummary.push([
         key,
@@ -395,6 +415,7 @@ export default class ExcelFormatter {
         dataWithTotal.toFixed(2),
       ])
     }
+
     const dataWithSubTotal = sumArrayDatas(
       excelFormatDataByDateWithTotal.temporaryData,
       1
@@ -411,7 +432,6 @@ export default class ExcelFormatter {
   }
 
   static orderViaSummary(data, dropdowns, dateFromTo) {
-    console.log("orderViaSummaryDateFromTo", dateFromTo)
     const dateFrom = formatDateDash(dateFromTo[0])
     const dateTo = formatDateDash(dateFromTo[1])
     const dataByOrderSummary = {}
@@ -435,21 +455,23 @@ export default class ExcelFormatter {
       if (typeof obj[SOURCE] !== "undefined" && obj[SOURCE]) {
         let totalAmountPaid = 0
         if (typeof obj[AMOUNT_PAID] === "undefined") {
-          if (obj?.others) {
-            totalAmountPaid = calculateTotalAmountPaid(0, obj?.others)
-          }
+          // if (obj?.others) {
+          //   totalAmountPaid = calculateTotalAmountPaid(0, obj?.others)
+          // }
+          totalAmountPaid = Number(obj[AMOUNT_PAID])
           temporary[obj[SOURCE]].push([dateFormatted, totalAmountPaid])
           dataByOrderSummary[obj[SOURCE]].push([
             dateFormatted,
             totalAmountPaid.toFixed(2),
           ])
         } else {
-          if (obj?.others) {
-            totalAmountPaid = calculateTotalAmountPaid(
-              parseInt(obj[AMOUNT_PAID]),
-              obj?.others
-            )
-          }
+          // if (obj?.others) {
+          //   totalAmountPaid = calculateTotalAmountPaid(
+          //     parseInt(obj[AMOUNT_PAID]),
+          //     obj?.others
+          //   )
+          //
+          totalAmountPaid = Number(obj[AMOUNT_PAID])
           temporary[obj[SOURCE]].push([dateFormatted, totalAmountPaid])
           dataByOrderSummary[obj[SOURCE]].push([
             dateFormatted,

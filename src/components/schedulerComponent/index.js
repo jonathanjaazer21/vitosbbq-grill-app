@@ -144,7 +144,7 @@ function SchedulerComponent({ setLoading }) {
     if (args.requestType === "eventChange") {
       const data = {
         ...args.data,
-        amountPaid: selectOrderSlice?.totalAmountPaid,
+        totalDue: selectOrderSlice?.totalAmountPaid,
       }
       data.Subject = data[CUSTOMER]
       const dataToBeSend = schedulerSchema(data)
@@ -163,7 +163,7 @@ function SchedulerComponent({ setLoading }) {
       const dataToBeSend = schedulerSchema({
         ...data,
         [ORDER_NO]: orderNo,
-        amountPaid: selectOrderSlice?.totalAmountPaid,
+        totalDue: selectOrderSlice?.totalAmountPaid,
       })
       delete dataToBeSend.RecurrenceRule
       const result = addData({
@@ -194,7 +194,36 @@ function SchedulerComponent({ setLoading }) {
   const { branchColors } = schedulerComponentSlice
   const onEventRendered = (args, branchDropdown) => {
     const { element, data } = args
-    element.style.background = branchColors[data[BRANCH]]
+    // element.style.background = branchColors[data[BRANCH]]
+    if (data?.status) {
+      if (data?.status === "PAID") {
+        element.style.background = "yellow"
+        element.style.color = "#666"
+      }
+      if (data?.status === "FULFILLED") {
+        element.style.background = "lightgreen"
+        element.style.color = "#333"
+      }
+
+      if (data?.status === "REVISED / RESCHEDULED") {
+        element.style.background = "lightblue"
+        element.style.color = "#333"
+      }
+
+      if (data?.status === "CONFIRMED") {
+        element.style.background = "red"
+        element.style.color = "#eee"
+      }
+
+      if (data?.status === "CANCELLED") {
+        element.style.background = "orange"
+        element.style.color = "#333"
+      }
+    } else {
+      element.style.background = "#eee"
+      element.style.color = "#333"
+    }
+
     if (!branchDropdown.includes(data[BRANCH])) {
       element.hidden = true
     }
@@ -202,6 +231,9 @@ function SchedulerComponent({ setLoading }) {
 
   const onPopUpOpen = (args) => {
     const { data } = args
+    if (args.type === "QuickInfo") {
+      args.cancel = true
+    }
     const header = args.element.querySelector(".e-title-text")
     const partnerMerchant = args.element.querySelector(
       `#${PARTNER_MERCHANT_ORDER_NO}`

@@ -27,6 +27,8 @@ import { Reports } from "Restructured/Components/Features"
 import ExcelExporter from "Restructured/Components/Features/ExcelExporter"
 import DirectAndThirdParty from "containers/7.directAndThirdParty"
 import Inventory from "containers/8.inventory"
+import IncidentReports from "containers/9.incidentReports"
+import Dashboard from "containers/Dashboard"
 function App() {
   const dispatch = useDispatch()
   const [menu, handleMenu] = useSelectMenus()
@@ -119,7 +121,10 @@ function App() {
         <Router>
           <Switch>
             <Route exact path="/">
-              <GrillReservation />
+              <Dashboard />
+            </Route>
+            <Route exact path="/dashboard">
+              <Dashboard />
             </Route>
             <Route exact path="/dashboard/grillReservation">
               <GrillReservation />
@@ -161,6 +166,9 @@ function App() {
             <Route exact path="/reports/directAndThirdParty">
               <DirectAndThirdParty />
             </Route>
+            <Route exact path="/reports/incidentReports">
+              <IncidentReports />
+            </Route>
             <Route path="*">
               <div>Invalid url</div>
             </Route>
@@ -186,11 +194,6 @@ function App() {
   }
   const renderIfVerified = isLoggedIn ? <Routing /> : <UnAuthenticatedRouting />
   return isLoading ? <Backdrop /> : renderIfVerified
-  return (
-    <div>
-      <Reports />
-    </div>
-  )
 }
 
 export default App

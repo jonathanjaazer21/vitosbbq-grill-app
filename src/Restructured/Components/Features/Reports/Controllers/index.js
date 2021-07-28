@@ -56,10 +56,11 @@ export default class Controllers {
         dataList: _data,
       })
 
-      const amountPaid = calculateTotalAmountPaid(
-        _data[AMOUNT_PAID],
-        _data?.others
-      )
+      const amountPaid = parseInt(_data[AMOUNT_PAID])
+      // const amountPaid = calculateTotalAmountPaid(
+      //   _data[AMOUNT_PAID],
+      //   _data?.others
+      // )
       const totalCost = calculateTotalCost(
         productObj,
         _productGroupHeaderAndPrice
@@ -266,10 +267,11 @@ export default class Controllers {
       const orderVia = _data[ORDER_VIA]
       const orderViaPartner = _data[ORDER_VIA_PARTNER]
       const datePlaced = formatDateFromDatabase(_data[DATE_START])
-      const amountPaid = calculateTotalAmountPaid(
-        _data[AMOUNT_PAID],
-        _data?.others
-      )
+      const amountPaid = parseInt(_data[AMOUNT_PAID])
+      // const amountPaid = calculateTotalAmountPaid(
+      //   _data[AMOUNT_PAID],
+      //   _data?.others
+      // )
 
       if (orderVia) {
         if (_data[SOURCE]) {

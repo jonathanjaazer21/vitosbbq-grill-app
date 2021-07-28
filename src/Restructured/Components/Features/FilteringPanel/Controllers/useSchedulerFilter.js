@@ -6,6 +6,7 @@ import { selectSchedulerComponentSlice } from "components/SchedulerComponent/sch
 import { useSelector } from "react-redux"
 import FilteringPanelMethods from "./FilteringPanelMethods"
 import { BRANCH } from "Restructured/Constants/schedules"
+import { STATUS } from "components/SchedulerComponent/orderSlip/types"
 
 function useSchedulerFilter() {
   const userSlice = useSelector(selectUserSlice)
@@ -23,6 +24,13 @@ function useSchedulerFilter() {
     const _branchColors = schedulerComponentSlice.branchColors
     if (_branchColors) {
       setBranchColors(_branchColors)
+      // setBranchColors({
+      //   CONFIRMED: "red",
+      //   PAID: "yellow",
+      //   "REVISED / RESCHEDULED": "lightblue",
+      //   FULFILLED: "lightgreen",
+      //   CANCELLED: "orange",
+      // })
     }
   }, [schedulerComponentSlice.branchColors])
 
@@ -88,6 +96,7 @@ function useSchedulerFilter() {
               [BRANCH]: _data[BRANCH],
               StartTime: _startTime,
               EndTime: _endTime,
+              [STATUS]: _data[STATUS],
               _id: doc.id,
             })
           })

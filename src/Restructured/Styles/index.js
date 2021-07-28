@@ -1,6 +1,7 @@
 import styled from "styled-components"
 
 export const Grid = styled.div`
+  box-sizing: border-box;
   display: ${({ display = true }) => (display ? "grid" : "none")};
   height: ${({ height }) => (height ? height : "0%")};
   align-items: ${({ alignItems }) => (alignItems ? alignItems : "flex-start")};
