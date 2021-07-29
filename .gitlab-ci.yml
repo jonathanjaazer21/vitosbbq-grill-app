@@ -2,14 +2,19 @@ stages:
   - staging
   - deploy
 
+image: node:15
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm/
+
+before_script:
+  - npm install --cache .npm --prefer-offline
+
 build-dev:
-  image: node:15
   stage: staging
   script:
-    - npm install
-    - ./node_modules/.bin/env-cmd -f $env_development npm run build
-  artifacts:
-    paths:
-      - ./
+    - .echo success
   only:
     - develop
