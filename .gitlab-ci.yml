@@ -1,0 +1,15 @@
+stages:
+  - staging
+  - production
+
+cache:
+  path: node_modules/
+
+build-dev:
+  stage: staging
+  image: node:15
+  script:
+    - npm install
+    - env-cmd -f $env_development npm run build
+  only:
+    - develop
