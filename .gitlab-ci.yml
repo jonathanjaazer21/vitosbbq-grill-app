@@ -1,12 +1,14 @@
 stages:
   - staging
-  - production
+  - deploy
 
 build-dev:
   stage: staging
   image: node:15
   script:
     - npm install
-    - env-cmd -f $env_development npm run build
+    - ./node_modules/.bin/env-cmd -f $env_development npm run build
   only:
     - develop
+
+deploy:
