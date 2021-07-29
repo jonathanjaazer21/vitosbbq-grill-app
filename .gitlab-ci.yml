@@ -19,8 +19,9 @@ build-dev:
     - develop
   script:
     - ls
+    - cd /src/components/SchedulerComponent
+    - ls
     - npm run build
-    - mv build dist
   artifacts:
     paths:
       - dist/build
