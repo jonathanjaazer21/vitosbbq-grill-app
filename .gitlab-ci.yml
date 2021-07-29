@@ -3,14 +3,14 @@ cache:
     - node_modules/
 
 stages:
-  - init
+  #  - init
   - staging
   - deploy
 
-init:
-  stage: init
-  image: node:15
-  script: npm install
+#init:
+#  stage: init
+#  image: node:15
+#  script: npm install
 
 build-dev:
   stage: staging
@@ -21,10 +21,10 @@ build-dev:
     - ls
     - cd src
     - ls
-    - npm run build
-  artifacts:
-    paths:
-      - dist/build
-    expire_in: 1 hour
-    name: vitos-grill-app-artifact
-    when: on_success
+  #    - npm run build
+  # artifacts:
+  # paths:
+  #   - dist/build
+  # expire_in: 1 hour
+  # name: vitos-grill-app-artifact
+  # when: on_success
