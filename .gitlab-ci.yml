@@ -1,24 +1,28 @@
+cache:
+  paths:
+    - node_modules/
+
 stages:
+  - init
   - staging
   - deploy
 
-image: node:15
-
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - .npm/
-
-before_script:
-  - npm install --cache .npm --prefer-offline
+init:
+  stage: init
+  image: node:15
+  script: npm install
 
 build-dev:
   stage: staging
+  image: node:15
+  only:
+    - develop
   script:
     - npm run build
     - mv build dist
   artifacts:
     paths:
-      - dist
-  only:
-    - develop
+      - dist/build
+    expire_in: 1 hour
+    name: vitos-grill-app-artifact
+    when: on_success
