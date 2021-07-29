@@ -18,6 +18,7 @@ build-dev:
   only:
     - develop
   script:
+    - ls
     - npm run build
     - mv build dist
   artifacts:
