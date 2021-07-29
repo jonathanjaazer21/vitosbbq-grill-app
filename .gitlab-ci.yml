@@ -3,7 +3,7 @@ stages:
   - production
 
 cache:
-  path: node_modules/
+  paths: node_modules/
 
 build-dev:
   stage: staging
