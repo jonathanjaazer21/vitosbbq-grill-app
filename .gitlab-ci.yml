@@ -2,9 +2,6 @@ stages:
   - staging
   - production
 
-cache:
-  paths: node_modules/
-
 build-dev:
   stage: staging
   image: node:15
