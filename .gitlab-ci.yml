@@ -3,12 +3,13 @@ stages:
   - deploy
 
 build-dev:
-  stage: staging
   image: node:15
+  stage: staging
   script:
     - npm install
     - ./node_modules/.bin/env-cmd -f $env_development npm run build
+  artifacts:
+    paths:
+      - ./
   only:
     - develop
-
-deploy:
