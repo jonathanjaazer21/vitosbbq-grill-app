@@ -2,6 +2,8 @@
   "projects": {
     "default": "vitos-grill",
     "vitosbbqgrill/Production": "vitosbbqgrill",
-    "vitosbbq-5c83f/Production": "vitosbbq-5c83f"
+    "prod": "vitosbbq-5c83f",
+    "Vitos Development Server": "vito-s-grill-dev",
+    "dev": "vitosbbqgrill"
   }
 }

@@ -23,21 +23,23 @@ export function useOrderViaField() {
         setIsDisplayedPartner(false)
       }
     } else {
-      // setIsDisplayed(true)
+      setIsDisplayedDirect(true)
+      setIsDisplayedPartner(true)
     }
   }
 
   const handleOrderVia = (e, props) => {
     if (e) {
+      console.log("testOrdervia", e)
       if (props.name === ORDER_VIA) {
-        if (e.value === null) {
+        if (e.value === null || e.value === "") {
           dispatch(setOrderViaField(e.value))
         } else {
           dispatch(setOrderViaField(`Direct ${e.value}`))
         }
       }
       if (props.name === ORDER_VIA_PARTNER) {
-        if (e.value === null) {
+        if (e.value === null || e.value === "") {
           dispatch(setOrderViaField(e.value))
         } else {
           dispatch(setOrderViaField(`Partner Merchant ${e.value}`))

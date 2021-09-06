@@ -1,12 +1,28 @@
-import { DATE_PICKER, DROP_DOWN_LIST, INPUT, NUMBER } from 'components/fields/types'
-import { useState, useEffect } from 'react'
-import db from 'services/firebase'
-import { ACCOUNT_NUMBER, AMOUNT_PAID, DATE_PAYMENT, MODE_PAYMENT, PAYMENT_LABELS, REF_NO, SOURCE } from './types'
+import {
+  DATE_PICKER,
+  DROP_DOWN_LIST,
+  INPUT,
+  NUMBER,
+  TEXT_AREA,
+} from "components/fields/types"
+import { useState, useEffect } from "react"
+import db from "services/firebase"
+import {
+  ACCOUNT_NUMBER,
+  AMOUNT_PAID,
+  DATE_PAYMENT,
+  MODE_PAYMENT,
+  PAYMENT_LABELS,
+  REF_NO,
+  SOURCE,
+  TOTAL_DUE,
+  PAYMENT_NOTES,
+} from "./types"
 
 const getWhereData = (name) => {
   return new Promise((resolve, reject) => {
-    db.collection('dropdowns')
-      .where('name', '==', name)
+    db.collection("dropdowns")
+      .where("name", "==", name)
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
@@ -18,14 +34,15 @@ const getWhereData = (name) => {
           }
         })
         resolve([])
-      }).catch((error) => {
-        console.log('Error getting document:', error)
+      })
+      .catch((error) => {
+        console.log("Error getting document:", error)
         reject(error)
       })
   })
 }
 
-export function useGetDropdowns () {
+export function useGetDropdowns() {
   const [dropdowns, setDropdowns] = useState([])
 
   useEffect(() => {
@@ -40,36 +57,48 @@ export function useGetDropdowns () {
       {
         name: DATE_PAYMENT,
         type: DATE_PICKER,
-        label: PAYMENT_LABELS[DATE_PAYMENT]
+        label: PAYMENT_LABELS[DATE_PAYMENT],
       },
       {
         name: MODE_PAYMENT,
         type: DROP_DOWN_LIST,
         label: PAYMENT_LABELS[MODE_PAYMENT],
-        dataSource: modePayment
+        dataSource: modePayment,
       },
       {
         name: SOURCE,
         type: DROP_DOWN_LIST,
         label: PAYMENT_LABELS[SOURCE],
-        dataSource: source
+        dataSource: source,
       },
       {
         name: REF_NO,
         type: INPUT,
-        label: PAYMENT_LABELS[REF_NO]
+        label: PAYMENT_LABELS[REF_NO],
+      },
+      {
+        name: PAYMENT_NOTES,
+        type: TEXT_AREA,
+        label: PAYMENT_LABELS[PAYMENT_NOTES],
       },
       {
         name: ACCOUNT_NUMBER,
         type: DROP_DOWN_LIST,
         label: PAYMENT_LABELS[ACCOUNT_NUMBER],
-        dataSource: accountNumber
+        dataSource: accountNumber,
+      },
+      {
+        name: TOTAL_DUE,
+        type: NUMBER,
+        label: PAYMENT_LABELS[TOTAL_DUE],
+        isInlineBlock: true,
       },
       {
         name: AMOUNT_PAID,
         type: NUMBER,
-        label: PAYMENT_LABELS[AMOUNT_PAID]
-      }
+        label: PAYMENT_LABELS[AMOUNT_PAID],
+        isInlineBlock: true,
+      },
     ])
   }
   return dropdowns

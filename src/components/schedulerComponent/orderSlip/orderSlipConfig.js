@@ -8,8 +8,8 @@ import {
   INPUT,
   ORDER_VIA_TYPE,
   STATUS_REASON,
-  TEXT_AREA
-} from 'components/fields/types'
+  TEXT_AREA,
+} from "components/fields/types"
 import {
   ACCOUNT_NAME,
   ATCHARA,
@@ -62,56 +62,56 @@ import {
   TIME_SLOT,
   TOTAL,
   TWELVE,
-  _ID
-} from './types'
+  _ID,
+} from "./types"
 
 export const DROPDOWN_DATAS = {
-  [BRANCH]: ['Libis', 'Ronac'],
+  [BRANCH]: ["Libis", "Ronac"],
   [ORDER_VIA]: [
-    'INSTAGRAM DM',
-    'FB MESSENGER',
-    'VIBER 770',
-    'VIBER 809',
-    'WHATSAPP 770',
-    'WHATSAPP 809',
-    'TEXT 770',
-    'TEXT 809'
+    "INSTAGRAM DM",
+    "FB MESSENGER",
+    "VIBER 770",
+    "VIBER 809",
+    "WHATSAPP 770",
+    "WHATSAPP 809",
+    "TEXT 770",
+    "TEXT 809",
   ],
   [PAYMENT_MODE]: [
-    'CASH',
-    'BDO / 98',
-    'KP / GCASH',
-    'ZAP',
-    'GRAB FOOD',
-    'DINGDONG PH',
-    'METROMART FOOD'
+    "CASH",
+    "BDO / 98",
+    "KP / GCASH",
+    "ZAP",
+    "GRAB FOOD",
+    "DINGDONG PH",
+    "METROMART FOOD",
   ],
   [STATUS]: [
-    'CONFIRMED',
-    'PAID',
-    'SERVED',
-    'REVISED / RESCHEDULED',
-    'CANCELLED'
-  ]
+    "CONFIRMED",
+    "PAID",
+    "SERVED",
+    "REVISED / RESCHEDULED",
+    "CANCELLED",
+  ],
 }
 export default [
   {
     name: BLANK_FIELD,
     type: BLANK_FIELD,
-    isInlineBlock: true
+    isInlineBlock: true,
   },
   {
     name: DATE_ORDER_PLACED,
     type: DATE_TIME_PICKER,
     label: LABELS[DATE_ORDER_PLACED],
-    default: 'StartTime',
-    isInlineBlock: true
+    default: "StartTime",
+    isInlineBlock: true,
   },
   {
     name: BRANCH,
     type: DROP_DOWN_LIST,
     label: LABELS[BRANCH],
-    isInlineBlock: true
+    isInlineBlock: true,
   },
   {
     name: ORDER_NO,
@@ -119,13 +119,13 @@ export default [
     label: LABELS[ORDER_NO],
     isInlineBlock: true,
     disabled: true,
-    placeholder: 'Auto generate after save'
+    placeholder: "Auto generate after save",
   },
   {
     name: CUSTOMER,
     type: INPUT,
     label: LABELS[CUSTOMER],
-    isInlineBlock: true
+    isInlineBlock: true,
   },
   // {
   //   name: DELIVERY_DATE,
@@ -138,19 +138,19 @@ export default [
     name: CONTACT_NUMBER,
     type: INPUT,
     label: LABELS[CONTACT_NUMBER],
-    isInlineBlock: true
+    isInlineBlock: true,
   },
   {
     name: ORDER_VIA,
     type: DROP_DOWN_LIST,
     label: LABELS[ORDER_VIA],
-    isInlineBlock: true
+    isInlineBlock: true,
   },
   {
     name: ACCOUNT_NAME,
     type: INPUT,
     label: LABELS[ACCOUNT_NAME],
-    isInlineBlock: true
+    isInlineBlock: true,
   },
   // {
   //   name: PARTNER_MERCHANT_ORDER_NO,
@@ -160,37 +160,37 @@ export default [
   // },
   {
     name: ORDER_VIA_PARTNER,
-    type: ORDER_VIA_TYPE
+    type: ORDER_VIA_TYPE,
   },
   {
     name: HEADER_FIELD,
     type: HEADER_FIELD,
-    label: LABELS[TIME_SLOT]
+    label: LABELS[TIME_SLOT],
   },
   {
     name: DATE_START,
     type: DATE_TIME_PICKER,
     label: LABELS[DATE_START],
-    default: 'StartTime',
+    default: "StartTime",
     isInlineBlock: true,
-    disabled: true
+    disabled: true,
   },
   {
     name: DATE_END,
     type: DATE_TIME_PICKER,
     label: LABELS[DATE_END],
-    default: 'EndTime',
+    default: "EndTime",
     isInlineBlock: true,
-    disabled: true
+    disabled: true,
   },
   {
     name: REMARKS,
     type: TEXT_AREA,
-    label: LABELS[REMARKS]
+    label: LABELS[REMARKS],
   },
   {
     name: STATUS_REASON,
-    type: STATUS_REASON
+    type: STATUS_REASON,
   },
   // {
   //   name: STATUS,
@@ -208,7 +208,7 @@ export default [
   {
     name: _ID,
     type: HIDDEN,
-    label: '',
-    isInline: true
-  }
+    label: "",
+    isInline: true,
+  },
 ]

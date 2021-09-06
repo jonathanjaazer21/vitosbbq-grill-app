@@ -1,5 +1,5 @@
 import { TextBoxComponent } from "@syncfusion/ej2-react-inputs"
-import React from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
 const OutlinedContainer = styled.div`
@@ -23,6 +23,7 @@ function TextArea(props) {
         cols="50"
         value={props.value}
         style={{ resize: "vertical" }}
+        onChange={props?.onChange}
       />
     </OutlinedContainer>
   )
