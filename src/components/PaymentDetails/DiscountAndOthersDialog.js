@@ -49,6 +49,8 @@ const initialState = {
     clientName: "",
     contactNo: "",
     dateAndTime: "",
+    briefDescription: "",
+    actionTaken: "",
     onDuty: "",
     amount: 0,
   },
@@ -280,6 +282,22 @@ function DiscountAndOthersDialog(props) {
                 type="text"
                 value={additionalDetails[state].dateAndTime}
                 onChange={(e) => handleFormChange(e, state, "dateAndTime")}
+              />
+            </div>
+            <div style={{ width: "25rem", marginBottom: ".6rem" }}>
+              <label>Brief Description:</label>
+              <TextArea
+                type="text"
+                value={additionalDetails[state].briefDescription}
+                onChange={(e) => handleFormChange(e, state, "briefDescription")}
+              />
+            </div>
+            <div style={{ width: "25rem", marginBottom: ".6rem" }}>
+              <label>Action Taken:</label>
+              <TextArea
+                type="text"
+                value={additionalDetails[state].actionTaken}
+                onChange={(e) => handleFormChange(e, state, "actionTaken")}
               />
             </div>
             <div style={{ width: "25rem", marginBottom: ".6rem" }}>

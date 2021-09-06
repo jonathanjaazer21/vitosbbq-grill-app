@@ -4,7 +4,7 @@ import AppBar from "components/appBar"
 import { Wrapper, Container, RightContent } from "../styles"
 import Sidenav from "components/sideNav"
 import Animate, { FadeIn } from "animate-css-styled-components"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { navigateTo } from "components/sideNav/sideNavSlice"
 import {
   DASHBOARD,
@@ -44,11 +44,14 @@ import { menu } from "components/SchedulerComponent/orderSlip/orderSlip"
 import { useGetProducts } from "components/products/useGetProducts"
 import { useGetDropdowns } from "components/SchedulerComponent/dropdowns"
 import PaymentTransactionTable from "Restructured/Components/Features/PaymentTransactionTable"
+import { formatTime } from "Restructured/Utilities/dateFormat"
+import { selectUserSlice } from "containers/0.login/loginSlice"
 const formatDateFromFirebase = (date) => {
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
 }
 function UserMasterfile() {
   const dropdowns = useGetDropdowns()
+  const userComponentSlice = useSelector(selectUserSlice)
   const dispatch = useDispatch()
   const [products] = useGetProducts()
   const [toggle, setToggle] = useState(true)
@@ -81,9 +84,8 @@ function UserMasterfile() {
         const rows = []
         const headers = [
           ...[
-            DATE_START,
             DATE_ORDER_PLACED,
-            BRANCH,
+            DATE_START,
             ORDER_NO,
             CUSTOMER,
             CONTACT_NUMBER,
@@ -156,7 +158,7 @@ function UserMasterfile() {
               ...data,
               _id: obj.doc.id,
               [DATE_ORDER_PLACED]: formatDate(dateOrderPlaced),
-              [DATE_START]: normalizeHour(dateStart),
+              [DATE_START]: formatDate(dateStart) + " " + formatTime(dateStart),
               [DATE_END]: normalizeHour(dateEnd),
               [DATE_PAYMENT]: datePayment !== "" ? formatDate(datePayment) : "",
               totalAmountPaid: amountPaid,
@@ -198,18 +200,22 @@ function UserMasterfile() {
               }
             }
             const result = calculateSubTotal(totals)
-            rows.push({
-              ...data,
-              _id: obj.doc.id,
-              [DATE_ORDER_PLACED]: formatDate(dateOrderPlaced),
-              [DATE_START]: normalizeHour(dateStart),
-              [DATE_END]: normalizeHour(dateEnd),
-              [DATE_PAYMENT]: datePayment !== "" ? formatDate(datePayment) : "",
-              totalAmountPaid: amountPaid,
-              totalQty: result?.qty,
-              totalAmount: result?.subTotal,
-              [OTHERS_DEDUCTION]: lessValue,
-            })
+            if (userComponentSlice.branches.includes(data[BRANCH])) {
+              rows.push({
+                ...data,
+                _id: obj.doc.id,
+                [DATE_ORDER_PLACED]: formatDate(dateOrderPlaced),
+                [DATE_START]:
+                  formatDate(dateStart) + " " + formatTime(dateStart),
+                [DATE_END]: normalizeHour(dateEnd),
+                [DATE_PAYMENT]:
+                  datePayment !== "" ? formatDate(datePayment) : "",
+                totalAmountPaid: amountPaid,
+                totalQty: result?.qty,
+                totalAmount: result?.subTotal,
+                [OTHERS_DEDUCTION]: lessValue,
+              })
+            }
           } else if (obj.type === "removed") {
             // dispatch(deleteTable({ _id: obj.doc.id }))
           } else {
@@ -260,7 +266,7 @@ function UserMasterfile() {
                 style={{
                   position: "fixed",
                   top: "4.3rem",
-                  width: "calc(100% - 320px)",
+                  width: "calc(100% - 250px)",
                   height: "100%",
                   overflow: "auto",
                   zIndex: 2000,

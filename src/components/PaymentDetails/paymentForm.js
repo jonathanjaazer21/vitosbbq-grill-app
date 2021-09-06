@@ -29,6 +29,8 @@ import { useGetDropdowns } from "components/PaymentDetails/dropdowns"
 import { Uploads } from "components/uploads"
 import formatNumber from "commonFunctions/formatNumber"
 import DiscountAndOthersDialog from "./DiscountAndOthersDialog"
+import PartialPayments from "./partialModal"
+import { formatDateFromDatabase } from "Restructured/Utilities/dateFormat"
 
 export function Paymentform(props) {
   const tableSlice = useSelector(selectTableSlice)
@@ -43,6 +45,14 @@ export function Paymentform(props) {
     const newOthers = {}
     const { dataList } = tableSlice
     const data = dataList.find((row) => row._id === props?.id)
+    if (data?.partials) {
+      newFormFields.partials = data?.partials.map((partial) => {
+        return {
+          ...partial,
+          date: formatDateFromDatabase(partial.date),
+        }
+      })
+    }
     // this is only for dropdowns
     for (const obj of dropdowns) {
       newFormFields[obj?.name] =
@@ -137,6 +147,8 @@ export function Paymentform(props) {
     } else {
       // not a date
     }
+
+    console.log("submitted", formFields)
     update({
       data: {
         ...formFields,
@@ -162,27 +174,38 @@ export function Paymentform(props) {
   return (
     <>
       <Wrapper>
-        {dropdowns.map((customProps) => {
-          return (
-            <Container key={customProps?.name}>
-              {fields[customProps?.type]({
-                ...customProps,
-                // this value is applied only for dropdowns field
-                value: formFields[customProps?.name],
-                onChange: (e) => {
-                  if (customProps?.name !== TOTAL_DUE) {
-                    handleChangeFormFields(
-                      e,
-                      customProps?.name,
-                      customProps.type
-                    )
-                  }
-                },
-              })}
-            </Container>
-          )
-        })}
-        <Uploads id={props?.id} />
+        <Container>
+          {dropdowns.map((customProps) => {
+            return fields[customProps?.type]({
+              ...customProps,
+              // this value is applied only for dropdowns field
+              value: formFields[customProps?.name],
+              onChange: (e) => {
+                if (
+                  customProps?.name === TOTAL_DUE ||
+                  customProps?.name === AMOUNT_PAID
+                ) {
+                } else {
+                  handleChangeFormFields(e, customProps?.name, customProps.type)
+                }
+              },
+            })
+          })}
+        </Container>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            padding: "0rem 1rem",
+          }}
+        >
+          <Uploads id={props?.id} />
+          <PartialPayments
+            formFields={formFields}
+            setFormFields={setFormFields}
+            dropdowns={dropdowns}
+          />
+        </div>
         <div
           style={{
             display: "flex",

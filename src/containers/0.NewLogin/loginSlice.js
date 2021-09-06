@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit"
 import { USER } from "app/types"
 
-export const userSlice = createSlice({
+export const newUserSlice = createSlice({
   name: USER,
   initialState: {
     displayName: "",
@@ -12,6 +12,7 @@ export const userSlice = createSlice({
     modules: [],
     isEnabled: false,
     branchSelected: "",
+    username: "",
   },
   reducers: {
     setAccountInfo: (state, action) => {
@@ -20,13 +21,16 @@ export const userSlice = createSlice({
       state.email = payload.email
       state.photoURL = payload.photoURL
       state.roles = payload.roles
-      // state.branches = payload.branches
+      state.branches = [payload.branchSelected]
       state.isEnabled = payload.isEnabled
+      state.username = payload.username
     },
     clearAccountInfo: (state) => {
       state.displayName = ""
       state.email = ""
       state.photoURL = ""
+      state.branchSelected = ""
+      state.username = ""
     },
     setBranchSelected: (state, action) => {
       state.branchSelected = action.payload
@@ -35,6 +39,6 @@ export const userSlice = createSlice({
 })
 
 export const { setAccountInfo, clearAccountInfo, setBranchSelected } =
-  userSlice.actions
+  newUserSlice.actions
 export const selectUserSlice = (state) => state[USER]
-export default userSlice.reducer
+export default newUserSlice.reducer

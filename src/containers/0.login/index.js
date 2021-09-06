@@ -1,14 +1,14 @@
-import React from 'react'
-import GoogleButton from 'react-google-button'
+import React from "react"
+import GoogleButton from "react-google-button"
 import Animate, {
   RollIn,
   FadeIn,
   FadeInDown,
   ZoomIn,
   FadeInUp,
-  RubberBand
-} from 'animate-css-styled-components'
-import { auth, provider } from 'services/firebase'
+  RubberBand,
+} from "animate-css-styled-components"
+import { auth, provider } from "services/firebase"
 import {
   Wrapper,
   Background,
@@ -16,17 +16,17 @@ import {
   Card,
   CookedChef,
   Description,
-  VitosLogo
-} from './styles'
-import background from 'images/background2.jpg'
-import cookedChefLogo from 'images/cookedChef.jpg'
-import vitosLogo from 'images/vitosLogo.jpg'
+  VitosLogo,
+} from "./styles"
+import background from "images/background2.jpg"
+import cookedChefLogo from "images/cookedChef.jpg"
+import vitosLogo from "images/vitosLogo.jpg"
 
-function Login () {
+function Login() {
   const handleLogin = () => {
     auth
       .signInWithPopup(provider)
-      .then(result => {
+      .then((result) => {
         /** @type {firebase.auth.OAuthCredential} */
         const credential = result.credential
 
@@ -36,7 +36,7 @@ function Login () {
         var user = result.user
         // ...
       })
-      .catch(error => {
+      .catch((error) => {
         // Handle Errors here.
         var errorCode = error.code
         var errorMessage = error.message
@@ -51,24 +51,24 @@ function Login () {
   return (
     <Wrapper>
       {/* <Background src={background} /> */}
-      <Animate Animation={[FadeInDown]} duration={['1s']} delay={['0.1s']}>
+      <Animate Animation={[FadeInDown]} duration={["1s"]} delay={["0.1s"]}>
         <Card>
-          <Animate Animation={[FadeIn]} duration={['1s']} delay={['0.8s']}>
+          <Animate Animation={[FadeIn]} duration={["1s"]} delay={["0.8s"]}>
             <CookedChef src={cookedChefLogo} />
           </Animate>
-          <Animate Animation={[RollIn]} duration={['1s']} delay={['0.5s']}>
+          <Animate Animation={[RollIn]} duration={["1s"]} delay={["0.5s"]}>
             <VitosLogo src={vitosLogo} />
           </Animate>
-          <Animate Animation={[FadeInUp]} duration={['.1s']} delay={['1.2s']}>
+          <Animate Animation={[FadeInUp]} duration={[".1s"]} delay={["1.2s"]}>
             <Description>USER LOGIN</Description>
           </Animate>
           <Animate
             Animation={[ZoomIn, RubberBand]}
-            duration={['.1s', '1s']}
-            delay={['0.8s', '1.5s']}
+            duration={[".1s", "1s"]}
+            delay={["0.8s", "1.5s"]}
           >
             <GoogleContainer>
-              <GoogleButton onClick={handleLogin} type='light' />
+              <GoogleButton onClick={handleLogin} type="light" />
             </GoogleContainer>
           </Animate>
         </Card>

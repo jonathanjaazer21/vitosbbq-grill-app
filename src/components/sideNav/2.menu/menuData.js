@@ -4,20 +4,21 @@ import { useSelector } from "react-redux"
 import { getData } from "services"
 import { ROLES } from "services/collectionNames"
 import db from "services/firebase"
-import { Clock, Pen } from "./styles"
-export const GRILL_RESERVATION = "Grill Reservation"
-export const PAYMENT_TRANSACTION = "Payment Transaction"
+import { Clock, Pen, Settings } from "./styles"
+export const GRILL_RESERVATION = "Grilling Schedule"
+export const PAYMENT_TRANSACTION = "Transactions"
 export const USER_MASTERFILE = "User Masterfile"
 export const BRANCH_MASTERFILE = "Branch Masterfile"
 export const DASHBOARD = "Dashboard"
-export const MASTER_DATA = "Master Data"
+export const MASTER_DATA = "Settings"
 export const DROPDOWN_MASTERFILE = "Dropdown Masterfile"
 export const ROLES_MASTERFILE = "Roles Masterfile"
 export const PRODUCTS_MASTERFILE = "Products Masterfile"
-export const REPORTS = "Reports"
+export const REPORTS = "Analytics"
 export const DIRECT_AND_THIRD_PARTY = "Direct and 3rd Party"
-export const INVENTORY = "Inventory"
+export const INVENTORY = "Store Inventory"
 export const INCIDENT_REPORTS = "Incident Reports"
+export const DAILY_REPORTS = "Daily Reports"
 
 export const useSelectMenus = () => {
   const [roles, setRoles] = useState([])
@@ -88,8 +89,41 @@ const menuData = (modules) => {
       ],
     },
     {
-      title: MASTER_DATA,
+      title: REPORTS,
       Icon: ({ isToggled }) => <Pen isToggled={isToggled} />,
+      active: false,
+      flex: 1,
+      display: modules.includes(REPORTS),
+      subMenu: [
+        {
+          title: PAYMENT_TRANSACTION,
+          active: false,
+          path: "/reports/paymentTransaction",
+          display: modules.includes(PAYMENT_TRANSACTION),
+        },
+        {
+          title: DIRECT_AND_THIRD_PARTY,
+          active: false,
+          path: "/reports/directAndThirdParty",
+          display: modules.includes(DIRECT_AND_THIRD_PARTY),
+        },
+        {
+          title: INCIDENT_REPORTS,
+          active: false,
+          path: "/reports/incidentReports",
+          display: modules.includes(INCIDENT_REPORTS),
+        },
+        {
+          title: DAILY_REPORTS,
+          active: false,
+          path: "/reports/dailyReports",
+          display: modules.includes(DAILY_REPORTS),
+        },
+      ],
+    },
+    {
+      title: MASTER_DATA,
+      Icon: ({ isToggled }) => <Settings isToggled={isToggled} />,
       active: false,
       display: modules.includes(MASTER_DATA),
       subMenu: [
@@ -122,32 +156,6 @@ const menuData = (modules) => {
           active: false,
           path: "/masterData/productMasterfile",
           display: modules.includes(PRODUCTS_MASTERFILE),
-        },
-      ],
-    },
-    {
-      title: REPORTS,
-      Icon: ({ isToggled }) => <Clock isToggled={isToggled} />,
-      active: false,
-      display: modules.includes(REPORTS),
-      subMenu: [
-        {
-          title: PAYMENT_TRANSACTION,
-          active: false,
-          path: "/reports/paymentTransaction",
-          display: modules.includes(PAYMENT_TRANSACTION),
-        },
-        {
-          title: DIRECT_AND_THIRD_PARTY,
-          active: false,
-          path: "/reports/directAndThirdParty",
-          display: modules.includes(DIRECT_AND_THIRD_PARTY),
-        },
-        {
-          title: INCIDENT_REPORTS,
-          active: false,
-          path: "/reports/incidentReports",
-          display: modules.includes(INCIDENT_REPORTS),
         },
       ],
     },
