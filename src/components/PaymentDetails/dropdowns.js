@@ -3,6 +3,7 @@ import {
   DROP_DOWN_LIST,
   INPUT,
   NUMBER,
+  TEXT_AREA,
 } from "components/fields/types"
 import { useState, useEffect } from "react"
 import db from "services/firebase"
@@ -15,6 +16,7 @@ import {
   REF_NO,
   SOURCE,
   TOTAL_DUE,
+  PAYMENT_NOTES,
 } from "./types"
 
 const getWhereData = (name) => {
@@ -75,6 +77,11 @@ export function useGetDropdowns() {
         label: PAYMENT_LABELS[REF_NO],
       },
       {
+        name: PAYMENT_NOTES,
+        type: TEXT_AREA,
+        label: PAYMENT_LABELS[PAYMENT_NOTES],
+      },
+      {
         name: ACCOUNT_NUMBER,
         type: DROP_DOWN_LIST,
         label: PAYMENT_LABELS[ACCOUNT_NUMBER],
@@ -84,11 +91,13 @@ export function useGetDropdowns() {
         name: TOTAL_DUE,
         type: NUMBER,
         label: PAYMENT_LABELS[TOTAL_DUE],
+        isInlineBlock: true,
       },
       {
         name: AMOUNT_PAID,
         type: NUMBER,
         label: PAYMENT_LABELS[AMOUNT_PAID],
+        isInlineBlock: true,
       },
     ])
   }

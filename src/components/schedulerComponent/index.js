@@ -47,17 +47,34 @@ import { selectOrderComponentSlice } from "components/SchedulerComponent/orderSl
 import "./app.component.css"
 import { useGetDropdowns } from "./dropdowns"
 import { selectUserSlice } from "containers/0.login/loginSlice"
+import { CustomButton } from "./styles"
+import getWeekOfDate from "Restructured/Utilities/getWeekOfDate"
 function SchedulerComponent({ setLoading }) {
   const dropdowns = useGetDropdowns()
   const dispatch = useDispatch()
   const userComponentSlice = useSelector(selectUserSlice)
   const selectOrderSlice = useSelector(selectOrderComponentSlice)
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
-  const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
+  const [dataSource, setDataSource] = useState([])
+  const [branchSelection, setBranchSelection] = useState(null)
   const [eventSettings, setEventSettings] = useState({
-    dataSource: dataSource,
+    dataSource: [],
     allowDeleting: false,
   })
+  const [orderSlipData, setOrderSlipData] = useState({})
+
+  // const filterByBranch = (branch) => {
+  //   if (branch) {
+  //     setBranchSelection(branch)
+  //     const dataSourceFilter = [
+  //       ...dataSource.filter((data) => data.branch === branch),
+  //     ]
+  //     setEventSettings({ ...eventSettings, dataSource: dataSourceFilter })
+  //   } else {
+  //     setBranchSelection(null)
+  //     setEventSettings({ ...eventSettings, dataSource: dataSource })
+  //   }
+  // }
 
   const [stop, setStop] = useState(false)
   useEffect(() => {
@@ -74,6 +91,13 @@ function SchedulerComponent({ setLoading }) {
       setStop(true)
     }
   }, [userComponentSlice, dataSource])
+
+  useEffect(() => {
+    setEventSettings({
+      ...eventSettings,
+      dataSource: [...formatDataSource(schedulerComponentSlice.dataSource)],
+    })
+  }, [schedulerComponentSlice.dataSource])
 
   useEffect(() => {
     setLoading(true)
@@ -154,6 +178,16 @@ function SchedulerComponent({ setLoading }) {
         collection: SCHEDULES,
         id: args.data[_ID],
       })
+      addData({
+        data: {
+          displayName: userComponentSlice.displayName,
+          email: userComponentSlice.email,
+          action: "Modified",
+          date: new Date(),
+          _id: data._id,
+        },
+        collection: "logs",
+      })
     } else if (args.requestType === "eventCreate") {
       const data = args.addedRecords[0]
       data.Subject = data[CUSTOMER]
@@ -171,6 +205,18 @@ function SchedulerComponent({ setLoading }) {
         collection: SCHEDULES,
         id: null,
       })
+      result.then((id) => {
+        addData({
+          data: {
+            displayName: userComponentSlice.displayName,
+            email: userComponentSlice.email,
+            action: "Created",
+            date: new Date(),
+            _id: id,
+          },
+          collection: "logs",
+        })
+      })
     } else if (args.requestType === "eventRemove") {
       const { deletedRecords } = args
       deleteData({ id: deletedRecords[0]._id, collection: SCHEDULES })
@@ -180,6 +226,10 @@ function SchedulerComponent({ setLoading }) {
   }
 
   const onNavigation = (args) => {
+    // console.log("navigating", args)
+    // if (args.currentDate) {
+    //   console.log(getWeekOfDate(args.currentDate))
+    // }
     // console.log(args.currentDate)
     // console.log('monthList', monthList)
     // const monthDays = getDaysInMonthUTC(args.currentDate)
@@ -196,31 +246,30 @@ function SchedulerComponent({ setLoading }) {
     const { element, data } = args
     // element.style.background = branchColors[data[BRANCH]]
     if (data?.status) {
-      if (data?.status === "PAID") {
+      if (data?.status === "PENDING PAYMENT") {
         element.style.background = "yellow"
         element.style.color = "#666"
       }
       if (data?.status === "FULFILLED") {
-        element.style.background = "lightgreen"
-        element.style.color = "#333"
-      }
-
-      if (data?.status === "REVISED / RESCHEDULED") {
-        element.style.background = "lightblue"
+        element.style.background = "transparent"
         element.style.color = "#333"
       }
 
       if (data?.status === "CONFIRMED") {
-        element.style.background = "red"
-        element.style.color = "#eee"
+        element.style.background = "lightblue"
+        element.style.color = "black"
       }
 
       if (data?.status === "CANCELLED") {
         element.style.background = "orange"
         element.style.color = "#333"
       }
+      if (data?.status === "PAID") {
+        element.style.background = "transparent"
+        element.style.color = "#666"
+      }
     } else {
-      element.style.background = "#eee"
+      element.style.background = "transparent"
       element.style.color = "#333"
     }
 
@@ -230,7 +279,9 @@ function SchedulerComponent({ setLoading }) {
   }
 
   const onPopUpOpen = (args) => {
+    // setLoading(true)
     const { data } = args
+    setOrderSlipData(data)
     if (args.type === "QuickInfo") {
       args.cancel = true
     }
@@ -260,7 +311,7 @@ function SchedulerComponent({ setLoading }) {
   }
 
   return (
-    <>
+    <div>
       {dropdowns[BRANCH].length > 0 && (
         <ScheduleComponent
           startHour="09:00"
@@ -291,7 +342,25 @@ function SchedulerComponent({ setLoading }) {
           <Inject services={[Day, Week, Month, Agenda]} />
         </ScheduleComponent>
       )}
-    </>
+      {/* <div
+        style={{ position: "fixed", top: 1, right: "3rem", padding: "1rem" }}
+      >
+        {userComponentSlice?.branches.map((data) => (
+          <CustomButton
+            onClick={() => filterByBranch(data)}
+            backgroundColor={branchSelection === data ? "#e3165b" : "white"}
+          >
+            {data}
+          </CustomButton>
+        ))}
+        <CustomButton
+          onClick={() => filterByBranch(null)}
+          backgroundColor={branchSelection === null ? "#e3165b" : "white"}
+        >
+          All
+        </CustomButton>
+      </div> */}
+    </div>
   )
 }
 

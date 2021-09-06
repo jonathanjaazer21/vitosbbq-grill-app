@@ -13,6 +13,7 @@ export const Actions = styled.div`
 `
 export const Container = styled.div`
   display: flex;
+  flex-flow: row wrap;
   background-color: white;
   width: 100%;
   background-color: ${({ backgroundColor }) =>

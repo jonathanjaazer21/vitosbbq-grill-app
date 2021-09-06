@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Modal, Button, Select, Input, DatePicker } from "antd"
+import { Modal, Button, Select, Input, DatePicker, Table } from "antd"
 import { Flex, Grid } from "Restructured/Styles"
 import { RangePicker } from "Restructured/Components/Commons"
 import db from "services/firebase"
@@ -14,6 +14,8 @@ import Checkbox from "antd/lib/checkbox/Checkbox"
 import { selectTableSlice } from "components/Table/tableSlice"
 import sumArray from "Restructured/Utilities/sumArray"
 import { update, updateData } from "services"
+import Print from "../Print"
+import { AiFillPrinter } from "react-icons/ai"
 const { Search } = Input
 
 const PartnerMerchantModal = ({ columns }) => {
@@ -31,6 +33,12 @@ const PartnerMerchantModal = ({ columns }) => {
   const [newColumns, setNewColumns] = useState([])
 
   const checkedChange = (e, id, record) => {
+    // this is to retain the data saved from database once unchecked
+    const _totalAmountSaved = dataFiltered.find((data) => data._id == id)
+      ?.datePayment
+      ? record.totalAmountPaid
+      : 0
+
     if (record?.totalDue) {
       const withPercent = Number(record?.totalDue) * 0.05
 
@@ -63,7 +71,7 @@ const PartnerMerchantModal = ({ columns }) => {
           modePayment: "",
           source: "",
           accountNumber: "",
-          totalAmountPaid: "0.00",
+          totalAmountPaid: _totalAmountSaved,
         }
       }
       console.log(refNo, datePaid)
@@ -85,7 +93,7 @@ const PartnerMerchantModal = ({ columns }) => {
               <Checkbox
                 checked={record.datePayment || checkedIds.includes(id)}
                 onChange={(e) => {
-                  if (!record?.datePayment) {
+                  if (!record?.datePayment || checkedIds.includes(id)) {
                     checkedChange(e, id, record)
                   }
                 }}
@@ -119,7 +127,51 @@ const PartnerMerchantModal = ({ columns }) => {
             })
           }
           console.log("newColumns", _newColumns)
-          _newColumns.push(obj)
+          _newColumns.push({
+            ...obj,
+            render:
+              obj.key === "totalAmountPaid"
+                ? (data, record) => {
+                    console.log("triggered", data)
+                    return data === "0" || data === "0.00" || data === 0 ? (
+                      <div
+                        style={{
+                          color: "red",
+                          display: "flex",
+                          justifyContent: "flex-end",
+                        }}
+                      >
+                        <p>{data.toFixed(2)}</p>
+                      </div>
+                    ) : (
+                      <Input
+                        type="number"
+                        value={data}
+                        onChange={(e) => {
+                          // find index of dataFiltered
+                          const _dataIndex = dataFiltered.findIndex(
+                            (row) => row._id === record._id
+                          )
+                          // copy of dataFiltered
+                          const _dataFiltered = [...dataFiltered]
+                          // set new object to datafiltered index
+                          _dataFiltered[_dataIndex] = {
+                            ...record,
+                            totalAmountPaid: e.target.value,
+                          }
+                          // set new dataFiltered
+                          setDataFiltered(_dataFiltered)
+                          // push this id check to list of checkedIds to be included to submission update
+                          const _checkIds = [...checkedIds]
+                          !_checkIds.includes(record._id) &&
+                            _checkIds.push(record._id)
+                          setCheckedIds(_checkIds)
+                        }}
+                      />
+                    )
+                  }
+                : obj.render,
+          })
         }
       }
     }
@@ -257,6 +309,7 @@ const PartnerMerchantModal = ({ columns }) => {
               showTime={false}
               label="Date"
               value={dates}
+              format="MM/DD/YYYY"
               onChange={(value) => {
                 setDates(value)
               }}
@@ -332,6 +385,32 @@ const PartnerMerchantModal = ({ columns }) => {
             ).toFixed(2)}`}</div>
           </Flex>
         </Grid>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <Print
+            component={
+              <div>
+                <Grid padding="1rem 2rem">
+                  <h3>ZAP</h3>
+                  <div style={{ marginLeft: "-2rem" }}>
+                    <Table
+                      size="small"
+                      pagination={false}
+                      dataSource={dataFiltered}
+                      columns={newColumns.map((data) => {
+                        if (data.key === "_id") {
+                          return {}
+                        } else {
+                          return data
+                        }
+                      })}
+                    />
+                  </div>
+                </Grid>
+              </div>
+            }
+            button={<AiFillPrinter fontSize="2.5rem" />}
+          />
+        </div>
       </Modal>
     </>
   )

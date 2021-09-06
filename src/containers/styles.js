@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from "styled-components"
 
 export const Wrapper = styled.div`
   display: grid;
@@ -9,7 +9,7 @@ export const Container = styled.div`
 `
 
 export const RightContent = styled.div`
-  margin-left: ${props => (props.isToggled ? '320px' : '75px')};
+  margin-left: ${(props) => (props.isToggled ? "250px" : "75px")};
   transition: margin 0.5s ease-in-out;
 
   @media (max-width: 768px) {

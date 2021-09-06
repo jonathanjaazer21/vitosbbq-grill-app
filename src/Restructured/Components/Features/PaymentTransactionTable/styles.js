@@ -5,8 +5,8 @@ const { Group } = Checkbox
 
 export const CheckboxGroup = styled(Group)`
   input[value="CONFIRMED"] ~ .ant-checkbox-inner {
-    background-color: red;
-    border-color: red;
+    background-color: lightblue;
+    border-color: lightblue;
   }
 
   input[value="PAID"] ~ .ant-checkbox-inner {
@@ -25,8 +25,8 @@ export const CheckboxGroup = styled(Group)`
   }
 
   input[value="FULFILLED"] ~ .ant-checkbox-inner {
-    background-color: lightgreen;
-    border-color: lightgreen;
+    background-color: transparent;
+    border-color: black;
   }
 
   input[value="INCIDENTS"] ~ .ant-checkbox-inner {

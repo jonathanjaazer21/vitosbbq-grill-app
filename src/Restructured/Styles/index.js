@@ -29,13 +29,16 @@ export const Grid = styled.div`
 
 export const Flex = styled.div`
   display: flex;
-  align-items: center;
+  align-items: ${(props) => (props.alignItems ? props.alignItems : "center")};
   justify-content: ${(props) =>
     props.justifyContent ? props.justifyContent : "flex-start"};
-  flex-flow: row wrap;
+  flex-flow: ${(props) => (props.flexFlow ? props.flexFlow : "row wrap")};
   width: 100%;
 `
 export const Item = styled.div`
+  flex: ${(props) => (props.flex ? props.flex : "0")},
+  background-color: ${(props) =>
+    props.backgroundColor ? props.backgroundColor : "transparent"};
   width: ${(props) => (props.width ? props.width : "375px")};
-  padding: 1rem;
+  padding: ${(props) => (props.padding ? props.padding : "1rem")};
 `

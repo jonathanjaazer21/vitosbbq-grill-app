@@ -23,6 +23,7 @@ function TextArea(props) {
         cols="50"
         value={props.value}
         style={{ resize: "vertical" }}
+        onChange={props?.onChange}
       />
     </OutlinedContainer>
   )

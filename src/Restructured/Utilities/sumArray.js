@@ -5,12 +5,13 @@ export default function (array, field) {
   if (array.length > 0) {
     if (field) {
       const sum = array.reduce(function (a = 0, b) {
-        return parseInt(a) + parseInt(b[field])
+        let fieldNumber = typeof b[field] !== "undefined" ? b[field] : 0
+        return Number(a) + Number(fieldNumber)
       }, 0)
       return sum
     }
     const sum = array.reduce(function (a, b) {
-      return parseInt(a) + parseInt(b)
+      return Number(a) + Number(b)
     }, 0)
     return sum
   }

@@ -3,6 +3,7 @@ import fields from "components/fields"
 import orderSlipConfig from "./orderSlipConfig"
 import classes from "./orderSlip.module.css"
 import GrillMenus from "./grillMenus"
+import { Table } from "antd"
 import { TextBoxComponent } from "@syncfusion/ej2-react-inputs"
 
 import {
@@ -22,6 +23,8 @@ import { useGetDropdownGroup } from "components/dropdowns/useDropdownGroup"
 import { useOrderViaField } from "./useOrderViaField"
 import Input from "components/fields/input"
 import OrderVia from "components/fields/orderVia"
+import { Button } from "antd"
+import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons"
 
 function OrderSlip(props) {
   const dispatch = useDispatch()
@@ -31,11 +34,12 @@ function OrderSlip(props) {
   const [isDisplayedDirect, isDisplayedPartner, handleOrderVia] =
     useOrderViaField()
   // const [groupDropdowns] = useGetDropdownGroup('orderVia')
+  const [toggleModified, setToggleModified] = useState(false)
   const { dataSource } = selectSchedulerComponent
   useEffect(() => {
     countLibis()
     countRonac()
-  }, [dataSource])
+  }, [dataSource, props])
   const countLibis = () => {
     const filteredLibis = dataSource.filter((data) =>
       data[ORDER_NO].includes(`LB001-${orderNoDate()}-685`)
@@ -63,7 +67,6 @@ function OrderSlip(props) {
     }
     dispatch(setOrderNo({ branch: "Ronac", value: parseInt(latestNumber) + 1 }))
   }
-
   return props !== undefined ? (
     <div className={classes.container}>
       {orderSlipConfig.map((customProps) => {
@@ -95,6 +98,54 @@ function OrderSlip(props) {
         })
       })}
       <GrillMenus {...props} />
+      <div style={{ width: "100%", position: "relative" }}>
+        <div
+          style={{
+            position: "absolute",
+            zIndex: 1000,
+            right: 0,
+            marginTop: "-2rem",
+          }}
+        >
+          {!toggleModified ? (
+            <Button
+              icon={
+                <DownCircleOutlined onClick={() => setToggleModified(true)} />
+              }
+              shape="circle"
+            />
+          ) : (
+            <Button
+              icon={
+                <UpCircleOutlined onClick={() => setToggleModified(false)} />
+              }
+              shape="circle"
+            />
+          )}
+        </div>
+        <br />
+        <br />
+        {toggleModified ? (
+          <Table
+            dataSource={
+              typeof props.modifiedBy !== "undefined" ? props?.modifiedBy : []
+            }
+            pagination={false}
+            size="small"
+            columns={[
+              {
+                title: "Modified by",
+                dataIndex: "displayName",
+                key: "displayName",
+              },
+              { title: "Action", dataIndex: "action", key: "action" },
+              { title: "Date", dataIndex: "date", key: "date" },
+            ]}
+          />
+        ) : (
+          <></>
+        )}
+      </div>
     </div>
   ) : (
     <></>

@@ -184,6 +184,8 @@ export default function (props) {
         />
       ))}
       <Footer total={calculateSubTotal(productData)} />
+      <br />
+      <br />
       <Print
         data={props}
         totals={productData}

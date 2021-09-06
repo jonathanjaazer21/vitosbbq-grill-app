@@ -5,7 +5,10 @@ import BranchMasterfile from "containers/3.branch_mastefile"
 import Login from "containers/0.login"
 import { auth } from "services/firebase"
 import { useDispatch, useSelector } from "react-redux"
-import { selectUserSlice, setAccountInfo } from "containers/0.login/loginSlice"
+import {
+  selectUserSlice,
+  setAccountInfo,
+} from "containers/0.NewLogin/loginSlice"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 import Backdrop from "components/backdrop"
 import PaymentTransaction from "containers/1.payment_transaction"
@@ -28,7 +31,9 @@ import ExcelExporter from "Restructured/Components/Features/ExcelExporter"
 import DirectAndThirdParty from "containers/7.directAndThirdParty"
 import Inventory from "containers/8.inventory"
 import IncidentReports from "containers/9.incidentReports"
+import DailyReports from "containers/10.dailyReports"
 import Dashboard from "containers/Dashboard"
+import NewLogin from "containers/0.NewLogin"
 function App() {
   const dispatch = useDispatch()
   const [menu, handleMenu] = useSelectMenus()
@@ -40,6 +45,7 @@ function App() {
     setIsLoading(true)
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
+        console.log("user", user)
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
         const uid = user.uid
@@ -71,7 +77,9 @@ function App() {
       dispatch(
         setAccountInfo({
           ...userInfo,
+          displayName: result.name,
           branches: result.branches,
+          branchSelected: result?.branchSelected,
           roles: result.roles,
           isEnabled: result.isEnabled,
           photoURL: result.photoURL,
@@ -169,6 +177,9 @@ function App() {
             <Route exact path="/reports/incidentReports">
               <IncidentReports />
             </Route>
+            <Route exact path="/reports/dailyReports">
+              <DailyReports />
+            </Route>
             <Route path="*">
               <div>Invalid url</div>
             </Route>
@@ -183,7 +194,8 @@ function App() {
       <Router>
         <Switch>
           <Route exact path="/">
-            <Login />
+            {/* <Login /> */}
+            <NewLogin />
           </Route>
           <Route path="*">
             <div>Invalid url</div>

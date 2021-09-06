@@ -1,4 +1,4 @@
-import firebase from "firebase";
+import firebase from "firebase"
 const {
   REACT_APP_API_KEY,
   REACT_APP_AUTH_DOMAIN,
@@ -7,7 +7,7 @@ const {
   REACT_APP_MESSAGING_SENDER_ID,
   REACT_APP_APP_ID,
   REACT_APP_MEASUREMENT_ID,
-} = process.env;
+} = process.env
 
 const firebaseConfig = {
   apiKey: REACT_APP_API_KEY,
@@ -17,15 +17,15 @@ const firebaseConfig = {
   messagingSenderId: REACT_APP_MESSAGING_SENDER_ID,
   appId: REACT_APP_APP_ID,
   measurementId: REACT_APP_MEASUREMENT_ID,
-};
+}
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
-const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
+firebase.initializeApp(firebaseConfig)
+const db = firebase.firestore()
+const storage = firebase.storage()
+const auth = firebase.auth()
+const provider = new firebase.auth.GoogleAuthProvider()
 provider.setCustomParameters({
   login_hint: "user@example.com",
-});
-export { auth, provider, storage };
-export default db;
+})
+export { auth, provider, storage, firebase }
+export default db

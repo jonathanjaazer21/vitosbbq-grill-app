@@ -4,6 +4,7 @@ export const SOURCE = "source"
 export const ACCOUNT_NUMBER = "accountNumber"
 export const AMOUNT_PAID = "amountPaid"
 export const REF_NO = "refNo"
+export const PAYMENT_NOTES = "paymentNotes"
 export const OTHERS_DEDUCTION = "othersDeduction"
 export const TOTAL_DUE = "totalDue"
 
@@ -17,4 +18,5 @@ export const PAYMENT_LABELS = {
   totalAmountPaid: "Amount Paid",
   [REF_NO]: "Ref No",
   [TOTAL_DUE]: "Total Due",
+  [PAYMENT_NOTES]: "Notes",
 }

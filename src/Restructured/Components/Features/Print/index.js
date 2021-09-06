@@ -2,6 +2,7 @@ import { Button } from "antd"
 import React, { useEffect, useRef } from "react"
 import { useReactToPrint } from "react-to-print"
 import { ComponentToPrint } from "./ComponentToPrint"
+import "./print.css"
 
 const Print = (props) => {
   const componentRef = useRef()

@@ -2,7 +2,7 @@ import styled from "styled-components"
 
 export const Sidenav = styled.div`
   position: fixed;
-  width: ${(props) => (props.isToggled ? "320px" : "75px")};
+  width: ${(props) => (props.isToggled ? "250px" : "75px")};
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -11,7 +11,7 @@ export const Sidenav = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   transition: width 0.5s ease-in-out, background-color 1s ease-in-out;
-  z-index: 999;
+  z-index: "999px";
   @media (max-width: 768px) {
     width: 75px;
     background-color: ${(props) => props.theme.primaryColor};

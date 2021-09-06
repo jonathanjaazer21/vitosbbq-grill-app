@@ -9,7 +9,7 @@ import {
 } from "./types"
 import schedulerComponentSlice from "../components/SchedulerComponent/schedulerComponentSlice"
 import sideNav from "../components/sideNav/sideNavSlice"
-import user from "../containers/0.login/loginSlice"
+import user from "../containers/0.NewLogin/loginSlice"
 import branch from "../components/Table/tableSlice"
 import orderSlip from "../components/SchedulerComponent/orderSlip/orderSlipSlice"
 import menuSlice from "../components/sideNav/2.menu/menuSlice"
