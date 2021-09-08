@@ -9,6 +9,7 @@ import {
   Agenda,
   DragAndDrop,
   Resize,
+  Day,
 } from "@syncfusion/ej2-react-schedule"
 import OrderSlip from "components/SchedulerComponent/orderSlip"
 import {
@@ -30,6 +31,7 @@ import {
   BC_HALF,
   BRANCH,
   CONTACT_NUMBER,
+  CUSTOMER,
   EIGHT,
   ORDER_NO,
   ORDER_VIA,
@@ -44,12 +46,58 @@ import { selectOrderComponentSlice } from "components/SchedulerComponent/orderSl
 
 import "./app.component.css"
 import { useGetDropdowns } from "./dropdowns"
+import { selectUserSlice } from "containers/0.login/loginSlice"
+import { CustomButton } from "./styles"
+import getWeekOfDate from "Restructured/Utilities/getWeekOfDate"
 function SchedulerComponent({ setLoading }) {
   const dropdowns = useGetDropdowns()
   const dispatch = useDispatch()
+  const userComponentSlice = useSelector(selectUserSlice)
   const selectOrderSlice = useSelector(selectOrderComponentSlice)
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
-  const dataSource = [...formatDataSource(schedulerComponentSlice.dataSource)]
+  const [dataSource, setDataSource] = useState([])
+  const [branchSelection, setBranchSelection] = useState(null)
+  const [eventSettings, setEventSettings] = useState({
+    dataSource: [],
+    allowDeleting: false,
+  })
+  const [orderSlipData, setOrderSlipData] = useState({})
+
+  // const filterByBranch = (branch) => {
+  //   if (branch) {
+  //     setBranchSelection(branch)
+  //     const dataSourceFilter = [
+  //       ...dataSource.filter((data) => data.branch === branch),
+  //     ]
+  //     setEventSettings({ ...eventSettings, dataSource: dataSourceFilter })
+  //   } else {
+  //     setBranchSelection(null)
+  //     setEventSettings({ ...eventSettings, dataSource: dataSource })
+  //   }
+  // }
+
+  const [stop, setStop] = useState(false)
+  useEffect(() => {
+    if (userComponentSlice?.roles.includes("Admin")) {
+      if (stop === false) {
+        setEventSettings({
+          ...eventSettings,
+          dataSource: dataSource,
+          allowDeleting: true,
+        })
+      }
+    }
+    if (dataSource.length > 0) {
+      setStop(true)
+    }
+  }, [userComponentSlice, dataSource])
+
+  useEffect(() => {
+    setEventSettings({
+      ...eventSettings,
+      dataSource: [...formatDataSource(schedulerComponentSlice.dataSource)],
+    })
+  }, [schedulerComponentSlice.dataSource])
 
   useEffect(() => {
     setLoading(true)
@@ -118,24 +166,56 @@ function SchedulerComponent({ setLoading }) {
 
   const onActionBegin = (args) => {
     if (args.requestType === "eventChange") {
-      const dataToBeSend = schedulerSchema(args.data)
+      const data = {
+        ...args.data,
+        totalDue: selectOrderSlice?.totalAmountPaid,
+      }
+      data.Subject = data[CUSTOMER]
+      const dataToBeSend = schedulerSchema(data)
       delete dataToBeSend.RecurrenceRule
       updateData({
         data: { ...dataToBeSend },
         collection: SCHEDULES,
         id: args.data[_ID],
       })
+      addData({
+        data: {
+          displayName: userComponentSlice.displayName,
+          email: userComponentSlice.email,
+          action: "Modified",
+          date: new Date(),
+          _id: data._id,
+        },
+        collection: "logs",
+      })
     } else if (args.requestType === "eventCreate") {
       const data = args.addedRecords[0]
+      data.Subject = data[CUSTOMER]
       const orderNo = data?.branch
         ? selectOrderSlice[data[BRANCH]]
         : selectOrderSlice.Libis
-      const dataToBeSend = schedulerSchema({ ...data, [ORDER_NO]: orderNo })
+      const dataToBeSend = schedulerSchema({
+        ...data,
+        [ORDER_NO]: orderNo,
+        totalDue: selectOrderSlice?.totalAmountPaid,
+      })
       delete dataToBeSend.RecurrenceRule
       const result = addData({
         data: dataToBeSend,
         collection: SCHEDULES,
         id: null,
+      })
+      result.then((id) => {
+        addData({
+          data: {
+            displayName: userComponentSlice.displayName,
+            email: userComponentSlice.email,
+            action: "Created",
+            date: new Date(),
+            _id: id,
+          },
+          collection: "logs",
+        })
       })
     } else if (args.requestType === "eventRemove") {
       const { deletedRecords } = args
@@ -146,6 +226,10 @@ function SchedulerComponent({ setLoading }) {
   }
 
   const onNavigation = (args) => {
+    // console.log("navigating", args)
+    // if (args.currentDate) {
+    //   console.log(getWeekOfDate(args.currentDate))
+    // }
     // console.log(args.currentDate)
     // console.log('monthList', monthList)
     // const monthDays = getDaysInMonthUTC(args.currentDate)
@@ -160,14 +244,47 @@ function SchedulerComponent({ setLoading }) {
   const { branchColors } = schedulerComponentSlice
   const onEventRendered = (args, branchDropdown) => {
     const { element, data } = args
-    element.style.background = branchColors[data[BRANCH]]
+    // element.style.background = branchColors[data[BRANCH]]
+    if (data?.status) {
+      if (data?.status === "PENDING PAYMENT") {
+        element.style.background = "yellow"
+        element.style.color = "#666"
+      }
+      if (data?.status === "FULFILLED") {
+        element.style.background = "transparent"
+        element.style.color = "#333"
+      }
+
+      if (data?.status === "CONFIRMED") {
+        element.style.background = "lightblue"
+        element.style.color = "black"
+      }
+
+      if (data?.status === "CANCELLED") {
+        element.style.background = "orange"
+        element.style.color = "#333"
+      }
+      if (data?.status === "PAID") {
+        element.style.background = "transparent"
+        element.style.color = "#666"
+      }
+    } else {
+      element.style.background = "transparent"
+      element.style.color = "#333"
+    }
+
     if (!branchDropdown.includes(data[BRANCH])) {
       element.hidden = true
     }
   }
 
   const onPopUpOpen = (args) => {
+    // setLoading(true)
     const { data } = args
+    setOrderSlipData(data)
+    if (args.type === "QuickInfo") {
+      args.cancel = true
+    }
     const header = args.element.querySelector(".e-title-text")
     const partnerMerchant = args.element.querySelector(
       `#${PARTNER_MERCHANT_ORDER_NO}`
@@ -181,6 +298,10 @@ function SchedulerComponent({ setLoading }) {
       }
     }
     if (args.type === "Editor") {
+      const textArea = args.element.querySelector("#remarks")
+      if (textArea.value === "") {
+        textArea.value = "RIDER DETAILS: \nNAME:\nCONTACT NUMBER:"
+      }
       // args.element.onkeyup = (e) => {
       //   if (!orderVia.value?.includes('Partner Merchant')) {
       //     partnerMerchant.value = ''
@@ -189,18 +310,22 @@ function SchedulerComponent({ setLoading }) {
     }
   }
 
-  const eventSettings = {
-    dataSource: dataSource,
-  }
-
   return (
-    <>
+    <div>
       {dropdowns[BRANCH].length > 0 && (
         <ScheduleComponent
-          startHour="10:00"
+          startHour="09:00"
           endHour="19:00"
           editorTemplate={OrderSlip}
           eventSettings={eventSettings}
+          views={[
+            {
+              option: "Day",
+              startHour: "09:00",
+              endHour: "19:00",
+              timeScale: { enable: true, slotCount: 3 },
+            },
+          ]}
           actionBegin={onActionBegin}
           navigating={onNavigation}
           eventRendered={(args) => onEventRendered(args, dropdowns[BRANCH])}
@@ -209,14 +334,33 @@ function SchedulerComponent({ setLoading }) {
           width="100%"
         >
           <ViewsDirective>
+            <ViewDirective option="Day" />
             <ViewDirective option="Week" />
             <ViewDirective option="Month" />
             <ViewDirective option="Agenda" />
           </ViewsDirective>
-          <Inject services={[Week, Month, Agenda, DragAndDrop, Resize]} />
+          <Inject services={[Day, Week, Month, Agenda]} />
         </ScheduleComponent>
       )}
-    </>
+      {/* <div
+        style={{ position: "fixed", top: 1, right: "3rem", padding: "1rem" }}
+      >
+        {userComponentSlice?.branches.map((data) => (
+          <CustomButton
+            onClick={() => filterByBranch(data)}
+            backgroundColor={branchSelection === data ? "#e3165b" : "white"}
+          >
+            {data}
+          </CustomButton>
+        ))}
+        <CustomButton
+          onClick={() => filterByBranch(null)}
+          backgroundColor={branchSelection === null ? "#e3165b" : "white"}
+        >
+          All
+        </CustomButton>
+      </div> */}
+    </div>
   )
 }
 

@@ -12,11 +12,11 @@ import {
   ORDER_NO,
   ORDER_VIA,
   ORDER_VIA_PARTNER,
-  STATUS
-} from 'components/SchedulerComponent/orderSlip/types'
-import React, { useEffect, useState } from 'react'
-import { SCHEDULES } from 'services/collectionNames'
-import db from 'services/firebase'
+  STATUS,
+} from "components/SchedulerComponent/orderSlip/types"
+import React, { useEffect, useState } from "react"
+import { SCHEDULES } from "services/collectionNames"
+import db from "services/firebase"
 import {
   Wrapper,
   Container,
@@ -26,23 +26,25 @@ import {
   Description,
   Label,
   Label2,
-  Actions
-} from './styles'
-import { formatDate, normalizeHour } from 'components/print'
-import { menu } from 'components/SchedulerComponent/orderSlip/orderSlip'
-import { BiArrowBack } from 'react-icons/bi'
-import calculateSubTotal from 'commonFunctions/calculateSubTotal'
-import getAmount from 'commonFunctions/getAmount'
-import { Paymentform } from './paymentForm'
-import orderSlipConfig from 'components/SchedulerComponent/orderSlip/orderSlipConfig'
-import { DESCRIPTION } from 'components/fields/types'
-import { useGetProducts } from 'components/products/useGetProducts'
-import formatNumber from 'commonFunctions/formatNumber'
+  Actions,
+} from "./styles"
+import { formatDate, normalizeHour } from "components/print"
+import { menu } from "components/SchedulerComponent/orderSlip/orderSlip"
+import { BiArrowBack } from "react-icons/bi"
+import calculateSubTotal from "commonFunctions/calculateSubTotal"
+import getAmount from "commonFunctions/getAmount"
+import { Paymentform } from "./paymentForm"
+import orderSlipConfig from "components/SchedulerComponent/orderSlip/orderSlipConfig"
+import { DESCRIPTION } from "components/fields/types"
+import { useGetProducts } from "components/products/useGetProducts"
+import formatNumber from "commonFunctions/formatNumber"
+import { Flex, Grid } from "Restructured/Styles"
+import { PARTNER_MERCHANT_ORDER_NO } from "Restructured/Constants/schedules"
 
 const formatDateFromFirebase = (date) => {
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
 }
-export default function PaymentDetails (props) {
+export default function PaymentDetails(props) {
   const [products] = useGetProducts()
   const [data, setData] = useState({})
   const [totals, setTotals] = useState([])
@@ -60,34 +62,46 @@ export default function PaymentDetails (props) {
         if (doc.exists) {
           const firebaseData = doc.data()
           setData({ ...firebaseData })
-          const totals = {}
+          const _totals = {}
           for (const obj of products) {
             for (const product of obj.productList) {
-              totals[product?.code] = {
-                qty: firebaseData[product?.code],
-                price: product?.price,
-                description: product?.description
+              if (typeof firebaseData[product.code] !== "undefined") {
+                if (product?.price > 0) {
+                  _totals[product?.code] = {
+                    qty: firebaseData[product?.code],
+                    price: product?.price,
+                    description: product?.description,
+                  }
+                } else {
+                  _totals[product?.code] = {
+                    qty: firebaseData[product?.code],
+                    price: parseInt(
+                      firebaseData[`customPrice${product?.code}`]
+                    ),
+                    description: product?.description,
+                  }
+                }
               }
             }
           }
           setTotals({
-            ...totals
+            ..._totals,
           })
-          const result = calculateSubTotal(totals)
+          const result = calculateSubTotal(_totals)
           setQty(result?.qty)
           setSubTotal(result?.subTotal)
         } else {
-          console.log('No such document!')
+          console.log("No such document!")
         }
       })
       .catch((error) => {
-        console.log('Error getting document:', error)
+        console.log("Error getting document:", error)
       })
   }
 
   const checkData = (field) => {
-    let fieldData = ''
-    if (typeof data[field] !== 'undefined') {
+    let fieldData = ""
+    if (typeof data[field] !== "undefined") {
       if (field === DATE_ORDER_PLACED) {
         fieldData = formatDate(formatDateFromFirebase(data[field]))
       } else if (field === DATE_START) {
@@ -110,21 +124,34 @@ export default function PaymentDetails (props) {
     }
     return fieldData
   }
+  console.log("data", data)
+  const backgroundColors = {
+    FULFILLED: "#ccccff",
+    PAID: "#ffffcc",
+  }
   return (
     <Wrapper>
       <Actions>
-        <button
-          onClick={props.handleBack}
-          style={{
-            border: 'none',
-            backgroundColor: 'transparent',
-            cursor: 'pointer'
-          }}
-        >
-          <BiArrowBack size={20} />
-        </button>
+        <Grid>
+          <Flex>
+            <button
+              onClick={props.handleBack}
+              style={{
+                border: "none",
+                backgroundColor: "transparent",
+                cursor: "pointer",
+              }}
+            >
+              <BiArrowBack size={20} />
+            </button>
+            <div style={{ marginTop: "-.3rem", marginLeft: "1rem" }}>
+              {`Partner Merchant Order No: ${data[PARTNER_MERCHANT_ORDER_NO]}`}
+            </div>
+          </Flex>
+        </Grid>
       </Actions>
-      <Container>
+      {/* // #ffffcc */}
+      <Container backgroundColor={backgroundColors[data[STATUS]]}>
         <Panel>
           <Paper>
             <h3>Order Details</h3>
@@ -134,7 +161,7 @@ export default function PaymentDetails (props) {
                   [ORDER_NO, BRANCH],
                   [CUSTOMER, CONTACT_NUMBER],
                   [DATE_ORDER_PLACED, ORDER_VIA],
-                  [DATE_START, DATE_END]
+                  [DATE_START, DATE_END],
                 ].map((fieldName, index) => {
                   return (
                     <Body key={index}>
@@ -151,57 +178,57 @@ export default function PaymentDetails (props) {
                 })}
             </div>
             <div>
-              <table style={{ width: '100%' }}>
+              <table style={{ width: "100%" }}>
                 <tr
                   style={{
-                    display: 'flex',
-                    justifyContent: 'flex-start',
-                    width: '100%',
-                    backgroundColor: 'pink',
-                    padding: '.5rem .5rem'
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    width: "100%",
+                    backgroundColor: "pink",
+                    padding: ".5rem .5rem",
                   }}
                 >
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-start'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-start",
                     }}
                   >
                     Code
                   </th>
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-start'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-start",
                     }}
                   >
                     Product
                   </th>
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-end",
                     }}
                   >
                     Price
                   </th>
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-end",
                     }}
                   >
                     Qty
                   </th>
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-end",
                     }}
                   >
                     Amount
@@ -212,39 +239,39 @@ export default function PaymentDetails (props) {
                     <tr
                       key={index}
                       style={{
-                        display: 'flex',
-                        justifyContent: 'flex-start',
-                        width: '100%',
-                        padding: '.5rem .5rem'
+                        display: "flex",
+                        justifyContent: "flex-start",
+                        width: "100%",
+                        padding: ".5rem .5rem",
                       }}
                     >
-                      <td style={{ flex: '1' }}>{total}</td>
-                      <td style={{ flex: '1' }}>
+                      <td style={{ flex: "1" }}>{total}</td>
+                      <td style={{ flex: "1" }}>
                         {totals[total]?.description}
                       </td>
                       <td
                         style={{
-                          flex: '1',
-                          display: 'flex',
-                          justifyContent: 'flex-end'
+                          flex: "1",
+                          display: "flex",
+                          justifyContent: "flex-end",
                         }}
                       >
                         {formatNumber(totals[total]?.price.toFixed(2))}
                       </td>
                       <td
                         style={{
-                          flex: '1',
-                          display: 'flex',
-                          justifyContent: 'flex-end'
+                          flex: "1",
+                          display: "flex",
+                          justifyContent: "flex-end",
                         }}
                       >
                         {totals[total]?.qty}
                       </td>
                       <td
                         style={{
-                          flex: '1',
-                          display: 'flex',
-                          justifyContent: 'flex-end'
+                          flex: "1",
+                          display: "flex",
+                          justifyContent: "flex-end",
                         }}
                       >
                         {formatNumber(
@@ -258,53 +285,53 @@ export default function PaymentDetails (props) {
                   ) : null
                 })}
               </table>
-              <table style={{ width: '100%' }}>
+              <table style={{ width: "100%" }}>
                 <tr
                   style={{
-                    display: 'flex',
-                    justifyContent: 'flex-start',
-                    width: '100%',
-                    borderTop: '1px solid #eee',
-                    padding: '.5rem .5rem'
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    width: "100%",
+                    borderTop: "1px solid #eee",
+                    padding: ".5rem .5rem",
                   }}
                 >
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-start'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-start",
                     }}
                   >
                     Total
                   </th>
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-end",
                     }}
                   />
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-end",
                     }}
                   />
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-end",
                     }}
                   >
                     {qty}
                   </th>
                   <th
                     style={{
-                      flex: '1',
-                      display: 'flex',
-                      justifyContent: 'flex-end'
+                      flex: "1",
+                      display: "flex",
+                      justifyContent: "flex-end",
                     }}
                   >
                     {formatNumber(subTotal)}

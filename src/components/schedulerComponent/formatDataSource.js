@@ -25,12 +25,16 @@ import {
   BC_SAUCE,
   ATCHARA,
   BASTING_SAUCE,
-  DELIVERY_DATE
-} from 'components/SchedulerComponent/orderSlip/types'
+  DELIVERY_DATE,
+} from "components/SchedulerComponent/orderSlip/types"
+import {
+  formatDateFromDatabase,
+  formatDateSlash,
+} from "Restructured/Utilities/dateFormat"
 
 export const formatDate = (date) => {
   if (date === null) {
-    return ''
+    return ""
   }
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
 }
@@ -40,12 +44,23 @@ export default function (dataSource) {
     const startTime = obj[DATE_START]
     const endTime = obj[DATE_END]
     const dateOrder = obj[DATE_ORDER_PLACED]
+    const modifiedBy =
+      typeof obj?.modifiedBy !== "undefined"
+        ? obj.modifiedBy.map((data) => {
+            const dataFromDatabase = formatDateFromDatabase(data.date)
+            return {
+              ...data,
+              date: formatDateSlash(dataFromDatabase),
+            }
+          })
+        : []
     // const deliveryDate = obj[DELIVERY_DATE]
     newDataSource.push({
       ...obj,
       [DATE_START]: formatDate(startTime),
       [DATE_END]: formatDate(endTime),
-      [DATE_ORDER_PLACED]: formatDate(dateOrder)
+      [DATE_ORDER_PLACED]: formatDate(dateOrder),
+      modifiedBy: modifiedBy,
       // [DELIVERY_DATE]: formatDate(deliveryDate)
       // [CH_8]: obj[CH_8].toString(),
       // [CH_12]: obj[CH_12].toString(),

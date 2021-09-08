@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import { Item, Wrapper, Container } from './styles'
-import Input from 'components/fields/input'
-import { getData } from 'services'
-import { PRODUCTS } from 'services/collectionNames'
-import formatNumber from 'commonFunctions/formatNumber'
+import React, { useState, useEffect } from "react"
+import { Item, Wrapper, Container } from "./styles"
+import Input from "components/fields/input"
+import { getData } from "services"
+import { PRODUCTS } from "services/collectionNames"
+import formatNumber from "commonFunctions/formatNumber"
 
-import Print from 'components/print'
-import sort from 'commonFunctions/sort'
+import Print from "components/print"
+import sort from "commonFunctions/sort"
+import { useDispatch } from "react-redux"
+import { setAmountPaid } from "./orderSlipSlice"
 
 const Header = () => {
   return (
-    <div style={{ padding: '.3rem' }}>
+    <div style={{ padding: ".3rem" }}>
       <Container>
         <Item>Code</Item>
         <Item>Product</Item>
@@ -22,25 +24,47 @@ const Header = () => {
   )
 }
 
-const Product = ({ groupHeader, productList, productData, setProductData }) => {
+const Product = ({
+  groupHeader,
+  productList,
+  productData,
+  setProductData,
+  handleCustomPrice,
+}) => {
   return (
     <div>
-      <div style={{ padding: '.3rem', color: 'red' }}>{groupHeader}</div>
+      <div style={{ padding: ".3rem", color: "red" }}>{groupHeader}</div>
       {productList.map((data) => {
+        const retainedPrice = [...productData[data?.code]]
         const total =
-          parseInt(productData[data?.code][0]) * parseInt(data?.price)
+          parseInt(productData[data?.code][0]) * parseInt(retainedPrice[1])
         return (
           <Container key={data?.code}>
             <Item>{data?.code}</Item>
             <Item>{data?.description}</Item>
-            <Item right>{formatNumber(data?.price.toFixed(2))}</Item>
             <Item right>
-              <div style={{ marginTop: '-.3rem', paddingLeft: '2rem' }}>
+              {data?.price === 0 ? (
+                <div style={{ marginTop: "-.3rem", paddingLeft: "2rem" }}>
+                  <Input
+                    isNumber
+                    name={`customPrice${data?.code}`}
+                    onChange={(e) => {
+                      handleCustomPrice(e, data?.code)
+                    }}
+                    value={productData && productData[data?.code][1]}
+                  />
+                </div>
+              ) : (
+                formatNumber(data?.price.toFixed(2))
+              )}
+            </Item>
+            <Item right>
+              <div style={{ marginTop: "-.3rem", paddingLeft: "2rem" }}>
                 <Input
                   isNumber
                   name={data?.code}
                   onChange={(e) => {
-                    setProductData(e, data?.code, data?.price)
+                    setProductData(e, data?.code)
                   }}
                   value={productData && productData[data?.code][0]}
                 />
@@ -55,6 +79,10 @@ const Product = ({ groupHeader, productList, productData, setProductData }) => {
 }
 
 const Footer = ({ total }) => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(setAmountPaid(total.toFixed(2)))
+  }, [total])
   return (
     <Container>
       <Item>Total</Item>
@@ -66,11 +94,32 @@ export default function (props) {
   const [productList, setProductList] = useState([])
   const [productData, setProductData] = useState({})
 
-  const handleChange = (e, code, price) => {
-    if (e.target.value === '') {
-      setProductData({ ...productData, [code]: ['0', price] })
+  console.log("productData", productData)
+  const handleChange = (e, code) => {
+    const retainedData = [...productData[code]]
+    if (e.target.value === "") {
+      setProductData({ ...productData, [code]: ["0", retainedData[1]] })
     } else {
-      setProductData({ ...productData, [code]: [e.target.value, price] })
+      setProductData({
+        ...productData,
+        [code]: [e.target.value, retainedData[1]],
+      })
+    }
+  }
+
+  const handleCustomPrice = (e, code) => {
+    const retainedData = [...productData[code]]
+    const convertedPrice = parseInt(e.target.value)
+    if (!isNaN(convertedPrice)) {
+      setProductData({
+        ...productData,
+        [code]: [retainedData[0], convertedPrice],
+      })
+    } else {
+      setProductData({
+        ...productData,
+        [code]: [retainedData[0], convertedPrice],
+      })
     }
   }
 
@@ -94,17 +143,31 @@ export default function (props) {
     const result = await getData(PRODUCTS)
     for (const obj of result) {
       for (const product of obj.productList) {
-        productData[product.code] = props[product.code]
-          ? [
-              parseInt(props[product.code]),
-              product?.price,
-              product?.description
-            ]
-          : [0, product?.price, product?.description]
+        if (product?.price > 0) {
+          productData[product.code] = props[product.code]
+            ? [
+                parseInt(props[product.code]),
+                product?.price,
+                product?.description,
+              ]
+            : [0, product?.price, product?.description]
+        } else {
+          productData[product.code] = props[product.code]
+            ? [
+                parseInt(props[product.code]),
+                parseInt(props[`customPrice${product.code}`]) || 0,
+                product?.description,
+              ]
+            : [
+                0,
+                parseInt(props[`customPrice${product.code}`]) || 0,
+                product?.description,
+              ]
+        }
       }
     }
     setProductData(productData)
-    setProductList(sort(result, 'no'))
+    setProductList(sort(result, "no"))
   }
 
   return (
@@ -117,9 +180,12 @@ export default function (props) {
           productList={data?.productList}
           productData={productData}
           setProductData={handleChange}
+          handleCustomPrice={handleCustomPrice}
         />
       ))}
       <Footer total={calculateSubTotal(productData)} />
+      <br />
+      <br />
       <Print
         data={props}
         totals={productData}

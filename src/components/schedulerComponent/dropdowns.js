@@ -67,10 +67,10 @@ export function useGetDropdowns() {
     setDropdowns({
       ...dropdowns,
       [STATUS]: status,
-      [ORDER_VIA]: orderVia,
+      [ORDER_VIA]: ["", ...orderVia],
       [PAYMENT_MODE]: paymentMode,
       [BRANCH]: branch,
-      [ORDER_VIA_PARTNER]: orderViaPartner,
+      [ORDER_VIA_PARTNER]: ["", ...orderViaPartner],
     })
   }
   return dropdowns
