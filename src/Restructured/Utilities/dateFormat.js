@@ -24,5 +24,8 @@ export const formatTime = (date) => {
   return _formattedDate
 }
 export const formatDateFromDatabase = (date) => {
+  if (typeof date?.seconds === "undefined") {
+    return date
+  }
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
 }
