@@ -28,7 +28,7 @@ import {
 } from "components/PaymentDetails/types"
 import { QUANTITY } from "Restructured/Constants/products"
 import PaymentTransactionPrint from "./PaymentTransactionPrint"
-import GroupPayments from "components/features/GroupPayments"
+import GroupPayments from "components/features/TransactionGroupPayments"
 const { Search } = Input
 
 const plainOptions = [
