@@ -28,6 +28,7 @@ import {
 } from "components/PaymentDetails/types"
 import { QUANTITY } from "Restructured/Constants/products"
 import PaymentTransactionPrint from "./PaymentTransactionPrint"
+import GroupPayments from "components/features/GroupPayments"
 const { Search } = Input
 
 const plainOptions = [
@@ -375,7 +376,8 @@ const PaymentTransactionTable = (props) => {
               />
             </div>
             <div>
-              <PartnerMerchantModal columns={columns} />
+              {/* <PartnerMerchantModal columns={columns} /> */}
+              <GroupPayments />
             </div>
           </Flex>
         </Grid>

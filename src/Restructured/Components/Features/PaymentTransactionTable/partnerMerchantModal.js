@@ -294,7 +294,7 @@ const PartnerMerchantModal = ({ columns }) => {
           }
         }}
         onCancel={() => setVisible(false)}
-        width={1000}
+        width={2000}
       >
         <Grid>
           {/* <Select
