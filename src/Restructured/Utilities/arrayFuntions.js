@@ -19,3 +19,17 @@ export const replaceArrayData = (array, index, value) => {
   }
   return array
 }
+
+export const arrayReplace = ([...array], index, value) => {
+  const _array = []
+  for (const data of array) {
+    _array.push({ ...data })
+  }
+  if (typeof _array[index] !== "undefined") {
+    const newArray = _array.splice(index, 1, value)
+    console.log("newArray", newArray)
+    console.log("array", _array)
+    return _array
+  }
+  return _array
+}
