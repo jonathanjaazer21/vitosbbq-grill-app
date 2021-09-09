@@ -181,12 +181,24 @@ export function Paymentform(props) {
               // this value is applied only for dropdowns field
               value: formFields[customProps?.name],
               onChange: (e) => {
-                if (
-                  customProps?.name === TOTAL_DUE ||
-                  customProps?.name === AMOUNT_PAID
-                ) {
+                if (customProps?.name === TOTAL_DUE) {
                 } else {
-                  handleChangeFormFields(e, customProps?.name, customProps.type)
+                  if (customProps?.name === AMOUNT_PAID) {
+                    const { partials = [] } = formFields
+                    if (partials.length === 0) {
+                      handleChangeFormFields(
+                        e,
+                        customProps?.name,
+                        customProps.type
+                      )
+                    }
+                  } else {
+                    handleChangeFormFields(
+                      e,
+                      customProps?.name,
+                      customProps.type
+                    )
+                  }
                 }
               },
             })
