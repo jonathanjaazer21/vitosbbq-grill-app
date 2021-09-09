@@ -46,9 +46,10 @@ import { useGetDropdowns } from "components/SchedulerComponent/dropdowns"
 import PaymentTransactionTable from "Restructured/Components/Features/PaymentTransactionTable"
 import { formatTime } from "Restructured/Utilities/dateFormat"
 import { selectUserSlice } from "containers/0.login/loginSlice"
-const formatDateFromFirebase = (date) => {
-  return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
-}
+import { formatDateFromDatabase } from "Restructured/Utilities/dateFormat"
+// const formatDateFromDatabase = (date) => {
+//   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
+// }
 function UserMasterfile() {
   const dropdowns = useGetDropdowns()
   const userComponentSlice = useSelector(selectUserSlice)
@@ -123,14 +124,14 @@ function UserMasterfile() {
         for (const obj of snapshot.docChanges()) {
           if (obj.type === "modified") {
             const data = obj.doc.data()
-            const dateOrderPlaced = formatDateFromFirebase(
+            const dateOrderPlaced = formatDateFromDatabase(
               data[DATE_ORDER_PLACED]
             )
-            const dateStart = formatDateFromFirebase(data[DATE_START])
-            const dateEnd = formatDateFromFirebase(data[DATE_END])
+            const dateStart = formatDateFromDatabase(data[DATE_START])
+            const dateEnd = formatDateFromDatabase(data[DATE_END])
             const datePayment =
               typeof data[DATE_PAYMENT] !== "undefined"
-                ? formatDateFromFirebase(data[DATE_PAYMENT])
+                ? formatDateFromDatabase(data[DATE_PAYMENT])
                 : ""
             const amountPaid =
               typeof data[AMOUNT_PAID] !== "undefined"
@@ -169,14 +170,14 @@ function UserMasterfile() {
             dispatch(updateTable({ data: newData, id: obj.doc.id }))
           } else if (obj.type === "added") {
             const data = obj.doc.data()
-            const dateOrderPlaced = formatDateFromFirebase(
+            const dateOrderPlaced = formatDateFromDatabase(
               data[DATE_ORDER_PLACED]
             )
-            const dateStart = formatDateFromFirebase(data[DATE_START])
-            const dateEnd = formatDateFromFirebase(data[DATE_END])
+            const dateStart = formatDateFromDatabase(data[DATE_START])
+            const dateEnd = formatDateFromDatabase(data[DATE_END])
             const datePayment =
               typeof data[DATE_PAYMENT] !== "undefined"
-                ? formatDateFromFirebase(data[DATE_PAYMENT])
+                ? formatDateFromDatabase(data[DATE_PAYMENT])
                 : ""
             const amountPaid =
               typeof data[AMOUNT_PAID] !== "undefined"

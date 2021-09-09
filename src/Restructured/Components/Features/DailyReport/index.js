@@ -6,6 +6,7 @@ import { Flex, Grid, Item } from "Restructured/Styles"
 import { Card } from "antd"
 import SalesImage from "images/sales.jpg"
 import ServedReportType from "./servedReportType"
+import ReportDirectSales from "components/features/ReportDirectSales"
 
 const { Meta } = Card
 
@@ -55,12 +56,13 @@ function DailyReports() {
       )}
 
       {clickedReport === "DIRECT" && (
-        <DailyReportType
-          Services={ScheduleServices}
-          filterBasis={ORDER_VIA}
-          title="DAILY SALES DIRECT ORDERS"
-          back={() => setClickedReport(null)}
-        />
+        <ReportDirectSales back={() => setClickedReport(null)} />
+        // <DailyReportType
+        //   Services={ScheduleServices}
+        //   filterBasis={ORDER_VIA}
+        //   title="DAILY SALES DIRECT ORDERS"
+        //   back={() => setClickedReport(null)}
+        // />
       )}
       {clickedReport === "SERVED" && (
         <ServedReportType
