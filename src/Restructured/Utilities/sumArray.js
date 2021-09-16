@@ -57,20 +57,24 @@ export const sumArrayOfObjectsGrouping = (data, field1, field2) => {
     })
 
     if (dataExist) {
-      const number1 = parseInt(dataExist[field2])
-      const number2 = parseInt(obj[field2])
+      const number1 = Number(dataExist[field2])
+      const number2 = Number(obj[field2])
       console.log("number", dataExist[field2])
       console.log(number1, number2)
       const sumNumber = number1 + number2
       const renewedData = {
-        ...obj,
+        // ...obj,
+        // [field2]: sumNumber.toFixed(2),
+        [field1]: obj[field1],
         [field2]: sumNumber.toFixed(2),
       }
       newDataByGroup.splice(newDataByGroupIndex, 1, renewedData)
     } else {
-      const number = parseInt(obj[field2])
+      const number = Number(obj[field2])
       newDataByGroup.push({
-        ...obj,
+        // ...obj,
+        // [field2]: number.toFixed(2),
+        [field1]: obj[field1],
         [field2]: number.toFixed(2),
       })
     }

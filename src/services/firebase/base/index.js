@@ -6,6 +6,7 @@ export default class Commands {
   #data
   #fieldName
   #fieldValue
+  #orderBy
   constructor(args) {
     const {
       _collectionName,
@@ -13,12 +14,14 @@ export default class Commands {
       _data = {},
       _fieldName = "",
       _fieldValue = "",
+      _orderBy = "",
     } = args
     this.#collectionName = _collectionName
     this.#id = _id
     this.#data = _data
     this.#fieldName = _fieldName
     this.#fieldValue = _fieldValue
+    this.#orderBy = _orderBy
   }
 
   async getData() {
@@ -54,6 +57,7 @@ export default class Commands {
     return new Promise((resolve, reject) => {
       db.collection(this.#collectionName)
         .where(this.#fieldName, "==", this.#fieldValue)
+        .orderBy(this.#orderBy, "desc")
         .get()
         .then((querySnapshot) => {
           const _dataFetched = []

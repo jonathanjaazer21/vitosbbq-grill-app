@@ -49,10 +49,16 @@ import { useGetDropdowns } from "./dropdowns"
 import { selectUserSlice } from "containers/0.login/loginSlice"
 import { CustomButton } from "./styles"
 import getWeekOfDate from "Restructured/Utilities/getWeekOfDate"
+import {
+  selectSchedulerOpenedIdSlice,
+  setId,
+  clearId,
+} from "./orderSlip/schedulerOpenedIdSlice"
 function SchedulerComponent({ setLoading }) {
   const dropdowns = useGetDropdowns()
   const dispatch = useDispatch()
   const userComponentSlice = useSelector(selectUserSlice)
+  const schedulerOpenedIdSlice = useSelector(selectSchedulerOpenedIdSlice)
   const selectOrderSlice = useSelector(selectOrderComponentSlice)
   const schedulerComponentSlice = useSelector(selectSchedulerComponentSlice)
   const [dataSource, setDataSource] = useState([])
@@ -109,10 +115,21 @@ function SchedulerComponent({ setLoading }) {
         for (const obj of snapshot.docChanges()) {
           if (obj.type === "modified") {
             const data = obj.doc.data()
+            const id = obj.doc.id
             const newData = {
               ...data,
               Subject: data.customer,
             }
+            addData({
+              data: {
+                displayName: userComponentSlice.displayName,
+                email: userComponentSlice.email,
+                action: "Modified",
+                date: new Date(),
+                _id: id,
+              },
+              collection: "logs",
+            })
             dispatch(updateSchedules(newData))
           } else if (obj.type === "added") {
             const data = obj.doc.data()
@@ -171,22 +188,13 @@ function SchedulerComponent({ setLoading }) {
         totalDue: selectOrderSlice?.totalAmountPaid,
       }
       data.Subject = data[CUSTOMER]
+      data.Guid = null
       const dataToBeSend = schedulerSchema(data)
       delete dataToBeSend.RecurrenceRule
       updateData({
         data: { ...dataToBeSend },
         collection: SCHEDULES,
         id: args.data[_ID],
-      })
-      addData({
-        data: {
-          displayName: userComponentSlice.displayName,
-          email: userComponentSlice.email,
-          action: "Modified",
-          date: new Date(),
-          _id: data._id,
-        },
-        collection: "logs",
       })
     } else if (args.requestType === "eventCreate") {
       const data = args.addedRecords[0]
@@ -281,6 +289,7 @@ function SchedulerComponent({ setLoading }) {
   const onPopUpOpen = (args) => {
     // setLoading(true)
     const { data } = args
+    dispatch(setId(data._id))
     setOrderSlipData(data)
     if (args.type === "QuickInfo") {
       args.cancel = true
@@ -310,6 +319,10 @@ function SchedulerComponent({ setLoading }) {
     }
   }
 
+  const onPopUpClose = () => {
+    dispatch(clearId())
+  }
+
   return (
     <div>
       {dropdowns[BRANCH].length > 0 && (
@@ -330,6 +343,7 @@ function SchedulerComponent({ setLoading }) {
           navigating={onNavigation}
           eventRendered={(args) => onEventRendered(args, dropdowns[BRANCH])}
           popupOpen={onPopUpOpen}
+          popupClose={onPopUpClose}
           height="92vh"
           width="100%"
         >

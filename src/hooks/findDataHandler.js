@@ -11,11 +11,7 @@ export default function useFindDataHandler(service) {
     setIsLoading(true)
     const _data = await service.getDataWithFieldName()
     if (typeof _data === "object") {
-      if (_data.length === 1) {
-        setData({ ..._data[0] })
-      } else {
-        setData([..._data])
-      }
+      setData(_data)
     }
     setIsLoading(false)
   }

@@ -61,6 +61,7 @@ export default function useRangeHandler(Service) {
     { showTime: false, format, value, onChange }, // rangeComponentHandler
     { rangeData, searchData }, // filtered data result
     loadData,
+    isLoading,
     // load data example : loadRangeHandlerData({
     //   dateField: "StartTime", // required
     //   orderBy: "StartTime", // required

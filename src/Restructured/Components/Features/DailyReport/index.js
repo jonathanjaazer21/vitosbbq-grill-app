@@ -6,6 +6,8 @@ import { Flex, Grid, Item } from "Restructured/Styles"
 import { Card } from "antd"
 import SalesImage from "images/sales.jpg"
 import ServedReportType from "./servedReportType"
+import ReportDirectSales from "components/features/AnalyticsReportDirectSales"
+import ReportThirdPartySales from "components/features/AnalyticsReportThirdPartySales"
 
 const { Meta } = Card
 
@@ -24,17 +26,29 @@ function DailyReports() {
                 <Card
                   hoverable
                   style={{ width: 240 }}
+                  cover={<img alt="sales-image" src={SalesImage} />}
+                  onClick={() => {
+                    setClickedReport("DIRECT")
+                  }}
+                >
+                  <Meta title="DIRECT ORDER" description="Sales Report" />
+                </Card>
+              </Item>
+              <Item>
+                <Card
+                  hoverable
+                  style={{ width: 240 }}
                   cover={
                     <img
                       alt="sales-image"
                       src={SalesImage}
                       onClick={() => {
-                        setClickedReport("DIRECT")
+                        setClickedReport("THIRD PARTY")
                       }}
                     />
                   }
                 >
-                  <Meta title="DIRECT ORDER" description="Sales Report" />
+                  <Meta title="THIRD PARTY ORDER" description="Sales Report" />
                 </Card>
               </Item>
               <Item>
@@ -55,13 +69,25 @@ function DailyReports() {
       )}
 
       {clickedReport === "DIRECT" && (
-        <DailyReportType
-          Services={ScheduleServices}
-          filterBasis={ORDER_VIA}
-          title="DAILY SALES DIRECT ORDERS"
-          back={() => setClickedReport(null)}
-        />
+        <ReportDirectSales back={() => setClickedReport(null)} />
+        // <DailyReportType
+        //   Services={ScheduleServices}
+        //   filterBasis={ORDER_VIA}
+        //   title="DAILY SALES DIRECT ORDERS"
+        //   back={() => setClickedReport(null)}
+        // />
       )}
+
+      {clickedReport === "THIRD PARTY" && (
+        <ReportThirdPartySales back={() => setClickedReport(null)} />
+        // <DailyReportType
+        //   Services={ScheduleServices}
+        //   filterBasis={ORDER_VIA}
+        //   title="DAILY SALES DIRECT ORDERS"
+        //   back={() => setClickedReport(null)}
+        // />
+      )}
+
       {clickedReport === "SERVED" && (
         <ServedReportType
           Services={ScheduleServices}
