@@ -60,7 +60,6 @@ export default function (dataSource) {
       [DATE_START]: formatDate(startTime),
       [DATE_END]: formatDate(endTime),
       [DATE_ORDER_PLACED]: formatDate(dateOrder),
-      modifiedBy: modifiedBy,
       // [DELIVERY_DATE]: formatDate(deliveryDate)
       // [CH_8]: obj[CH_8].toString(),
       // [CH_12]: obj[CH_12].toString(),

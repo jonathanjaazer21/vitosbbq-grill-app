@@ -9,9 +9,10 @@ import {
   formatDateFromDatabase,
   formatDateSlash,
 } from "Restructured/Utilities/dateFormat"
-import sumArray from "Restructured/Utilities/sumArray"
-import { useEffect } from "react/cjs/react.development"
-import { useState } from "react"
+import sumArray, {
+  sumArrayOfObjectsGrouping,
+} from "Restructured/Utilities/sumArray"
+import { useState, useEffect } from "react"
 
 export default function useReportDirectSales() {
   const userComponent = useSelector(selectUserSlice)
@@ -21,30 +22,6 @@ export default function useReportDirectSales() {
 
   // states
   const [filteredData, setFilteredData] = useState([])
-
-  useEffect(() => {
-    if (rangeHandlerFilteredData.searchData.length > 0) {
-      directOrderHandler(rangeHandlerFilteredData.searchData)
-    }
-  }, [rangeHandlerFilteredData.searchData])
-
-  const directOrderHandler = (data) => {
-    const _newData = data.filter((obj) => obj.orderVia)
-
-    const totalDue = sumArray(data, "totalDue")
-    const amountPaid = sumArray(data, "amountPaid")
-
-    _newData.push({
-      datePayment: "TOTAL",
-      StartTime: "__",
-      orderNo: "__",
-      customer: "__",
-      partials: "__",
-      totalDue: Number(totalDue).toFixed(2),
-      amountPaid: Number(amountPaid).toFixed(2),
-    })
-    setFilteredData(_newData)
-  }
 
   const searchHandler = () => {
     loadRangeHandlerData({
@@ -98,6 +75,7 @@ export default function useReportDirectSales() {
           title: "ORDER #",
           key: "orderNo",
           dataIndex: "orderNo",
+          editable: true,
         },
         {
           title: "CUSTOMER",
@@ -105,7 +83,7 @@ export default function useReportDirectSales() {
           dataIndex: "customer",
         },
         {
-          title: "PARTIAL PAYMENTS",
+          title: "PAYMENT TYPE",
           key: "partials",
           dataIndex: "partials",
           align: "right",
@@ -115,21 +93,16 @@ export default function useReportDirectSales() {
               if (data === "__") {
                 return data
               }
-              return (
-                <Space
-                  wrap
-                  onClick={() => {
-                    alert("clicke")
-                  }}
-                  style={{ cursor: "pointer" }}
-                >
-                  {data.map((obj) => (
-                    <Tag color="success">{Number(obj?.amount).toFixed(2)}</Tag>
-                  ))}
-                </Space>
-              )
+              return <Tag>Partial</Tag>
+              // return (
+              //   <Space wrap style={{ cursor: "pointer" }}>
+              //     {data.map((obj) => (
+              //       <Tag color="success">{Number(obj?.amount).toFixed(2)}</Tag>
+              //     ))}
+              //   </Space>
+              // )
             } else {
-              return <Tag>__</Tag>
+              return <Tag>Full</Tag>
             }
           },
         },

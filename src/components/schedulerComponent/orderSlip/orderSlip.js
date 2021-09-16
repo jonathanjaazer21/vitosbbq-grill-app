@@ -25,9 +25,15 @@ import Input from "components/fields/input"
 import OrderVia from "components/fields/orderVia"
 import { Button } from "antd"
 import { DownCircleOutlined, UpCircleOutlined } from "@ant-design/icons"
+import useGetLogs from "./useGetLogs"
+import {
+  formatDateFromDatabase,
+  formatDateSlash,
+} from "Restructured/Utilities/dateFormat"
 
 function OrderSlip(props) {
   const dispatch = useDispatch()
+  const [logs] = useGetLogs()
   const selectSchedulerComponent = useSelector(selectSchedulerComponentSlice)
   const dropdowns = useGetDropdowns()
   // this is for orderVia and Partner Merchant field
@@ -109,16 +115,14 @@ function OrderSlip(props) {
         >
           {!toggleModified ? (
             <Button
-              icon={
-                <DownCircleOutlined onClick={() => setToggleModified(true)} />
-              }
+              onClick={() => setToggleModified(true)}
+              icon={<DownCircleOutlined />}
               shape="circle"
             />
           ) : (
             <Button
-              icon={
-                <UpCircleOutlined onClick={() => setToggleModified(false)} />
-              }
+              onClick={() => setToggleModified(false)}
+              icon={<UpCircleOutlined />}
               shape="circle"
             />
           )}
@@ -127,9 +131,14 @@ function OrderSlip(props) {
         <br />
         {toggleModified ? (
           <Table
-            dataSource={
-              typeof props.modifiedBy !== "undefined" ? props?.modifiedBy : []
-            }
+            dataSource={logs.data.map((data) => {
+              const date = formatDateFromDatabase(data.date)
+              return {
+                displayName: data.email,
+                action: data.action,
+                date: formatDateSlash(date),
+              }
+            })}
             pagination={false}
             size="small"
             columns={[

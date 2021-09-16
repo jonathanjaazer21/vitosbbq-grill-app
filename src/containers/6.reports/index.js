@@ -11,6 +11,7 @@ import {
   REPORTS,
 } from "components/sideNav/2.menu/menuData"
 import { Products } from "components/products"
+import AnalyticsTransaction from "components/features/AnalyticsTransaction"
 import { Reports } from "Restructured/Components/Features"
 
 export default function (props) {
