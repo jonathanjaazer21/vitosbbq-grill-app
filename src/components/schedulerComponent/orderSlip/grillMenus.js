@@ -94,7 +94,6 @@ export default function (props) {
   const [productList, setProductList] = useState([])
   const [productData, setProductData] = useState({})
 
-  console.log("productData", productData)
   const handleChange = (e, code) => {
     const retainedData = [...productData[code]]
     if (e.target.value === "") {
