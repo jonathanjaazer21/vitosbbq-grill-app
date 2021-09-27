@@ -33,7 +33,7 @@ function ReportDirectSales({ back }) {
       <Space direction="horizontal" style={style}>
         <Button onClick={back} shape="circle" icon={<ArrowLeftOutlined />} />
         <Space wrap>
-          Date Order:
+          Date Paid:
           <RangePicker {...rangeProps} />
           <Button
             {...searchButtonProps}
@@ -72,7 +72,17 @@ function ReportDirectSales({ back }) {
                 ></Table>
               )
             },
-            rowExpandable: (record) => typeof record?.partials === "object",
+            rowExpandable: (record) => {
+              if (typeof record?.partials === "object") {
+                if (record?.partials.length > 0) {
+                  return true
+                } else {
+                  return false
+                }
+              } else {
+                return false
+              }
+            },
           }}
         />
         <br />

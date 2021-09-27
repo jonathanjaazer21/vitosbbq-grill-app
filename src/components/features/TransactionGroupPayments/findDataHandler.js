@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-export default function useFindDataHandler(service) {
+export default function useFindDataHandlers(service) {
   const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState(null)
   useEffect(() => {
@@ -12,8 +12,9 @@ export default function useFindDataHandler(service) {
     setIsLoading(true)
     const _data = await service.getDataWithFieldName()
     if (typeof _data === "object") {
-      setData(_data)
+      setData(_data[0])
     }
+    setData(_data)
     setIsLoading(false)
   }
   return [{ data, isLoading }]

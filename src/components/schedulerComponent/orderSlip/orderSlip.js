@@ -29,6 +29,7 @@ import useGetLogs from "./useGetLogs"
 import {
   formatDateFromDatabase,
   formatDateSlash,
+  formatTime,
 } from "Restructured/Utilities/dateFormat"
 
 function OrderSlip(props) {
@@ -137,6 +138,7 @@ function OrderSlip(props) {
                 displayName: data.email,
                 action: data.action,
                 date: formatDateSlash(date),
+                time: formatTime(date),
               }
             })}
             pagination={false}
@@ -149,6 +151,7 @@ function OrderSlip(props) {
               },
               { title: "Action", dataIndex: "action", key: "action" },
               { title: "Date", dataIndex: "date", key: "date" },
+              { title: "Time", dataIndex: "time", key: "time" },
             ]}
           />
         ) : (

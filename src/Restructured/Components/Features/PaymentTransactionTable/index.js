@@ -313,7 +313,6 @@ const PaymentTransactionTable = (props) => {
     setDataSource(_dataList)
   }
 
-  console.log("pikoy", dataList)
   return (
     <>
       <Grid>
