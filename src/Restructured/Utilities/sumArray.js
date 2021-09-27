@@ -43,7 +43,6 @@ export const sumArrayDatas = (array, index) => {
 export const sumArrayOfObjectsGrouping = (data, field1, field2) => {
   const newDataByGroup = []
   data.forEach((obj) => {
-    console.log(obj[field1], obj[field2])
     let newDataByGroupIndex = 0
 
     // check first if data already exist
@@ -59,8 +58,6 @@ export const sumArrayOfObjectsGrouping = (data, field1, field2) => {
     if (dataExist) {
       const number1 = Number(dataExist[field2])
       const number2 = Number(obj[field2])
-      console.log("number", dataExist[field2])
-      console.log(number1, number2)
       const sumNumber = number1 + number2
       const renewedData = {
         // ...obj,
@@ -79,7 +76,6 @@ export const sumArrayOfObjectsGrouping = (data, field1, field2) => {
       })
     }
   })
-  console.log("newDataByGroup", newDataByGroup)
   return newDataByGroup
 }
 

@@ -31,12 +31,26 @@ export default function useReportDirectSales() {
     if (rangeHandlerFilteredData.searchData.length > 0) {
       directOrderHandler(rangeHandlerFilteredData.searchData)
       listWithPartialsHandler(rangeHandlerFilteredData.searchData)
+    } else {
+      setFilteredData([])
+      setOrderViaSummary([])
+      setAccountNumberSummary([])
     }
   }, [rangeHandlerFilteredData.searchData])
 
   const directOrderHandler = (data) => {
-    const _newData = data.filter((obj) => obj.orderVia)
+    // const _data = data.filter((obj) => obj?.orderVia && obj?.status !== "CANCELLED")
+    const _newData = data.filter(
+      (obj) => obj?.orderVia && obj?.status !== "CANCELLED"
+    )
+    // to remove an object in array that is not yet paid
+    // for (const obj of _data) {
+    //   if (obj?.amountPaid) {
+    //     if (Number(obj?.amountPaid) > 0) _newData.push({ ...obj })
+    //   }
+    // }
 
+    console.log("_newData", _newData)
     const totalDue = sumArray(_newData, "totalDue")
     const amountPaid = sumArray(_newData, "amountPaid")
 
@@ -68,29 +82,37 @@ export default function useReportDirectSales() {
   }
 
   const listWithPartialsHandler = (data) => {
-    const _newData = data.filter((obj) => obj.orderVia)
+    const _newData = data.filter(
+      (obj) => obj.orderVia && obj?.status !== "CANCELLED"
+    )
+    console.log("withPartialsNewData", _newData)
     const withPartials = []
     for (const obj of _newData) {
       if (typeof obj?.partials === "object") {
-        let count = 0
-        for (const partialObj of obj?.partials) {
-          withPartials.push({
-            ...obj,
-            datePayment: partialObj?.date,
-            modePayment: partialObj?.modePayment,
-            accountNumber: partialObj?.accountNumber,
-            source: partialObj?.source,
-            refNo: partialObj.refNo,
-            amountPaid: Number(partialObj?.amount),
-            totalDue: count ? "__" : obj?.totalDue,
-            partials: "Partial",
-          })
-          count = count + 1
+        if (obj?.partials.length > 0) {
+          let count = 0
+          for (const partialObj of obj?.partials) {
+            withPartials.push({
+              ...obj,
+              datePayment: partialObj?.date,
+              modePayment: partialObj?.modePayment,
+              accountNumber: partialObj?.accountNumber,
+              source: partialObj?.source,
+              refNo: partialObj.refNo,
+              amountPaid: Number(partialObj?.amount),
+              totalDue: count ? "__" : obj?.totalDue,
+              partials: "Partial",
+            })
+            count = count + 1
+          }
+        } else {
+          withPartials.push({ ...obj, partials: "Full" })
         }
       } else {
         withPartials.push({ ...obj, partials: "Full" })
       }
     }
+    console.log("withPartials", withPartials)
     const orderViaSummary = sumArrayOfObjectsGrouping(
       withPartials,
       "orderVia",
@@ -106,7 +128,6 @@ export default function useReportDirectSales() {
     setAccountNumberSummary(accountNumberSummary)
   }
 
-  console.log("listWithPartials", listWithPartials)
   const searchHandler = () => {
     loadRangeHandlerData({
       dateField: "datePayment", // required
@@ -177,7 +198,10 @@ export default function useReportDirectSales() {
               if (data === "__") {
                 return data
               }
-              return <Tag>Partial</Tag>
+              if (data.length > 0) {
+                return <Tag>Partial</Tag>
+              }
+              return <Tag>Full</Tag>
               // return (
               //   <Space wrap style={{ cursor: "pointer" }}>
               //     {data.map((obj) => (

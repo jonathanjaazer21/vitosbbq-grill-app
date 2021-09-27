@@ -46,6 +46,8 @@ export default function useRangeHandler(Service) {
         })
         console.log("_searchData", _searchData)
         setSearchData(_searchData)
+      } else {
+        setSearchData([])
       }
     }
     setIsLoading(false)

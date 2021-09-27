@@ -20,7 +20,7 @@ function PrintComponent({
       <Print
         component={
           <Space direction="vertical" style={{ width: "100%" }}>
-            <span>DAILY SALES THIRD PARTY ORDER</span>
+            <span>DAILY SALES DIRECT ORDER</span>
             <table style={{ fontSize: "8px", width: "100%" }}>
               <tr style={{ fontWeight: 700, backgroundColor: "#999" }}>
                 {tableProps.columns.map((data) => (

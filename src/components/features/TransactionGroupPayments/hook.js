@@ -14,6 +14,7 @@ import { useSelector } from "react-redux"
 import { useState, useEffect } from "react"
 import { arrayReplace } from "Restructured/Utilities/arrayFuntions"
 import moment from "moment"
+import useFindDataHandlers from "./findDataHandler"
 
 export default function useGroupPaymentHook() {
   const format = "MM/DD/YYYY"
@@ -24,7 +25,7 @@ export default function useGroupPaymentHook() {
     useRangeHandler(ScheduleServicess)
 
   // find data on firebase dropdown collection
-  const [dataHandler] = useFindDataHandler(
+  const [dataHandler] = useFindDataHandlers(
     new DropdownServicess({
       _fieldName: "name",
       _fieldValue: "orderViaPartner",

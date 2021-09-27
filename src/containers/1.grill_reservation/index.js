@@ -18,6 +18,7 @@ import {
 } from "Restructured/Styles/toggleableContainer"
 import { Grid } from "Restructured/Styles"
 import { FilteringPanel } from "Restructured/Components/Features"
+import DashboardScheduler from "components/features/DashboardScheduler"
 
 function GrillReservation() {
   const dispatch = useDispatch()
@@ -40,7 +41,8 @@ function GrillReservation() {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={["1s"]} delay={["0.2s"]}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
-            <ScheduleComponent setLoading={setLoading} />
+            {/* <ScheduleComponent setLoading={setLoading} /> */}
+            <DashboardScheduler />
           </Animate>
         </RightContent>
       </Container>

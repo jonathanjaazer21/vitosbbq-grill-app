@@ -35,6 +35,7 @@ const CustomModal = ({ visible, setVisible }) => {
     { filteredData, selectData },
   ] = useGroupPaymentHook()
 
+  console.log("selectData", selectData)
   return (
     <Modal
       title="Group Payments"

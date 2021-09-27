@@ -14,7 +14,7 @@ const style = {
 }
 
 function AnalyticsTransaction() {
-  const [{ rangeProps, searchButtonProps }] = useReportDirectSales()
+  const [{ rangeProps, searchButtonProps, tableProps }] = useReportDirectSales()
   return (
     <>
       <Space direction="horizontal" style={style}>
@@ -31,11 +31,7 @@ function AnalyticsTransaction() {
           />
         </Space>
       </Space>
-
-      <Space direction="vertical">
-        <span>s</span>
-        <span>0</span>
-      </Space>
+      <Table {...tableProps} />
     </>
   )
 }

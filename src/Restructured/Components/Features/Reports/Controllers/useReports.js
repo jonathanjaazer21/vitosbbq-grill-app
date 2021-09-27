@@ -82,16 +82,16 @@ function useReports() {
       dataIndex: DATE_START,
       key: DATE_START,
     },
-    {
-      title: "CODE",
-      dataIndex: CODE,
-      key: CODE,
-    },
-    {
-      title: "QUANTITY",
-      dataIndex: QUANTITY,
-      key: QUANTITY,
-    },
+    // {
+    //   title: "CODE",
+    //   dataIndex: CODE,
+    //   key: CODE,
+    // },
+    // {
+    //   title: "QUANTITY",
+    //   dataIndex: QUANTITY,
+    //   key: QUANTITY,
+    // },
     {
       title: "DATE PAYMENT",
       dataIndex: DATE_PAYMENT,

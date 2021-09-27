@@ -54,7 +54,7 @@ import {
   setId,
   clearId,
 } from "./orderSlip/schedulerOpenedIdSlice"
-function SchedulerComponent({ setLoading }) {
+function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
   const dropdowns = useGetDropdowns()
   const dispatch = useDispatch()
   const userComponentSlice = useSelector(selectUserSlice)
@@ -106,10 +106,14 @@ function SchedulerComponent({ setLoading }) {
   }, [schedulerComponentSlice.dataSource])
 
   useEffect(() => {
-    setLoading(true)
+    if (navigate.currentView === "Day") return
+    const _startTime = new Date(navigate?.dateRange[0].setHours(0, 0, 0, 0))
+    const _endTime = new Date(navigate?.dateRange[1].setHours(23, 59, 59, 59))
     const unsubscribe = db
       .collection(SCHEDULES)
-      .orderBy("StartTime", "asc")
+      .where("StartTime", ">=", _startTime)
+      .where("StartTime", "<=", _endTime)
+      // .orderBy("StartTime", "asc")
       .onSnapshot(function (snapshot) {
         const schedules = []
         for (const obj of snapshot.docChanges()) {
@@ -156,7 +160,7 @@ function SchedulerComponent({ setLoading }) {
       unsubscribe()
       dispatch(clearSchedules())
     }
-  }, [])
+  }, [navigate?.dateRange])
 
   useEffect(() => {
     const unsubscribe = db.collection(BRANCHES).onSnapshot(function (snapshot) {
@@ -182,6 +186,7 @@ function SchedulerComponent({ setLoading }) {
   }, [])
 
   const onActionBegin = (args) => {
+    console.log("type", args)
     if (args.requestType === "eventChange") {
       const data = {
         ...args.data,
@@ -189,6 +194,19 @@ function SchedulerComponent({ setLoading }) {
       }
       data.Subject = data[CUSTOMER]
       data.Guid = null
+      data.amountPaid =
+        data?.status === "CANCELLED"
+          ? "0.00"
+          : typeof data?.amountPaid !== "undefined"
+          ? data?.amountPaid
+          : "0.00"
+
+      data.partials =
+        data?.status === "CANCELLED"
+          ? []
+          : data?.partials
+          ? [...data?.partials]
+          : []
       const dataToBeSend = schedulerSchema(data)
       delete dataToBeSend.RecurrenceRule
       updateData({
@@ -340,12 +358,14 @@ function SchedulerComponent({ setLoading }) {
             },
           ]}
           actionBegin={onActionBegin}
-          navigating={onNavigation}
+          navigating={handleNavigate}
           eventRendered={(args) => onEventRendered(args, dropdowns[BRANCH])}
           popupOpen={onPopUpOpen}
           popupClose={onPopUpClose}
           height="92vh"
           width="100%"
+          currentView={navigate?.currentView}
+          selectedDate={navigate?.selectedDate}
         >
           <ViewsDirective>
             <ViewDirective option="Day" />
