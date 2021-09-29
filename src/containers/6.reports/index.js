@@ -12,6 +12,7 @@ import {
 } from "components/sideNav/2.menu/menuData"
 import { Products } from "components/products"
 import AnalyticsTransaction from "components/features/AnalyticsTransaction"
+import { Reports } from "Restructured/Components/Features"
 
 export default function (props) {
   const dispatch = useDispatch()
@@ -28,6 +29,7 @@ export default function (props) {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={["1s"]} delay={["0.2s"]}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
+            {/* <Reports /> */}
             <AnalyticsTransaction />
           </Animate>
         </RightContent>

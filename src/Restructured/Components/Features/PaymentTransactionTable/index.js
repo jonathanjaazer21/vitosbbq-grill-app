@@ -44,15 +44,21 @@ const plainOptions = [
 
 const columnRender = (value, record, checkValues, obj) => {
   let _value = value
-  const { status } = record
+  const { status, orderVia, orderViaPartner } = record
   const others = record?.others
   let style = { color: "#555" }
   if (status === "PAID" && checkValues.includes(status)) {
     style.backgroundColor = "transparent"
     style.color = "black"
   } else if (status === "PENDING PAYMENT" && checkValues.includes(status)) {
-    style.backgroundColor = "yellow"
-    style.color = "black"
+    if (orderVia) {
+      style.backgroundColor = "yellow"
+      style.color = "black"
+    }
+    if (orderViaPartner) {
+      style.backgroundColor = "pink"
+      style.color = "#333"
+    }
   } else if (status === "CONFIRMED" && checkValues.includes(status)) {
     style.backgroundColor = "lightblue"
     style.color = "black"
@@ -99,7 +105,6 @@ const PaymentTransactionTable = (props) => {
   }
 
   const productColumnWidths = (key, headerText = "") => {
-    console.log("S", key)
     if (key === DATE_START) {
       return [
         "10rem",
