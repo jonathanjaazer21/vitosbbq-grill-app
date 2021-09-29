@@ -1,6 +1,6 @@
 import React, { useEffect } from "react"
 import { Space, Table } from "antd"
-import useDirectOrders from "./directOrdersHook"
+import useDirectOrders from "./hookDirectOrders"
 import { VerticalAutoScroll } from "./styles"
 
 function TableDirectOrderContents({ filteredData, dateString, tableProps }) {
