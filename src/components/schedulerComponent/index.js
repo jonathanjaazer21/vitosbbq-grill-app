@@ -280,8 +280,14 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
     // element.style.background = branchColors[data[BRANCH]]
     if (data?.status) {
       if (data?.status === "PENDING PAYMENT") {
-        element.style.background = "yellow"
-        element.style.color = "#666"
+        if (data?.orderVia) {
+          element.style.background = "yellow"
+          element.style.color = "#666"
+        }
+        if (data?.orderViaPartner) {
+          element.style.background = "pink"
+          element.style.color = "black"
+        }
       }
       if (data?.status === "FULFILLED") {
         element.style.background = "transparent"
@@ -296,10 +302,6 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
       if (data?.status === "CANCELLED") {
         element.style.background = "orange"
         element.style.color = "#333"
-      }
-      if (data?.status === "PAID") {
-        element.style.background = "transparent"
-        element.style.color = "#666"
       }
     } else {
       element.style.background = "transparent"
