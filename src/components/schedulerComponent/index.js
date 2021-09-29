@@ -152,7 +152,14 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
           }
         }
         if (schedules.length > 0) {
-          dispatch(setSchedules(schedules))
+          const branch =
+            userComponentSlice.branches.length > 0
+              ? userComponentSlice.branches[0]
+              : ""
+          const branchSchedules = schedules.filter(
+            (row) => row[BRANCH] === branch
+          )
+          dispatch(setSchedules(branchSchedules))
         }
         setLoading(false)
       })
