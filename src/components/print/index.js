@@ -14,9 +14,9 @@ import {
   ORDER_VIA_PARTNER,
   PARTNER_MERCHANT_ORDER_NO,
   STATUS,
-  TIME_SLOT
-} from 'components/SchedulerComponent/orderSlip/types'
-import Print from './print'
+  TIME_SLOT,
+} from "components/SchedulerComponent/orderSlip/types"
+import Print from "./print"
 import {
   Container,
   Header,
@@ -25,17 +25,18 @@ import {
   Description,
   Label,
   Label2,
-  HeaderContent
-} from './styles'
-import cookedChefLogo from 'images/cookedChef.jpg'
-import vitosLogo from 'images/vitosLogo.jpg'
-import { useState } from 'react'
-import { useGetBranches } from 'commonFunctions/useGetBranches'
-import formatNumber from 'commonFunctions/formatNumber'
+  HeaderContent,
+} from "./styles"
+import cookedChefLogo from "images/cookedChef.jpg"
+import vitosLogo from "images/vitosLogo.jpg"
+import { useState } from "react"
+import { useGetBranches } from "commonFunctions/useGetBranches"
+import formatNumber from "commonFunctions/formatNumber"
+import { Space, Divider } from "antd"
 
 export const formatDate = (date) => {
   if (date) {
-    const dateSplit = date.toString().split(' ')
+    const dateSplit = date.toString().split(" ")
     return `${dateSplit[1]} ${dateSplit[2]}, ${dateSplit[3]} ${dateSplit[0]}`
   } else {
     return date
@@ -44,9 +45,9 @@ export const formatDate = (date) => {
 
 export const normalizeHour = (date) => {
   if (date) {
-    const dateSplit = date.toString().split(' ')
+    const dateSplit = date.toString().split(" ")
     const newDate = `${dateSplit[1]} ${dateSplit[2]}, ${dateSplit[3]}`
-    const dateArray = dateSplit[4].split(':')
+    const dateArray = dateSplit[4].split(":")
     if (dateArray[0] > 12) {
       const hour = dateArray[0] - 12
       return `${newDate} ${hour}:${dateArray[1]} PM`
@@ -69,11 +70,11 @@ const PrintDocument = ({
   totals,
   qty,
   subTotal,
-  productList
+  productList,
 }) => {
   const branch = useGetBranches(data[BRANCH])
   const checkData = (field) => {
-    let fieldData = ''
+    let fieldData = ""
     if (field === DATE_ORDER_PLACED) {
       fieldData = formatDate(data[field])
     } else if (field === DATE_START) {
@@ -82,13 +83,13 @@ const PrintDocument = ({
       fieldData = normalizeHour(data[field])
     } else if (field === TIME_SLOT) {
       if (data[DATE_START] || data[DATE_END]) {
-        const start = normalizeHour(data[DATE_START]).split(' ')
-        const end = normalizeHour(data[DATE_END]).split(' ')
+        const start = normalizeHour(data[DATE_START]).split(" ")
+        const end = normalizeHour(data[DATE_END]).split(" ")
         fieldData = `${start[3]} ${start[4]} - ${end[3]} ${end[4]}`
       }
     } else if (field === BRANCH) {
       if (data[ORDER_NO]) {
-        const splittedOrderNo = data[ORDER_NO].split('-')
+        const splittedOrderNo = data[ORDER_NO].split("-")
         fieldData = `${splittedOrderNo[0]}-${data[field].toUpperCase()} ${
           branch.branchAddress
         }`
@@ -100,7 +101,7 @@ const PrintDocument = ({
         fieldData = data[ORDER_VIA_PARTNER]
       }
     } else if (field === PARTNER_MERCHANT_ORDER_NO) {
-      return data[ORDER_VIA_PARTNER] ? data[field] : ''
+      return data[ORDER_VIA_PARTNER] ? data[field] : ""
     } else {
       fieldData = data[field]
     }
@@ -109,13 +110,13 @@ const PrintDocument = ({
 
   const changedLabel = (field) => {
     if (field === DATE_ORDER_PLACED) {
-      return 'Date placed'
+      return "Date placed"
     }
     if (field === DATE_START) {
-      return 'Delivery Date/Time'
+      return "Delivery Date/Time"
     }
     if (field === PARTNER_MERCHANT_ORDER_NO) {
-      return data[ORDER_VIA] ? '' : LABELS[field]
+      return data[ORDER_VIA] ? "" : LABELS[field]
     }
     if (field === ORDER_VIA) {
       return data[ORDER_VIA] ? LABELS[field] : LABELS[ORDER_VIA_PARTNER]
@@ -127,13 +128,13 @@ const PrintDocument = ({
       <img
         src={cookedChefLogo}
         height={500}
-        style={{ position: 'absolute', zIndex: '-999', opacity: '0.1' }}
+        style={{ position: "absolute", zIndex: "-999", opacity: "0.1" }}
       />
       <Header>
-        <img src={vitosLogo} height={100} style={{ borderRadius: '50%' }} />
+        <img src={vitosLogo} height={100} style={{ borderRadius: "50%" }} />
         <HeaderContent>
-          <h2 style={{ marginLeft: '1rem' }}>VITO'S BBQ</h2>
-          <h2 style={{ marginLeft: '1rem' }}>ORDER FORM</h2>
+          <h2 style={{ marginLeft: "1rem" }}>VITO'S BBQ</h2>
+          <h2 style={{ marginLeft: "1rem" }}>ORDER FORM</h2>
         </HeaderContent>
       </Header>
       <HeaderContent>
@@ -145,21 +146,21 @@ const PrintDocument = ({
         [CUSTOMER, DATE_ORDER_PLACED],
         [CONTACT_NUMBER, DATE_START],
         [TIME_SLOT, null],
-        [ORDER_VIA, ACCOUNT_NAME]
+        [ORDER_VIA, ACCOUNT_NAME],
       ].map((fieldName, index) => {
         return (
           <div
             key={index}
             style={{
-              display: 'flex',
-              width: '90vw',
-              justifyContent: 'space-evenly'
+              display: "flex",
+              width: "90vw",
+              justifyContent: "space-evenly",
             }}
           >
             <Body>
               <Description>
                 <Label>{changedLabel(fieldName[0])}: </Label>
-                <div style={{ marginLeft: '.5rem' }}>
+                <div style={{ marginLeft: ".5rem" }}>
                   {checkData(fieldName[0])}
                 </div>
               </Description>
@@ -167,7 +168,7 @@ const PrintDocument = ({
             <Body>
               <Description>
                 <Label>{changedLabel(fieldName[1])}:</Label>
-                <div style={{ marginLeft: '.5rem' }}>
+                <div style={{ marginLeft: ".5rem" }}>
                   {checkData(fieldName[1])}
                 </div>
               </Description>
@@ -176,46 +177,46 @@ const PrintDocument = ({
         )
       })}
       <Footer>
-        <table style={{ width: '100%', fontSize: '10px' }}>
+        <table style={{ width: "100%", fontSize: "10px" }}>
           <tr
             style={{
-              display: 'flex',
-              justifyContent: 'flex-start',
-              width: '100%',
-              backgroundColor: 'pink',
-              padding: '.5rem .5rem'
+              display: "flex",
+              justifyContent: "flex-start",
+              width: "100%",
+              backgroundColor: "pink",
+              padding: ".5rem .5rem",
             }}
           >
             <th
               style={{
-                flex: '1',
-                display: 'flex',
-                justifyContent: 'flex-start'
+                flex: "1",
+                display: "flex",
+                justifyContent: "flex-start",
               }}
             >
               Code
             </th>
             <th
               style={{
-                flex: '1',
-                display: 'flex',
-                justifyContent: 'flex-start'
+                flex: "1",
+                display: "flex",
+                justifyContent: "flex-start",
               }}
             >
               Product
             </th>
             <th
-              style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}
+              style={{ flex: "1", display: "flex", justifyContent: "flex-end" }}
             >
               Price
             </th>
             <th
-              style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}
+              style={{ flex: "1", display: "flex", justifyContent: "flex-end" }}
             >
               Qty
             </th>
             <th
-              style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}
+              style={{ flex: "1", display: "flex", justifyContent: "flex-end" }}
             >
               Amount
             </th>
@@ -229,36 +230,36 @@ const PrintDocument = ({
               <tr
                 key={index}
                 style={{
-                  display: 'flex',
-                  justifyContent: 'flex-start',
-                  width: '100%'
+                  display: "flex",
+                  justifyContent: "flex-start",
+                  width: "100%",
                 }}
               >
-                <td style={{ flex: '1' }}>{productName}</td>
-                <td style={{ flex: '1' }}>{description}</td>
+                <td style={{ flex: "1" }}>{productName}</td>
+                <td style={{ flex: "1" }}>{description}</td>
                 <td
                   style={{
-                    flex: '1',
-                    display: 'flex',
-                    justifyContent: 'flex-end'
+                    flex: "1",
+                    display: "flex",
+                    justifyContent: "flex-end",
                   }}
                 >
                   {formatNumber(price.toFixed(2))}
                 </td>
                 <td
                   style={{
-                    flex: '1',
-                    display: 'flex',
-                    justifyContent: 'flex-end'
+                    flex: "1",
+                    display: "flex",
+                    justifyContent: "flex-end",
                   }}
                 >
                   {qty}
                 </td>
                 <td
                   style={{
-                    flex: '1',
-                    display: 'flex',
-                    justifyContent: 'flex-end'
+                    flex: "1",
+                    display: "flex",
+                    justifyContent: "flex-end",
                   }}
                 >
                   {formatNumber((parseInt(qty) * parseInt(price)).toFixed(2))}
@@ -267,36 +268,36 @@ const PrintDocument = ({
             ) : null
           })}
         </table>
-        <table style={{ width: '100%' }}>
+        <table style={{ width: "100%" }}>
           <tr
             style={{
-              display: 'flex',
-              justifyContent: 'flex-start',
-              width: '100%',
-              borderTop: '1px solid #eee'
+              display: "flex",
+              justifyContent: "flex-start",
+              width: "100%",
+              borderTop: "1px solid #eee",
             }}
           >
             <th
               style={{
-                flex: '1',
-                display: 'flex',
-                justifyContent: 'flex-start'
+                flex: "1",
+                display: "flex",
+                justifyContent: "flex-start",
               }}
             >
               Total
             </th>
             <th
               style={{
-                flex: '1',
-                display: 'flex',
-                justifyContent: 'flex-start'
+                flex: "1",
+                display: "flex",
+                justifyContent: "flex-start",
               }}
             />
             <th
-              style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}
+              style={{ flex: "1", display: "flex", justifyContent: "flex-end" }}
             />
             <th
-              style={{ flex: '1', display: 'flex', justifyContent: 'flex-end' }}
+              style={{ flex: "1", display: "flex", justifyContent: "flex-end" }}
             >
               {formatNumber(subTotal.toFixed(2))}
             </th>
@@ -305,21 +306,39 @@ const PrintDocument = ({
       </Footer>
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-start',
-          backgroundColor: 'pink',
-          width: '90vw'
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          backgroundColor: "pink",
+          width: "90vw",
         }}
       >
         <Label>Remarks</Label>
         <div>
           <textarea
             value={data?.remarks}
-            style={{ width: '100%', border: 'none', height: '5rem' }}
+            style={{ width: "100%", border: "none", height: "5rem" }}
           />
         </div>
       </div>
+      <Space
+        direction="vertical"
+        style={{
+          width: "100%",
+          padding: "0rem 2.9rem",
+        }}
+      >
+        <span>
+          <i>You may pay your bill to:</i>
+        </span>
+        <div style={{ paddingTop: ".1rem" }}></div>
+        <span>Bank Name: BDO</span>
+        <span>Bank Account #: 00143-0033-981</span>
+        <span>Account Name: Karlene Therese T. Pelayo</span>
+        <div style={{ paddingTop: ".1rem" }}></div>
+        <span>GCash #: 0917-880-2000</span>
+        <span>GCash Name: Karlene Therese T. Pelayo</span>
+      </Space>
     </Container>
   )
 }
@@ -329,7 +348,7 @@ export default (props) => {
   return (
     <Print
       component={<PrintDocument {...props} />}
-      button='Print'
+      button="Print"
       triggeredClicked={() => setTriggeredClicked(true)}
     />
   )

@@ -6,6 +6,7 @@ import {
   DATE_START,
   ORDER_NO,
   ORDER_VIA,
+  ORDER_VIA_PARTNER,
   SOURCE,
 } from "Restructured/Constants/schedules"
 import {
@@ -15,32 +16,18 @@ import {
   MODE_PAYMENT,
   REF_NO,
 } from "components/PaymentDetails/types"
-const tableColumns = [
+const tableColumnsPartner = [
   {
     title: "DATE PLACED",
     dataIndex: DATE_ORDER_PLACED,
     key: DATE_ORDER_PLACED,
     render: (text) => <a>{text}</a>,
-    width: "8%",
+    innerWidth: 22,
   },
   {
     title: "ORDER #",
     dataIndex: ORDER_NO,
     key: ORDER_NO,
-    width: "10%",
-    render: (data, record) => {
-      const others = []
-      if (record?.others) {
-        for (const key in record?.others) {
-          others.push(key)
-        }
-      }
-      if (others.length > 0) {
-        return <span style={{ fontWeigth: "bold", color: "red" }}>{data}</span>
-      } else {
-        return <span>{data}</span>
-      }
-    },
   },
   {
     title: "NAME",
@@ -51,11 +38,6 @@ const tableColumns = [
     title: "CONTACT #",
     dataIndex: CONTACT_NUMBER,
     key: CONTACT_NUMBER,
-  },
-  {
-    title: "VIA",
-    dataIndex: ORDER_VIA,
-    key: ORDER_VIA,
   },
   // {
   //   title: "DATE ORDER",
@@ -102,7 +84,6 @@ const tableColumns = [
     dataIndex: "balanceDue",
     key: "balanceDue",
     align: "right",
-    render: (data) => <span>{Number(data).toFixed(2)}</span>,
   },
   // {
   //   title: "TOTAL AMOUNT",
@@ -161,4 +142,4 @@ const tableColumns = [
   },
 ]
 
-export default tableColumns
+export default tableColumnsPartner

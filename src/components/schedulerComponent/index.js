@@ -54,8 +54,7 @@ import {
   setId,
   clearId,
 } from "./orderSlip/schedulerOpenedIdSlice"
-import useOrderNoCounter from "./orderSlip/hookOrderNoCounter"
-
+import { ORDER_VIA_PARTNER } from "Restructured/Constants/schedules"
 function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
   const [handleCount] = useOrderNoCounter()
   const dropdowns = useGetDropdowns()
@@ -287,13 +286,13 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
     // element.style.background = branchColors[data[BRANCH]]
     if (data?.status) {
       if (data?.status === "PENDING PAYMENT") {
-        if (data?.orderVia) {
+        if (data[ORDER_VIA]) {
           element.style.background = "yellow"
           element.style.color = "#666"
         }
-        if (data?.orderViaPartner) {
+        if (data[ORDER_VIA_PARTNER]) {
           element.style.background = "pink"
-          element.style.color = "black"
+          element.style.color = "#333"
         }
       }
       if (data?.status === "FULFILLED") {
