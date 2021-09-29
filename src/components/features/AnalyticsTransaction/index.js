@@ -162,7 +162,10 @@ function AnalyticsTransaction() {
               <br />
               <h3>DAILY SUMMARY</h3>
               <br />
-              <TableDailySummaryContent />
+              <TableDailySummaryContent
+                filteredData={filteredData}
+                dateList={startTimeDateList}
+              />
             </Grid>
           </Col>
         </Row>
