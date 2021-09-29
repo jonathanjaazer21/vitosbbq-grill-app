@@ -1,8 +1,8 @@
 import React, { useEffect } from "react"
 import { Space, Table } from "antd"
-import useDirectOrders from "./directOrdersHook"
+import useDirectOrders from "./hookDirectOrders"
 import { VerticalAutoScroll } from "./styles"
-import usePartnerOrderHook from "./partnerOrdersHook"
+import usePartnerOrderHook from "./hookPartnerOrders"
 import tableColumnsPartner from "./tableColumnsPartner"
 
 function TablePartnerOrderContents({

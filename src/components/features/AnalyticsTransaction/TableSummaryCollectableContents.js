@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 import { Table } from "antd"
 import { VerticalAutoScroll } from "./styles"
-import useSummaryOfCollectibles from "./summaryOfCollectiblesHook"
+import useSummaryOfCollectibles from "./hookSummaryOfCollectibles"
 import { DATE_START } from "components/SchedulerComponent/orderSlip/types"
 
 function TableSummaryCollectableContents({
