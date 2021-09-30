@@ -58,7 +58,6 @@ export default class ExportService {
 
   static exportExcelReports(sheets, additionalParams = []) {
     const workBook = XLSX.utils.book_new()
-    console.log("sheets", sheets)
     for (const key in sheets) {
       switch (key) {
         case "dSummary":

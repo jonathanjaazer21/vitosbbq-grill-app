@@ -49,6 +49,12 @@ function TableDirectOrderContents({ filteredData, dateString, tableProps }) {
                 key: "description",
               },
               {
+                title: "Amount Due",
+                dataIndex: "totalDue",
+                key: "totalDue",
+                align: "right",
+              },
+              {
                 title: "Discount",
                 dataIndex: "discount",
                 key: "discount",

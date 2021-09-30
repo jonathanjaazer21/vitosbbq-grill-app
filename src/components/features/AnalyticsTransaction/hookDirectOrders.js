@@ -22,6 +22,14 @@ import sumArray, {
 const handlePartials = (data) => {
   const dataWithPartials = []
   for (const obj of data) {
+    // determine if discount exist
+    let others = 0
+    if (typeof obj?.others !== "undefined") {
+      for (const key in obj?.others) {
+        others = obj?.others[key]
+        break
+      }
+    }
     const partials = typeof obj?.partials === "undefined" ? [] : obj?.partials
     if (partials.length > 0) {
       let balanceDue = Number(obj.totalDue)
@@ -49,18 +57,21 @@ const handlePartials = (data) => {
       }
     } else {
       const balanceDue = Number(obj.totalDue)
-      const paymentType =
+      let paymentType =
         Number(obj.totalDue) === Number(obj.amountPaid)
           ? "Full"
           : Number(obj.amountPaid) === 0 ||
             typeof obj?.amountPaid === "undefined"
           ? "No Payment"
           : ""
+
+      paymentType = others ? "Discounted" : paymentType
       const amountPaid = obj?.amountPaid ? obj?.amountPaid : "0.00"
+      const totalBalance = balanceDue - Number(amountPaid) - Number(others)
       dataWithPartials.push({
         ...obj,
         partials: paymentType,
-        balanceDue: balanceDue.toFixed(2),
+        balanceDue: totalBalance,
         amountPaid,
       })
     }
@@ -76,12 +87,13 @@ export default function useDirectOrders() {
   const [discounts, setDiscounts] = useState([])
 
   const handleData = (filteredData = [], dateString) => {
-    const _data = filteredData.filter(
-      (row) =>
+    const _data = filteredData.filter((row) => {
+      return (
         row[DATE_START] === dateString &&
         row[ORDER_VIA] &&
         row[STATUS] !== "CANCELLED"
-    )
+      )
+    })
     const dataWithPartials = handlePartials(_data)
     const grandTotalDue = handleGrandTotalDue(_data)
     const discounts = handleDiscounts(_data)
@@ -115,10 +127,30 @@ export default function useDirectOrders() {
     )
     const dataWithPartials = handlePartials(_data)
     const grandTotalDue = handleGrandTotalDue(_data)
+    const discounts = handleDiscounts(_data)
     const grandTotalAmountPaid = handleGrandTotalAmountPaid(_data)
     const summaryOfSource = handleSummary(dataWithPartials)
     const grandTotalSource = handleGrandTotalSource(summaryOfSource)
-    return dataWithPartials
+    const grandTotalObj = [
+      {
+        amountPaid: grandTotalAmountPaid,
+        [DATE_ORDER_PLACED]: "Grand Total",
+        balanceDue: grandTotalDue,
+      },
+    ]
+    const grandTotalSourceObj = [
+      {
+        amountPaid: Number(grandTotalSource).toFixed(2),
+        [SOURCE]: "Total",
+      },
+    ]
+    return [
+      dataWithPartials,
+      grandTotalObj,
+      summaryOfSource,
+      grandTotalSourceObj,
+      discounts,
+    ]
   }
 
   const handleSummary = (data) => {
@@ -151,7 +183,8 @@ export default function useDirectOrders() {
         for (const key in obj?.others) {
           rowWithExistDiscount.push({
             description: key,
-            discount: obj?.others[key],
+            totalDue: obj?.totalDue,
+            discount: Number(obj?.others[key]).toFixed(2),
             orderNo: obj.orderNo,
           })
           break

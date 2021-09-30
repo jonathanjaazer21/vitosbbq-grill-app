@@ -13,20 +13,22 @@ function TableDailySummaryContent({ filteredData = [], dateList = [] }) {
   }, [filteredData, dateList])
   return (
     <VerticalAutoScroll>
-      <Table
-        dataSource={[...data, ...grandTotal]}
-        pagination={false}
-        size="small"
-        columns={[
-          { title: "Date Served", key: DATE_START, dataIndex: DATE_START },
-          {
-            title: "Amount Paid",
-            dataIndex: AMOUNT_PAID,
-            key: AMOUNT_PAID,
-            align: "right",
-          },
-        ]}
-      />
+      <div style={{ padding: "1rem", backgroundColor: "#eee", height: "80vh" }}>
+        <Table
+          dataSource={[...data, ...grandTotal]}
+          pagination={false}
+          size="small"
+          columns={[
+            { title: "Date Served", key: DATE_START, dataIndex: DATE_START },
+            {
+              title: "Amount Paid",
+              dataIndex: AMOUNT_PAID,
+              key: AMOUNT_PAID,
+              align: "right",
+            },
+          ]}
+        />
+      </div>
     </VerticalAutoScroll>
   )
 }
