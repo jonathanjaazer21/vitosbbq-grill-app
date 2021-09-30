@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { Button, DatePicker, Card, Space, Typography, Row, Col } from "antd"
 import { Grid } from "Restructured/Styles"
 import { SearchOutlined, ArrowLeftOutlined } from "@ant-design/icons"
@@ -11,6 +11,8 @@ import { VerticalAutoScroll } from "./styles"
 import usePartnerOrderHook from "./hookPartnerOrders"
 import TableSummaryCollectableContents from "./TableSummaryCollectableContents"
 import TableDailySummaryContent from "./TableDailySummaryContent"
+import ExportService from "Restructured/Components/Features/ExcelExporter/ExportService"
+import useExcelExport from "./hookExcelExporter"
 const { TabPane } = Tabs
 const { RangePicker } = DatePicker
 
@@ -21,6 +23,7 @@ const style = {
 }
 
 function AnalyticsTransaction() {
+  /// main hook
   const [
     { rangeProps, searchButtonProps, tableProps },
     filteredData,
@@ -29,6 +32,7 @@ function AnalyticsTransaction() {
     orderViaPartnerList,
   ] = useAnalyticsTransaction()
 
+  /// partner orders hook
   const [
     partnerOrderData,
     summaryOfSource,
@@ -37,11 +41,30 @@ function AnalyticsTransaction() {
     handlePartnerOrderData,
     handlePartnerOrderExcel,
   ] = usePartnerOrderHook()
+
+  const { exportHandler } = useExcelExport()
+
+  const handleExport = () => {
+    const data = exportHandler(
+      filteredData,
+      startTimeDateList,
+      sourceList,
+      orderViaPartnerList
+    )
+    ExportService.exportExcelReports(
+      {
+        ...data,
+      },
+      [[]]
+    )
+  }
   return (
     <>
       <Grid>
         <Space direction="horizontal" style={style}>
-          <span></span>
+          <span>
+            <Button onClick={handleExport}>Export</Button>
+          </span>
           <Space wrap>
             Date Order:
             <RangePicker {...rangeProps} />

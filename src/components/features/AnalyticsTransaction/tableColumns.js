@@ -140,6 +140,13 @@ const tableColumns = [
     title: "PAYMENT TYPE",
     dataIndex: "partials",
     key: "partials",
+    render: (data) => {
+      if (data === "Discounted") {
+        return <span style={{ color: "red" }}>{data}</span>
+      } else {
+        return <span>{data}</span>
+      }
+    },
   },
   {
     title: "STATUS",
