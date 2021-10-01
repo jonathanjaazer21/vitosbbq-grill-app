@@ -17,72 +17,14 @@ import {
 import sumArray, {
   sumArrayOfObjectsGrouping,
 } from "Restructured/Utilities/sumArray"
-
-const handlePartials = (data) => {
-  const dataWithPartials = []
-  for (const obj of data) {
-    // determine if discount exist
-    let others = 0
-    if (typeof obj?.others !== "undefined") {
-      for (const key in obj?.others) {
-        others = obj?.others[key]
-        break
-      }
-    }
-    const partials = typeof obj?.partials === "undefined" ? [] : obj?.partials
-    if (partials.length > 0) {
-      let balanceDue = Number(obj.totalDue)
-      for (const {
-        accountNumber,
-        amount,
-        modePayment,
-        refNo,
-        source,
-        date,
-      } of obj?.partials) {
-        const datePayment = formatDateFromDatabase(date)
-        balanceDue = balanceDue - Number(amount)
-        dataWithPartials.push({
-          ...obj,
-          accountNumber,
-          amountPaid: amount,
-          balanceDue,
-          refNo,
-          modePayment,
-          source,
-          [DATE_PAYMENT]: formatDateDash(datePayment),
-          partials: "Partial",
-        })
-      }
-    } else {
-      const balanceDue = Number(obj.totalDue)
-      let paymentType =
-        Number(obj.totalDue) === Number(obj.amountPaid)
-          ? "Full"
-          : Number(obj.amountPaid) === 0 ||
-            typeof obj?.amountPaid === "undefined"
-          ? "No Payment"
-          : ""
-
-      paymentType = others ? "Discounted" : paymentType
-      const amountPaid = obj?.amountPaid ? obj?.amountPaid : "0.00"
-      const totalBalance = balanceDue - Number(amountPaid) - Number(others)
-      dataWithPartials.push({
-        ...obj,
-        partials: paymentType,
-        balanceDue: totalBalance,
-        amountPaid,
-      })
-    }
-  }
-  return dataWithPartials
-}
+import { handlePartials } from "./hookDirectOrders"
 
 export default function usePartnerOrderHook() {
   const [data, setData] = useState([])
   const [grandTotal, setGrandTotal] = useState([])
   const [summaryOfSource, setSummaryOfSource] = useState([])
   const [grandTotalSourceSum, setGrandTotalSourceSum] = useState([])
+  const [discounts, setDiscounts] = useState([])
 
   const handleData = (filteredData = [], dateString, orderViaPartner) => {
     const _data = filteredData.filter(
@@ -101,7 +43,7 @@ export default function usePartnerOrderHook() {
       {
         amountPaid: grandTotalAmountPaid,
         [DATE_ORDER_PLACED]: "Grand Total",
-        balanceDue: grandTotalDue,
+        totalDue: grandTotalDue,
       },
     ])
     setGrandTotalSourceSum([
@@ -110,6 +52,7 @@ export default function usePartnerOrderHook() {
         [SOURCE]: "Total",
       },
     ])
+    setDiscounts(discounts)
     setSummaryOfSource(summaryOfSource)
     setData(dataWithPartials)
   }
@@ -131,7 +74,7 @@ export default function usePartnerOrderHook() {
       {
         amountPaid: grandTotalAmountPaid,
         [DATE_ORDER_PLACED]: "Grand Total",
-        balanceDue: grandTotalDue,
+        totalDue: grandTotalDue,
       },
     ]
     const grandTotalSourceObj = [
@@ -197,5 +140,6 @@ export default function usePartnerOrderHook() {
     grandTotalSourceSum,
     handleData,
     handleExcel,
+    discounts,
   ]
 }

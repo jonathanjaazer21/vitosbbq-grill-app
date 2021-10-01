@@ -18,13 +18,17 @@ import {
 import sumArray, {
   sumArrayOfObjectsGrouping,
 } from "Restructured/Utilities/sumArray"
+import { handlePartials } from "./hookDirectOrders"
 
 export default function useSummaryOfCollectibles() {
   const [data, setData] = useState([])
   const [grandTotal, setGrandTotal] = useState([])
 
   const handleData = (filteredData = [], dateString, source) => {
-    const new_data = filteredData.filter((row) => row?.source === source)
+    const dataWithPartials = handlePartials(filteredData)
+    const new_data = dataWithPartials.filter((row) => {
+      return row?.source === source && row[STATUS] !== "CANCELLED"
+    })
     const summary = sumArrayOfObjectsGrouping(new_data, DATE_START, AMOUNT_PAID)
     const _grandTotal = sumArray(summary, AMOUNT_PAID)
     setGrandTotal([

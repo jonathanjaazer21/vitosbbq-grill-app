@@ -17,6 +17,8 @@ function TablePartnerOrderContents({
     grandTotal,
     grandTotalSourceSum,
     handlePartnerOrderData,
+    handleExcel,
+    discounts,
   ] = usePartnerOrderHook()
   useEffect(() => {
     if (filteredData.length > 0) {
@@ -25,6 +27,8 @@ function TablePartnerOrderContents({
   }, [filteredData, dateString])
 
   const tablePropsCopy = { ...tableProps }
+
+  // delete columns that is originally used by direct orders table (the difference is only via column)
   delete tablePropsCopy.columns
   return (
     <VerticalAutoScroll>
@@ -45,6 +49,31 @@ function TablePartnerOrderContents({
                 title: "Amount Paid",
                 dataIndex: "amountPaid",
                 key: "amountPaid",
+                align: "right",
+              },
+            ]}
+          />
+          <Table
+            dataSource={[...discounts]}
+            pagination={false}
+            size="small"
+            columns={[
+              { title: "Order No", key: "orderNo", dataIndex: "orderNo" },
+              {
+                title: "Description",
+                dataIndex: "description",
+                key: "description",
+              },
+              {
+                title: "Amount Due",
+                dataIndex: "totalDue",
+                key: "totalDue",
+                align: "right",
+              },
+              {
+                title: "Discount",
+                dataIndex: "discount",
+                key: "discount",
                 align: "right",
               },
             ]}

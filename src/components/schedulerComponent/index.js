@@ -46,7 +46,7 @@ import { selectOrderComponentSlice } from "components/SchedulerComponent/orderSl
 
 import "./app.component.css"
 import { useGetDropdowns } from "./dropdowns"
-import { selectUserSlice } from "containers/0.login/loginSlice"
+import { selectUserSlice } from "containers/0.NewLogin/loginSlice"
 import { CustomButton } from "./styles"
 import getWeekOfDate from "Restructured/Utilities/getWeekOfDate"
 import {

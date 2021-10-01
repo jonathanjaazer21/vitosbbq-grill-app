@@ -29,13 +29,7 @@ const tableColumns = [
     key: ORDER_NO,
     width: "10%",
     render: (data, record) => {
-      const others = []
-      if (record?.others) {
-        for (const key in record?.others) {
-          others.push(key)
-        }
-      }
-      if (others.length > 0) {
+      if (record?.others > 0) {
         return <span style={{ fontWeigth: "bold", color: "red" }}>{data}</span>
       } else {
         return <span>{data}</span>
@@ -98,18 +92,33 @@ const tableColumns = [
     key: ACCOUNT_NUMBER,
   },
   {
-    title: "BALANCE DUE",
-    dataIndex: "balanceDue",
-    key: "balanceDue",
+    title: "TOTAL DUE",
+    dataIndex: "totalDue",
+    key: "totalDue",
     align: "right",
-    render: (data) => <span>{Number(data).toFixed(2)}</span>,
+    render: (data, record) => {
+      if (data === 0) {
+        if (record?.partials === "Partial") {
+          return <span>__</span>
+        } else {
+          return <span>{data}</span>
+        }
+      }
+      return <span>{Number(data).toFixed(2)}</span>
+    },
   },
-  // {
-  //   title: "TOTAL AMOUNT",
-  //   dataIndex: "totalDue",
-  //   key: "totalDue",
-  //   align: "right",
-  // },
+  {
+    title: "DISC",
+    dataIndex: "others",
+    key: "others",
+    align: "right",
+    render: (data) => {
+      if (data > 0) {
+        return <span style={{ color: "red" }}>{Number(data).toFixed(2)}</span>
+      }
+      return <span>{data}</span>
+    },
+  },
   {
     title: "AMOUNT PAID",
     dataIndex: "amountPaid",
@@ -117,6 +126,24 @@ const tableColumns = [
     align: "right",
     render: (data) => <span>{Number(data).toFixed(2)}</span>,
   },
+  {
+    title: "BALANCE DUE",
+    dataIndex: "balanceDue",
+    key: "balanceDue",
+    align: "right",
+    render: (data) => {
+      if (data) {
+        return <span>{Number(data).toFixed(2)}</span>
+      }
+      return <span>{data}</span>
+    },
+  },
+  // {
+  //   title: "TOTAL AMOUNT",
+  //   dataIndex: "totalDue",
+  //   key: "totalDue",
+  //   align: "right",
+  // },
   // {
   //   title: "OTHERS/DEDUCTION",
   //   dataIndex: "others",

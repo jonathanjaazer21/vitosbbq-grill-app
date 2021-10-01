@@ -19,7 +19,7 @@ import sumArray, {
   sumArrayOfObjectsGrouping,
 } from "Restructured/Utilities/sumArray"
 
-const handlePartials = (data) => {
+export const handlePartials = (data) => {
   const dataWithPartials = []
   for (const obj of data) {
     // determine if discount exist
@@ -33,6 +33,8 @@ const handlePartials = (data) => {
     const partials = typeof obj?.partials === "undefined" ? [] : obj?.partials
     if (partials.length > 0) {
       let balanceDue = Number(obj.totalDue)
+      // this count is use to blank __ the totalDue and insert the amount to the first partial payment
+      let count = 0
       for (const {
         accountNumber,
         amount,
@@ -41,16 +43,19 @@ const handlePartials = (data) => {
         source,
         date,
       } of obj?.partials) {
+        count = count + 1
         const datePayment = formatDateFromDatabase(date)
         balanceDue = balanceDue - Number(amount)
         dataWithPartials.push({
           ...obj,
           accountNumber,
           amountPaid: amount,
-          balanceDue,
+          balanceDue: balanceDue - others,
           refNo,
           modePayment,
+          others: count === 1 ? others : 0,
           source,
+          totalDue: count === 1 ? obj?.totalDue : 0,
           [DATE_PAYMENT]: formatDateDash(datePayment),
           partials: "Partial",
         })
@@ -70,6 +75,7 @@ const handlePartials = (data) => {
       const totalBalance = balanceDue - Number(amountPaid) - Number(others)
       dataWithPartials.push({
         ...obj,
+        others: others,
         partials: paymentType,
         balanceDue: totalBalance,
         amountPaid,
@@ -104,7 +110,7 @@ export default function useDirectOrders() {
       {
         amountPaid: grandTotalAmountPaid,
         [DATE_ORDER_PLACED]: "Grand Total",
-        balanceDue: grandTotalDue,
+        totalDue: grandTotalDue,
       },
     ])
     setGrandTotalSourceSum([
@@ -135,7 +141,7 @@ export default function useDirectOrders() {
       {
         amountPaid: grandTotalAmountPaid,
         [DATE_ORDER_PLACED]: "Grand Total",
-        balanceDue: grandTotalDue,
+        totalDue: grandTotalDue,
       },
     ]
     const grandTotalSourceObj = [

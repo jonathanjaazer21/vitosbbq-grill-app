@@ -20,6 +20,7 @@ import {
   ORDER_VIA_PARTNER,
 } from "Restructured/Constants/schedules"
 import { DATE_PAYMENT } from "components/PaymentDetails/types"
+import { handlePartials } from "./hookDirectOrders"
 
 export default function useAnalyticsTransaction() {
   const userComponent = useSelector(selectUserSlice)
@@ -37,9 +38,9 @@ export default function useAnalyticsTransaction() {
     const _filteredData = []
     const _startTimeDateList = []
     const _orderViaPartnerList = []
-    const _sourceList = []
 
-    // filtering of each row data from database
+    handleSourceList(rangeHandlerFilteredData?.searchData)
+    // filtering each row data from database
     for (const obj of rangeHandlerFilteredData?.searchData) {
       const dateOrderPlaced = formatDateFromDatabase(obj[DATE_ORDER_PLACED])
       const startTime = formatDateFromDatabase(obj[DATE_START])
@@ -48,13 +49,6 @@ export default function useAnalyticsTransaction() {
       // to create a list of dates start base from filter
       if (!_startTimeDateList.includes(formatDateDash(startTime))) {
         _startTimeDateList.push(formatDateDash(startTime))
-      }
-
-      // produce list of sources
-      if (obj?.source) {
-        if (!_sourceList.includes(obj?.source)) {
-          _sourceList.push(obj?.source)
-        }
       }
 
       // to create a list of order via partners
@@ -75,11 +69,24 @@ export default function useAnalyticsTransaction() {
     }
 
     // set the data gathered inside the state
-    setSourceList(_sourceList)
     setStartTimeDateList(_startTimeDateList)
     setOrderViaPartnerList(_orderViaPartnerList)
     setFilteredData(_filteredData)
   }, [rangeHandlerFilteredData?.searchData])
+
+  const handleSourceList = (data) => {
+    const dataWithPartials = handlePartials(data)
+    const _sourceList = []
+    // produce list of sources
+    for (const obj of dataWithPartials) {
+      if (obj?.source) {
+        if (!_sourceList.includes(obj?.source)) {
+          _sourceList.push(obj?.source)
+        }
+      }
+    }
+    setSourceList(_sourceList)
+  }
 
   const searchHandler = () => {
     loadRangeHandlerData({
