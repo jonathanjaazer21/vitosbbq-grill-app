@@ -28,6 +28,14 @@ const tableColumnsPartner = [
     title: "ORDER #",
     dataIndex: ORDER_NO,
     key: ORDER_NO,
+    width: "10%",
+    render: (data, record) => {
+      if (record?.others > 0) {
+        return <span style={{ fontWeigth: "bold", color: "red" }}>{data}</span>
+      } else {
+        return <span>{data}</span>
+      }
+    },
   },
   {
     title: "NAME",
@@ -80,17 +88,29 @@ const tableColumnsPartner = [
     key: ACCOUNT_NUMBER,
   },
   {
-    title: "BALANCE DUE",
-    dataIndex: "balanceDue",
-    key: "balanceDue",
+    title: "TOTAL DUE",
+    dataIndex: "totalDue",
+    key: "totalDue",
     align: "right",
+    render: (data) => {
+      if (data === "__") {
+        return <span>{data}</span>
+      }
+      return <span>{Number(data).toFixed(2)}</span>
+    },
   },
-  // {
-  //   title: "TOTAL AMOUNT",
-  //   dataIndex: "totalDue",
-  //   key: "totalDue",
-  //   align: "right",
-  // },
+  {
+    title: "DISC",
+    dataIndex: "others",
+    key: "others",
+    align: "right",
+    render: (data) => {
+      if (data > 0) {
+        return <span style={{ color: "red" }}>{Number(data).toFixed(2)}</span>
+      }
+      return <span>{data}</span>
+    },
+  },
   {
     title: "AMOUNT PAID",
     dataIndex: "amountPaid",
@@ -98,6 +118,24 @@ const tableColumnsPartner = [
     align: "right",
     render: (data) => <span>{Number(data).toFixed(2)}</span>,
   },
+  {
+    title: "BALANCE DUE",
+    dataIndex: "balanceDue",
+    key: "balanceDue",
+    align: "right",
+    render: (data) => {
+      if (data) {
+        return <span>{Number(data).toFixed(2)}</span>
+      }
+      return <span>{data}</span>
+    },
+  },
+  // {
+  //   title: "TOTAL AMOUNT",
+  //   dataIndex: "totalDue",
+  //   key: "totalDue",
+  //   align: "right",
+  // },
   // {
   //   title: "OTHERS/DEDUCTION",
   //   dataIndex: "others",

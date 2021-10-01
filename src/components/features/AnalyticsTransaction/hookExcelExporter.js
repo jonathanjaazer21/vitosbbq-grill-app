@@ -11,8 +11,11 @@ import {
   SOURCE,
   STATUS,
 } from "Restructured/Constants/schedules"
+import { useSelector } from "react-redux"
+import { selectUserSlice } from "containers/0.NewLogin/loginSlice"
 
 export default function useExcelExport() {
+  const userComponentSlice = useSelector(selectUserSlice)
   /// direct orders hook
   const [
     directData,
@@ -43,9 +46,6 @@ export default function useExcelExport() {
     for (const date of startTimeDateList) {
       const _directData = [...directHandleExcel(filteredData, date)]
       const _partnerData = [...partnerHandleExcel(filteredData, date)]
-      console.log(date)
-      console.log("_directData", _directData)
-      console.log("_partnerData", _partnerData)
       if (_directData.length > 0) {
         const rowData = [..._directData[0]]
         const grandTotal = [..._directData[1]]
@@ -82,8 +82,10 @@ export default function useExcelExport() {
             "SOURCE",
             "REF #",
             "ACCT #",
-            "BALANCE DUE",
+            "TOTAL DUE",
+            "DISCOUNT",
             "AMOUNT PAID",
+            "BALANCE DUE",
             "PAYMENT TYPE",
             "STATUS",
           ])
@@ -101,8 +103,10 @@ export default function useExcelExport() {
                 row[SOURCE],
                 row?.refNo,
                 row?.accountNumber,
-                row?.balanceDue,
+                row?.totalDue === 0 ? "__" : row?.totalDue,
+                row?.others,
                 row?.amountPaid,
+                row?.balanceDue,
                 row?.partials,
                 row[STATUS],
               ])
@@ -121,7 +125,11 @@ export default function useExcelExport() {
             "",
             "",
             "",
-            Number(grandTotalObj?.amountPaid).toFixed(2),
+            "",
+            Number(grandTotalObj?.amountPaid),
+            "",
+            "",
+            "",
           ])
         }
       }

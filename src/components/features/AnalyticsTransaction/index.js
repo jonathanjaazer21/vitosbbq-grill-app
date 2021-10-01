@@ -51,19 +51,25 @@ function AnalyticsTransaction() {
       sourceList,
       orderViaPartnerList
     )
-    ExportService.exportExcelReports(
-      {
-        ...data,
-      },
-      [[]]
-    )
+    if (Object.keys(data).length > 0) {
+      ExportService.exportExcelReports(
+        {
+          ...data,
+        },
+        [[]]
+      )
+    }
   }
   return (
     <>
       <Grid>
         <Space direction="horizontal" style={style}>
           <span>
-            <Button onClick={handleExport}>Export</Button>
+            {filteredData.length > 0 && (
+              <Button danger type="primary" onClick={handleExport}>
+                Export Excel
+              </Button>
+            )}
           </span>
           <Space wrap>
             Date Order:
@@ -104,7 +110,7 @@ function AnalyticsTransaction() {
                   </Card>
                   <br />
                   {orderViaPartnerList.map((viaPartner) => {
-                    const dataWithPartials = handlePartnerOrderExcel(
+                    const [dataWithPartials] = handlePartnerOrderExcel(
                       filteredData,
                       date,
                       viaPartner
