@@ -31,8 +31,10 @@ import {
   formatDateSlash,
   formatTime,
 } from "Restructured/Utilities/dateFormat"
+import useOrderNoCounter from "./hookOrderNoCounter"
 
 function OrderSlip(props) {
+  const [handleCount] = useOrderNoCounter()
   const dispatch = useDispatch()
   const [logs] = useGetLogs()
   const selectSchedulerComponent = useSelector(selectSchedulerComponentSlice)
@@ -73,6 +75,11 @@ function OrderSlip(props) {
       }
     }
     dispatch(setOrderNo({ branch: "Ronac", value: parseInt(latestNumber) + 1 }))
+  }
+
+  const testFunc = async () => {
+    const data = await handleCount("Libis")
+    console.log("d", data)
   }
   return props !== undefined ? (
     <div className={classes.container}>
