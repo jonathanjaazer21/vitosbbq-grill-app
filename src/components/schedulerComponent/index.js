@@ -54,8 +54,10 @@ import {
   setId,
   clearId,
 } from "./orderSlip/schedulerOpenedIdSlice"
-import { ORDER_VIA_PARTNER } from "Restructured/Constants/schedules"
+import useOrderNoCounter from "./orderSlip/hookOrderNoCounter"
+
 function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
+  const [handleCount] = useOrderNoCounter()
   const dropdowns = useGetDropdowns()
   const dispatch = useDispatch()
   const userComponentSlice = useSelector(selectUserSlice)
@@ -153,7 +155,14 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
           }
         }
         if (schedules.length > 0) {
-          dispatch(setSchedules(schedules))
+          const branch =
+            userComponentSlice.branches.length > 0
+              ? userComponentSlice.branches[0]
+              : ""
+          const branchSchedules = schedules.filter(
+            (row) => row[BRANCH] === branch
+          )
+          dispatch(setSchedules(branchSchedules))
         }
         setLoading(false)
       })
@@ -186,7 +195,7 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
     }
   }, [])
 
-  const onActionBegin = (args) => {
+  const onActionBegin = async (args) => {
     console.log("type", args)
     if (args.requestType === "eventChange") {
       const data = {
@@ -218,9 +227,13 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
     } else if (args.requestType === "eventCreate") {
       const data = args.addedRecords[0]
       data.Subject = data[CUSTOMER]
-      const orderNo = data?.branch
-        ? selectOrderSlice[data[BRANCH]]
-        : selectOrderSlice.Libis
+
+      if (userComponentSlice.branches.length === 0) return
+      const orderNo = await handleCount(userComponentSlice.branches[0])
+      if (orderNo === null) return
+      // const orderNo = data?.branch
+      //   ? selectOrderSlice[data[BRANCH]]
+      //   : selectOrderSlice.Libis
       const dataToBeSend = schedulerSchema({
         ...data,
         [ORDER_NO]: orderNo,
@@ -296,10 +309,6 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
       if (data?.status === "CANCELLED") {
         element.style.background = "orange"
         element.style.color = "#333"
-      }
-      if (data?.status === "PAID") {
-        element.style.background = "transparent"
-        element.style.color = "#666"
       }
     } else {
       element.style.background = "transparent"

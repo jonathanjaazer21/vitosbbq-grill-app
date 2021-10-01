@@ -1,4 +1,3 @@
-
 const twoDigitsYear = (date) => {
   const year = date.getFullYear()
   return year.toString().substr(-2)
@@ -22,10 +21,10 @@ const twoDigitsDay = (date) => {
   }
 }
 
-export default function () {
-  const date = new Date()
+export default function (d) {
+  const date = d ? new Date(d) : new Date()
   const year = twoDigitsYear(date)
   const month = twoDigitsMonth(date)
   const day = twoDigitsDay(date)
-  return month + '' + day + '' + year
+  return month + "" + day + "" + year
 }

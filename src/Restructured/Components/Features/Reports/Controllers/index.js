@@ -68,102 +68,17 @@ export default class Controllers {
 
       const _productsLength = Object.keys(productObj).length
       let _productCounts = 1
-
-      // starting point of the comments below replace by this codes
-      for (const key in productObj) {
-        const orderVia = _data[ORDER_VIA]
-        const orderViaPartner = _data[ORDER_VIA_PARTNER]
-        const _price =
-          typeof _data[`customPrice${key}`] === "undefined"
-            ? _productGroupHeaderAndPrice[key]?.price
-            : parseInt(_data[`customPrice${key}`])
-        if (orderVia) {
-          if (_productCounts === 1) {
-            tableData.DIRECT.push({
-              ..._data,
-              [CODE]: key,
-              [ORDER_NO]: _data[ORDER_NO],
-              [QUANTITY]: productObj[key],
-              [CUSTOMER]: _data[CUSTOMER],
-              [SOURCE]: _data[SOURCE] ? _data[SOURCE] : "",
-              [BRANCH]: _data[BRANCH],
-              [DATE_START]: formatTime(_startTime),
-              startDate: formatDateDash(_startTime),
-              [DATE_ORDER_PLACED]: formatDateDash(_datePlaced),
-              [REF_NO]: _data[REF_NO],
-              [ACCOUNT_NUMBER]: _data[ACCOUNT_NUMBER],
-              [MODE_PAYMENT]: _data[MODE_PAYMENT],
-              [DATE_PAYMENT]: _datePayment ? formatDateDash(_datePayment) : "",
-              [ORDER_VIA]: _data[ORDER_VIA],
-              [CONTACT_NUMBER]: _data[CONTACT_NUMBER],
-              status:
-                _productsLength === 1
-                  ? amountPaid < totalCost
-                    ? _data[STATUS]
-                    : "PAID"
-                  : "--",
-              amount: (_price * productObj[key]).toFixed(2),
-              less: _productsLength === 1 ? _data?.others : {},
-              amountPaid: _productsLength === 1 ? amountPaid.toFixed(2) : "--",
-            })
-          } else {
-            if (_productCounts === _productsLength) {
-              tableData.DIRECT.push({
-                ..._data,
-                [CODE]: key,
-                [ORDER_NO]: _data[ORDER_NO],
-                [QUANTITY]: productObj[key],
-                [CUSTOMER]: "--",
-                [SOURCE]: "--",
-                [BRANCH]: "--",
-                [DATE_START]: "--",
-                startDate: formatDateDash(_startTime),
-                [DATE_ORDER_PLACED]: "--",
-                [REF_NO]: "--",
-                [ACCOUNT_NUMBER]: "--",
-                [MODE_PAYMENT]: "--",
-                [DATE_PAYMENT]: "--",
-                [ORDER_VIA]: "--",
-                [CONTACT_NUMBER]: "--",
-                status: amountPaid < totalCost ? _data[STATUS] : "PAID",
-                amount: (_price * productObj[key]).toFixed(2),
-                amountPaid: amountPaid.toFixed(2),
-                less: _data?.others,
-              })
-            } else {
-              tableData.DIRECT.push({
-                ..._data,
-                [CODE]: key,
-                [ORDER_NO]: _data[ORDER_NO],
-                [QUANTITY]: productObj[key],
-                [CUSTOMER]: "--",
-                [SOURCE]: "--",
-                [BRANCH]: "--",
-                [DATE_START]: "--",
-                startDate: formatDateDash(_startTime),
-                [DATE_ORDER_PLACED]: "--",
-                [REF_NO]: "--",
-                [ACCOUNT_NUMBER]: "--",
-                [MODE_PAYMENT]: "--",
-                [DATE_PAYMENT]: "--",
-                [ORDER_VIA]: "--",
-                [CONTACT_NUMBER]: "--",
-                status: "--",
-                amount: (_price * productObj[key]).toFixed(2),
-                amountPaid: "--",
-                less: {},
-              })
-            }
-          }
-        } else {
-          console.log("PARTNER", _productsLength)
-          if (orderViaPartner) {
-            const viaType = `PARTNER MERCHANT ${orderViaPartner}`
+      if (_data[SOURCE]) {
+        for (const key in productObj) {
+          const orderVia = _data[ORDER_VIA]
+          const orderViaPartner = _data[ORDER_VIA_PARTNER]
+          const _price =
+            typeof _data[`customPrice${key}`] === "undefined"
+              ? _productGroupHeaderAndPrice[key]?.price
+              : parseInt(_data[`customPrice${key}`])
+          if (orderVia) {
             if (_productCounts === 1) {
-              if (typeof tableData[viaType] === "undefined") {
-                tableData[viaType] = []
-              }
-              tableData[viaType].push({
+              tableData.DIRECT.push({
                 ..._data,
                 [CODE]: key,
                 [ORDER_NO]: _data[ORDER_NO],
@@ -195,7 +110,7 @@ export default class Controllers {
               })
             } else {
               if (_productCounts === _productsLength) {
-                tableData[viaType].push({
+                tableData.DIRECT.push({
                   ..._data,
                   [CODE]: key,
                   [ORDER_NO]: _data[ORDER_NO],
@@ -218,7 +133,7 @@ export default class Controllers {
                   less: _data?.others,
                 })
               } else {
-                tableData[viaType].push({
+                tableData.DIRECT.push({
                   ..._data,
                   [CODE]: key,
                   [ORDER_NO]: _data[ORDER_NO],
@@ -242,15 +157,105 @@ export default class Controllers {
                 })
               }
             }
+          } else {
+            console.log("PARTNER", _productsLength)
+            if (orderViaPartner) {
+              const viaType = `PARTNER MERCHANT ${orderViaPartner}`
+              if (_productCounts === 1) {
+                if (typeof tableData[viaType] === "undefined") {
+                  tableData[viaType] = []
+                }
+                tableData[viaType].push({
+                  ..._data,
+                  [CODE]: key,
+                  [ORDER_NO]: _data[ORDER_NO],
+                  [QUANTITY]: productObj[key],
+                  [CUSTOMER]: _data[CUSTOMER],
+                  [SOURCE]: _data[SOURCE] ? _data[SOURCE] : "",
+                  [BRANCH]: _data[BRANCH],
+                  [DATE_START]: formatTime(_startTime),
+                  startDate: formatDateDash(_startTime),
+                  [DATE_ORDER_PLACED]: formatDateDash(_datePlaced),
+                  [REF_NO]: _data[REF_NO],
+                  [ACCOUNT_NUMBER]: _data[ACCOUNT_NUMBER],
+                  [MODE_PAYMENT]: _data[MODE_PAYMENT],
+                  [DATE_PAYMENT]: _datePayment
+                    ? formatDateDash(_datePayment)
+                    : "",
+                  [ORDER_VIA]: _data[ORDER_VIA],
+                  [CONTACT_NUMBER]: _data[CONTACT_NUMBER],
+                  status:
+                    _productsLength === 1
+                      ? amountPaid < totalCost
+                        ? _data[STATUS]
+                        : "PAID"
+                      : "--",
+                  amount: (_price * productObj[key]).toFixed(2),
+                  less: _productsLength === 1 ? _data?.others : {},
+                  amountPaid:
+                    _productsLength === 1 ? amountPaid.toFixed(2) : "--",
+                })
+              } else {
+                if (_productCounts === _productsLength) {
+                  tableData[viaType].push({
+                    ..._data,
+                    [CODE]: key,
+                    [ORDER_NO]: _data[ORDER_NO],
+                    [QUANTITY]: productObj[key],
+                    [CUSTOMER]: "--",
+                    [SOURCE]: "--",
+                    [BRANCH]: "--",
+                    [DATE_START]: "--",
+                    startDate: formatDateDash(_startTime),
+                    [DATE_ORDER_PLACED]: "--",
+                    [REF_NO]: "--",
+                    [ACCOUNT_NUMBER]: "--",
+                    [MODE_PAYMENT]: "--",
+                    [DATE_PAYMENT]: "--",
+                    [ORDER_VIA]: "--",
+                    [CONTACT_NUMBER]: "--",
+                    status: amountPaid < totalCost ? _data[STATUS] : "PAID",
+                    amount: (_price * productObj[key]).toFixed(2),
+                    amountPaid: amountPaid.toFixed(2),
+                    less: _data?.others,
+                  })
+                } else {
+                  tableData[viaType].push({
+                    ..._data,
+                    [CODE]: key,
+                    [ORDER_NO]: _data[ORDER_NO],
+                    [QUANTITY]: productObj[key],
+                    [CUSTOMER]: "--",
+                    [SOURCE]: "--",
+                    [BRANCH]: "--",
+                    [DATE_START]: "--",
+                    startDate: formatDateDash(_startTime),
+                    [DATE_ORDER_PLACED]: "--",
+                    [REF_NO]: "--",
+                    [ACCOUNT_NUMBER]: "--",
+                    [MODE_PAYMENT]: "--",
+                    [DATE_PAYMENT]: "--",
+                    [ORDER_VIA]: "--",
+                    [CONTACT_NUMBER]: "--",
+                    status: "--",
+                    amount: (_price * productObj[key]).toFixed(2),
+                    amountPaid: "--",
+                    less: {},
+                  })
+                }
+              }
+            }
           }
-        }
-        if (_productCounts !== _productsLength) {
-          _productCounts = _productCounts + 1
-        } else {
-          _productCounts = 1
+
+          if (_productCounts !== _productsLength) {
+            _productCounts = _productCounts + 1
+          } else {
+            _productCounts = 1
+          }
         }
       }
     }
+    console.log("tableData", tableData)
     return tableData
   }
 
