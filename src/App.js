@@ -34,6 +34,7 @@ import IncidentReports from "containers/9.incidentReports"
 import DailyReports from "containers/10.dailyReports"
 import Dashboard from "containers/Dashboard"
 import NewLogin from "containers/0.NewLogin"
+import CustomerReports from "containers/11.AnalyticsCustomer"
 function App() {
   const dispatch = useDispatch()
   const [menu, handleMenu] = useSelectMenus()
@@ -179,6 +180,9 @@ function App() {
             </Route>
             <Route exact path="/reports/dailyReports">
               <DailyReports />
+            </Route>
+            <Route exact path="/reports/customerReports">
+              <CustomerReports />
             </Route>
             <Route path="*">
               <div>Invalid url</div>
