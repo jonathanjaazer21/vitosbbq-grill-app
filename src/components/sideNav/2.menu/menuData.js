@@ -19,6 +19,7 @@ export const DIRECT_AND_THIRD_PARTY = "Direct and 3rd Party"
 export const INVENTORY = "Store Inventory"
 export const INCIDENT_REPORTS = "Incident Reports"
 export const DAILY_REPORTS = "Daily Reports"
+export const CUSTOMER_REPORTS = "Customer Reports"
 
 export const useSelectMenus = () => {
   const [roles, setRoles] = useState([])
@@ -118,6 +119,12 @@ const menuData = (modules) => {
           active: false,
           path: "/reports/dailyReports",
           display: modules.includes(DAILY_REPORTS),
+        },
+        {
+          title: CUSTOMER_REPORTS,
+          active: false,
+          path: "/reports/customerReports",
+          display: modules.includes(CUSTOMER_REPORTS),
         },
       ],
     },
