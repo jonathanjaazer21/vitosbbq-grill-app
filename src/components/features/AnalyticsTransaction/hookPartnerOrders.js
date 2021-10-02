@@ -67,6 +67,7 @@ export default function usePartnerOrderHook() {
     const dataWithPartials = handlePartials(_data)
     const grandTotalDue = handleGrandTotalDue(_data)
     const discounts = handleDiscounts(_data)
+    const grandTotalDisc = handleGrandTotalDisc(discounts)
     const grandTotalAmountPaid = handleGrandTotalAmountPaid(_data)
     const summaryOfSource = handleSummary(dataWithPartials)
     const grandTotalSource = handleGrandTotalSource(summaryOfSource)
@@ -74,6 +75,7 @@ export default function usePartnerOrderHook() {
       {
         amountPaid: grandTotalAmountPaid,
         [DATE_ORDER_PLACED]: "Grand Total",
+        discount: grandTotalDisc,
         totalDue: grandTotalDue,
       },
     ]
@@ -131,6 +133,11 @@ export default function usePartnerOrderHook() {
       }
     }
     return rowWithExistDiscount
+  }
+
+  const handleGrandTotalDisc = (d) => {
+    const _data = sumArray(d, "discount")
+    return _data
   }
 
   return [

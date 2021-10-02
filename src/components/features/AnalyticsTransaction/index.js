@@ -39,24 +39,31 @@ function AnalyticsTransaction() {
     grandTotal,
     grandTotalSourceSum,
     handlePartnerOrderData,
-    handlePartnerOrderExcel,
+    handlePartnerOrderExcel, // used in the UI to show or hide table based on partner order data
   ] = usePartnerOrderHook()
 
-  const { exportHandler } = useExcelExport()
+  const { exportOrderByDate, exportOrderSummary, exportOrderSummaryBySource } =
+    useExcelExport()
 
   const handleExport = () => {
-    const data = exportHandler(
+    const orderByDate = exportOrderByDate(
       filteredData,
       startTimeDateList,
-      sourceList,
       orderViaPartnerList
     )
-    if (Object.keys(data).length > 0) {
+    const orderSummary = exportOrderSummary(filteredData)
+    const orderSummaryBySource = exportOrderSummaryBySource(
+      filteredData,
+      sourceList
+    )
+    if (Object.keys(orderByDate).length > 0) {
       ExportService.exportExcelReports(
         {
-          ...data,
+          ...orderByDate,
+          ...orderSummary,
+          ...orderSummaryBySource,
         },
-        [[]]
+        [[...sourceList]]
       )
     }
   }

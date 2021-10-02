@@ -38,9 +38,16 @@ export default function useSummaryOfCollectibles() {
   }
 
   const handleExcel = (filteredData = [], dateString, source) => {
-    const new_data = filteredData.filter((row) => row?.source === source)
+    const dataWithPartials = handlePartials(filteredData)
+    const new_data = dataWithPartials.filter((row) => {
+      return row?.source === source && row[STATUS] !== "CANCELLED"
+    })
     const summary = sumArrayOfObjectsGrouping(new_data, DATE_START, AMOUNT_PAID)
-    return summary
+    const _grandTotal = sumArray(summary, AMOUNT_PAID)
+    const grandTotalObj = [
+      { [DATE_START]: "Total", [AMOUNT_PAID]: Number(_grandTotal).toFixed(2) },
+    ]
+    return [summary, grandTotalObj]
   }
-  return [data, handleData, grandTotal]
+  return [data, handleData, grandTotal, handleExcel]
 }
