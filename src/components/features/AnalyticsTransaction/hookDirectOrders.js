@@ -49,7 +49,7 @@ export const handlePartials = (data) => {
         dataWithPartials.push({
           ...obj,
           accountNumber,
-          amountPaid: amount,
+          amountPaid: Number(amount).toFixed(2),
           balanceDue: balanceDue - others,
           refNo,
           modePayment,
@@ -134,6 +134,7 @@ export default function useDirectOrders() {
     const dataWithPartials = handlePartials(_data)
     const grandTotalDue = handleGrandTotalDue(_data)
     const discounts = handleDiscounts(_data)
+    const grandTotalDisc = handleGrandTotalDisc(discounts)
     const grandTotalAmountPaid = handleGrandTotalAmountPaid(_data)
     const summaryOfSource = handleSummary(dataWithPartials)
     const grandTotalSource = handleGrandTotalSource(summaryOfSource)
@@ -141,6 +142,7 @@ export default function useDirectOrders() {
       {
         amountPaid: grandTotalAmountPaid,
         [DATE_ORDER_PLACED]: "Grand Total",
+        discount: grandTotalDisc,
         totalDue: grandTotalDue,
       },
     ]
@@ -200,6 +202,10 @@ export default function useDirectOrders() {
     return rowWithExistDiscount
   }
 
+  const handleGrandTotalDisc = (d) => {
+    const _data = sumArray(d, "discount")
+    return _data
+  }
   return [
     data,
     summaryOfSource,

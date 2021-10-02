@@ -29,13 +29,8 @@ export default function (props) {
         <RightContent isToggled={toggle}>
           <Animate Animation={[FadeIn]} duration={["1s"]} delay={["0.2s"]}>
             <AppBar isToggled={toggle} toggle={() => setToggle(!toggle)} />
-<<<<<<< HEAD
             {/* <Reports /> */}
             <AnalyticsTransaction />
-=======
-            <Reports />
-            {/* <AnalyticsTransaction /> */}
->>>>>>> develop
           </Animate>
         </RightContent>
       </Container>

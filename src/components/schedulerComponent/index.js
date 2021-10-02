@@ -55,6 +55,7 @@ import {
   clearId,
 } from "./orderSlip/schedulerOpenedIdSlice"
 import useOrderNoCounter from "./orderSlip/hookOrderNoCounter"
+import { ORDER_VIA_PARTNER } from "Restructured/Constants/schedules"
 
 function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
   const [handleCount] = useOrderNoCounter()
@@ -230,33 +231,31 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
 
       if (userComponentSlice.branches.length === 0) return
       const orderNo = await handleCount(userComponentSlice.branches[0])
-      if (orderNo === null) return
-      // const orderNo = data?.branch
-      //   ? selectOrderSlice[data[BRANCH]]
-      //   : selectOrderSlice.Libis
-      const dataToBeSend = schedulerSchema({
-        ...data,
-        [ORDER_NO]: orderNo,
-        totalDue: selectOrderSlice?.totalAmountPaid,
-      })
-      delete dataToBeSend.RecurrenceRule
-      const result = addData({
-        data: dataToBeSend,
-        collection: SCHEDULES,
-        id: null,
-      })
-      result.then((id) => {
-        addData({
-          data: {
-            displayName: userComponentSlice.displayName,
-            email: userComponentSlice.email,
-            action: "Created",
-            date: new Date(),
-            _id: id,
-          },
-          collection: "logs",
+      if (orderNo) {
+        const dataToBeSend = schedulerSchema({
+          ...data,
+          [ORDER_NO]: orderNo,
+          totalDue: selectOrderSlice?.totalAmountPaid,
         })
-      })
+        delete dataToBeSend.RecurrenceRule
+        const result = addData({
+          data: dataToBeSend,
+          collection: SCHEDULES,
+          id: null,
+        })
+        result.then((id) => {
+          addData({
+            data: {
+              displayName: userComponentSlice.displayName,
+              email: userComponentSlice.email,
+              action: "Created",
+              date: new Date(),
+              _id: id,
+            },
+            collection: "logs",
+          })
+        })
+      }
     } else if (args.requestType === "eventRemove") {
       const { deletedRecords } = args
       deleteData({ id: deletedRecords[0]._id, collection: SCHEDULES })
@@ -345,11 +344,14 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
       if (textArea.value === "") {
         textArea.value = "RIDER DETAILS: \nNAME:\nCONTACT NUMBER:"
       }
+      const branch = args.element.querySelector("#branch")
+
       // args.element.onkeyup = (e) => {
       //   if (!orderVia.value?.includes('Partner Merchant')) {
       //     partnerMerchant.value = ''
       //   }
       // }
+    } else {
     }
   }
 

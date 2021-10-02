@@ -66,7 +66,8 @@ const checkIfValidNumber = (number) => {
 // for dropdown only
 const fillDropdownValueIfNull = (data, key) => {
   if (data[key] === null) {
-    return DROPDOWN_DATAS[key][0]
+    const branch = data?.orderNo.includes("RSJ002") ? "Ronac" : "Libis"
+    return branch
   } else {
     return data[key]
   }

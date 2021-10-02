@@ -96,7 +96,25 @@ export default function useDailySummary() {
       (row) => row?.amountPaid && row[STATUS] !== "CANCELLED"
     )
     const _data = sumArrayOfObjectsGrouping(new_data, DATE_START, AMOUNT_PAID)
-    const _newData = _data.filter((row) => Number(row?.amountPaid) > 0)
+    const dailyTotalDue = sumArrayOfObjectsGrouping(
+      new_data,
+      DATE_START,
+      "totalDue"
+    )
+    const dailySummaryDisc = sumArrayOfObjectsGrouping(
+      new_data,
+      DATE_START,
+      "others"
+    )
+
+    // to combine the discount list and totalDue list in total amount paids list
+    const mergeSummary = mergeSummaryHandler(
+      _data, // list of total amount paids
+      dailyTotalDue, // list of total dues
+      dailySummaryDisc // list of total discounts
+    )
+
+    const _newData = mergeSummary.filter((row) => Number(row?.amountPaid) > 0)
     const _grandTotal = sumArray(_newData, AMOUNT_PAID)
     const _grandTotalDue = sumArray(_newData, TOTAL_DUE)
     const _grandDiscount = sumArray(_newData, "discount")

@@ -78,7 +78,7 @@ function OrderSlip(props) {
   }
 
   const testFunc = async () => {
-    const data = await handleCount("Libis")
+    const data = await handleCount("Ronac")
     console.log("d", data)
   }
   return props !== undefined ? (
