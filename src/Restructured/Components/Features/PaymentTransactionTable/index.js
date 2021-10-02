@@ -57,7 +57,7 @@ const columnRender = (value, record, checkValues, obj) => {
     }
     if (orderViaPartner) {
       style.backgroundColor = "pink"
-      style.color = "black"
+      style.color = "#333"
     }
   } else if (status === "CONFIRMED" && checkValues.includes(status)) {
     style.backgroundColor = "lightblue"

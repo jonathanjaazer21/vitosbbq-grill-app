@@ -36,7 +36,8 @@ export default class ExportService {
     XLSX.utils.book_append_sheet(
       workBook,
       workSheet,
-      `DSUMMARY 1 - ${data.length - 8}`
+      // `DSUMMARY 1 - ${data.length - 8}`
+      `DSUMMARY 1 - ${data.length - 6}`
     )
   }
 
@@ -56,9 +57,8 @@ export default class ExportService {
     XLSX.utils.book_append_sheet(workBook, workSheet, name)
   }
 
-  static exportExcelReports(sheets, additionalParams = []) {
+  static exportExcelReports(sheets, additionalParams) {
     const workBook = XLSX.utils.book_new()
-    console.log("sheets", sheets)
     for (const key in sheets) {
       switch (key) {
         case "dSummary":
