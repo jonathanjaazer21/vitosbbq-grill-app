@@ -7,26 +7,22 @@ import { GRILL_RESERVATION } from "../2.menu/menuData"
 import { FilteringPanel } from "Restructured/Components/Features"
 import { Grid } from "Restructured/Styles"
 import { selectSideNav } from "../sideNavSlice"
-import { Sidenav, Header, Body, Footer } from "./styles"
+import { Sidenav, Header, Body, Footer, SideNavView } from "./styles"
 
 function SideNav({ isToggled }) {
   const { selectedMenu } = useSelector(selectSideNav)
   return (
-    <Sidenav isToggled={isToggled}>
-      <Header>
-        <Banner />
-      </Header>
-      <Body>
-        <Menu isToggled={isToggled} />
-        {/* <br /> */}
-        {/* {selectedMenu[1] === GRILL_RESERVATION && (
-          <Grid display={isToggled} padding="0.5rem">
-            <FilteringPanel />
-          </Grid>
-        )} */}
-      </Body>
-      <Footer> </Footer>
-    </Sidenav>
+    <>
+      <Sidenav isToggled={isToggled}>
+        <Header>
+          <Banner />
+        </Header>
+        <Body>
+          <Menu isToggled={isToggled} />
+        </Body>
+        <Footer> </Footer>
+      </Sidenav>
+    </>
   )
 }
 

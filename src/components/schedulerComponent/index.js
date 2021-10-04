@@ -345,6 +345,11 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
         textArea.value = "RIDER DETAILS: \nNAME:\nCONTACT NUMBER:"
       }
       const branch = args.element.querySelector("#branch")
+      setTimeout(() => {
+        if (typeof userComponentSlice.branches[0] !== "undefined") {
+          branch.value = userComponentSlice.branches[0]
+        }
+      }, 1500)
 
       // args.element.onkeyup = (e) => {
       //   if (!orderVia.value?.includes('Partner Merchant')) {
@@ -363,7 +368,7 @@ function SchedulerComponent({ setLoading, navigate, handleNavigate }) {
     <div>
       {dropdowns[BRANCH].length > 0 && (
         <ScheduleComponent
-          startHour="09:00"
+          startHour="08:00"
           endHour="19:00"
           editorTemplate={OrderSlip}
           eventSettings={eventSettings}

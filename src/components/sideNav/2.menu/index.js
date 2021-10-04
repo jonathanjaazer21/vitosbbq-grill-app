@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Wrapper,
   TitleItem,
@@ -13,9 +13,16 @@ import { useSelectMenus } from "./menuData"
 import { useSelector } from "react-redux"
 import { selectSideNav } from "../sideNavSlice"
 import { selectMenuSlice } from "./menuSlice"
+import { Popover, Menu } from "antd"
+import { useHistory } from "react-router-dom"
+import { useRef } from "react"
+const { SubMenu } = Menu
 
 const menus = {}
-function Menu({ isToggled }) {
+function CustomMenu({ isToggled }) {
+  let history = useHistory()
+  const menuRef = useRef()
+  const [menuWidth, setMenuWidth] = useState(0)
   const { menuData } = useSelector(selectMenuSlice)
   const sideNavSlice = useSelector(selectSideNav)
   const [state, setState] = useState(menus)
@@ -23,6 +30,17 @@ function Menu({ isToggled }) {
   for (const obj of menuData) {
     menus[obj.title] = sideNavSlice.selectedMenu.includes(obj.title)
   }
+
+  useEffect(() => {
+    window.addEventListener("resize", () => {
+      const width =
+        typeof menuRef?.current?.clientWidth !== "undefined"
+          ? menuRef?.current?.clientWidth
+          : 0
+      setMenuWidth(width)
+    })
+    setMenuWidth(menuRef?.current?.clientWidth)
+  }, [menuRef.current])
   return (
     <Wrapper>
       {menuData.map(({ title, Icon, subMenu, display, path, flex }) => (
@@ -33,16 +51,51 @@ function Menu({ isToggled }) {
               : {}
           }
         >
-          <MenuItem key={title} style={display ? {} : { display: "none" }}>
+          <MenuItem
+            key={title}
+            style={display ? {} : { display: "none" }}
+            ref={menuRef}
+          >
             {/* main title */}
             {subMenu.length > 0 ? (
               <TitleItem
                 active={sideNavSlice.selectedMenu.includes(title)}
-                onClick={() => setState({ ...state, [title]: !state[title] })}
+                onClick={() => {
+                  setState({ ...state, [title]: !state[title] })
+                }}
               >
-                <div>
-                  <Icon isToggled={isToggled} />
-                </div>
+                {menuWidth === 75 || !isToggled ? (
+                  <Popover
+                    placement="right"
+                    title={title}
+                    content={
+                      <Menu>
+                        {subMenu.map((subItem) => (
+                          <Menu.Item
+                            onClick={() => {
+                              history.push(subItem.path)
+                            }}
+                            active={sideNavSlice.selectedMenu.includes(
+                              subItem.title
+                            )}
+                          >
+                            {subItem.title}
+                          </Menu.Item>
+                        ))}
+                      </Menu>
+                    }
+                    trigger="click"
+                  >
+                    <div>
+                      <Icon isToggled={isToggled} />
+                    </div>
+                  </Popover>
+                ) : (
+                  <div>
+                    <Icon isToggled={isToggled} />
+                  </div>
+                )}
+
                 <MenuText isToggled={isToggled}>{title}</MenuText>
                 {state[title] ? <ArrowUp /> : <ArrowDown />}
               </TitleItem>
@@ -72,4 +125,4 @@ function Menu({ isToggled }) {
   )
 }
 
-export default Menu
+export default CustomMenu

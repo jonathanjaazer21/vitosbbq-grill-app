@@ -36,3 +36,7 @@ export const ToggleableContainer = styled.div`
   background-color: red;
   height: 100%;
 `
+
+export const SideNavView = styled.div`
+  display: none;
+`
