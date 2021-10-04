@@ -33,9 +33,8 @@ function FilteringPanelDocs(props) {
       products: printInfo?.products,
       productLabels: printInfo?.productLabels,
     })
-    const _summaryPerProduct = PrintMethods.producePrintSummaryPerProduct(
-      _detailsPerSched
-    )
+    const _summaryPerProduct =
+      PrintMethods.producePrintSummaryPerProduct(_detailsPerSched)
     console.log("console", _summaryPerProduct)
     setSummary(_summaryPerProduct)
     setPrintDetailsPerSched(_detailsPerSched)
