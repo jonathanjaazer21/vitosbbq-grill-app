@@ -134,7 +134,7 @@ export default class ExcelFormatter {
     return _groupDataWithTotals
   }
 
-  static transformGroupByDate(excelReport, data, sourceSummary) {
+  static transformGroupByDate(excelReport, data, sourceSummary, branch) {
     const dates = []
     for (const obj of data) {
       const startTime = formatDateFromDatabase(obj[DATE_START])
@@ -164,7 +164,9 @@ export default class ExcelFormatter {
                 count = 0
               }
               if (count === 0) {
-                _groupData[dateValue].push(["VITO'S BBQ RONAC"])
+                _groupData[dateValue].push([
+                  `VITO'S BBQ ${branch.toUpperCase()}`,
+                ])
                 _groupData[dateValue].push(["DAILY ORDER MASTERLIST"])
                 _groupData[dateValue].push([formatDateLong(dateValue)])
                 _groupData[dateValue].push([])
@@ -328,7 +330,7 @@ export default class ExcelFormatter {
   //   return _groupData
   // }
 
-  static dataSummary(data) {
+  static dataSummary(data, branch) {
     const dataByDate = {}
     // produce group by date in the variable dataByDate
     for (const obj of data) {
@@ -391,7 +393,7 @@ export default class ExcelFormatter {
     const dateTo = Object.keys(dataByDate)[Object.keys(dataByDate).length - 1]
     const excelFormatDataByDateWithTotal = {
       dSummary: [
-        ["VITO'S BBQ RONAC"],
+        [`VITO'S BBQ ${branch.toUpperCase()}`],
         ["DAILY ORDER MASTERLIST"],
         [
           `PERIOD COVERED: ${formatDateLong(dateFrom)} - ${formatDateLong(
@@ -431,14 +433,14 @@ export default class ExcelFormatter {
     return excelFormatDataByDateWithTotal
   }
 
-  static orderViaSummary(data, dropdowns, dateFromTo) {
+  static orderViaSummary(data, dropdowns, dateFromTo, branch) {
     const dateFrom = formatDateDash(dateFromTo[0])
     const dateTo = formatDateDash(dateFromTo[1])
     const dataByOrderSummary = {}
     const temporary = {}
     for (const value of dropdowns) {
       dataByOrderSummary[value] = [
-        ["VITO'S BBQ RONAC"],
+        [`VITO'S BBQ ${branch.toUpperCase()}`],
         [value],
         [`PERIOD COVERED: ${dateFrom} => ${dateTo}`],
         [],
