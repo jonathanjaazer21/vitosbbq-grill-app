@@ -15,14 +15,7 @@ import {
   MODE_PAYMENT,
   REF_NO,
 } from "components/PaymentDetails/types"
-const tableColumns = [
-  // {
-  //   title: "DATE PLACED",
-  //   dataIndex: DATE_ORDER_PLACED,
-  //   key: DATE_ORDER_PLACED,
-  //   render: (text) => <a>{text}</a>,
-  //   width: "8%",
-  // },
+const othersTableColumns = [
   {
     title: "ORDER #",
     dataIndex: ORDER_NO,
@@ -41,38 +34,12 @@ const tableColumns = [
     dataIndex: DATE_START,
     key: DATE_START,
     render: (text) => <a>{text}</a>,
-    width: "8%",
   },
-  // {
-  //   title: "NAME",
-  //   dataIndex: CUSTOMER,
-  //   key: CUSTOMER,
-  // },
-  // {
-  //   title: "CONTACT #",
-  //   dataIndex: CONTACT_NUMBER,
-  //   key: CONTACT_NUMBER,
-  // },
-  // {
-  //   title: "VIA",
-  //   dataIndex: ORDER_VIA,
-  //   key: ORDER_VIA,
-  // },
-  // {
-  //   title: "DATE ORDER",
-  //   dataIndex: DATE_START,
-  //   key: DATE_START,
-  // },
-  // {
-  //   title: "TIME",
-  //   dataIndex: "time",
-  //   key: "time",
-  // },
-  // {
-  //   title: "PAYMENT TYPE",
-  //   dataIndex: "partials",
-  //   key: "partials",
-  // },
+  {
+    title: "CUSTOMER",
+    dataIndex: CUSTOMER,
+    key: CUSTOMER,
+  },
   {
     title: "DATE PAYMENT",
     dataIndex: DATE_PAYMENT,
@@ -166,43 +133,6 @@ const tableColumns = [
       return <span>{Number(balanceDue).toFixed(2)}</span>
     },
   },
-  // {
-  //   title: "TOTAL AMOUNT",
-  //   dataIndex: "totalDue",
-  //   key: "totalDue",
-  //   align: "right",
-  // },
-  // {
-  //   title: "OTHERS/DEDUCTION",
-  //   dataIndex: "others",
-  //   key: "others",
-  //   align: "right",
-  //   render: (tags) => {
-  //     return (
-  //       <>
-  //         {typeof tags !== "undefined" ? (
-  //           Object.keys(tags).map((tag) => {
-  //             return <Tag key={tag}>{`${tags[tag]}`}</Tag>
-  //           })
-  //         ) : (
-  //           <Tag></Tag>
-  //         )}
-  //       </>
-  //     )
-  //   },
-  // },
-  // {
-  //   title: "PAYMENT TYPE",
-  //   dataIndex: "partials",
-  //   key: "partials",
-  //   render: (data) => {
-  //     if (data === "Discounted") {
-  //       return <span style={{ color: "red" }}>{data}</span>
-  //     } else {
-  //       return <span>{data}</span>
-  //     }
-  //   },
-  // },
   {
     title: "STATUS",
     dataIndex: "status",
@@ -223,4 +153,4 @@ const tableColumns = [
   },
 ]
 
-export default tableColumns
+export default othersTableColumns

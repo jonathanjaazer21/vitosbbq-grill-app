@@ -87,6 +87,10 @@ export default function useAnalyticsCustomer() {
       setDataByCustomer(_dataByCustomer)
       setCustomerList(sortedCustList)
       setFilteredData(_filteredData)
+    } else {
+      setDataByCustomer([])
+      setCustomerList([])
+      setFilteredData([])
     }
   }, [rangeHandlerFilteredData?.searchData])
 
@@ -111,5 +115,5 @@ export default function useAnalyticsCustomer() {
     },
   }
 
-  return [componentProps, customerList, dataByCustomer]
+  return [componentProps, customerList, dataByCustomer, filteredData]
 }
