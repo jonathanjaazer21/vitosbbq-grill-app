@@ -268,13 +268,15 @@ function useReports() {
     const transformedExcelReport = ExcelFormatter.transformGroupByDate(
       excelReport,
       data,
-      sourceSummary
+      sourceSummary,
+      branch
     )
-    const dataSummary = ExcelFormatter.dataSummary(data)
+    const dataSummary = ExcelFormatter.dataSummary(data, branch)
     const orderViaSummary = ExcelFormatter.orderViaSummary(
       data,
       sourceDropdowns.list,
-      dateFromTo
+      dateFromTo,
+      branch
     )
     ExportService.exportExcelReports(
       {
