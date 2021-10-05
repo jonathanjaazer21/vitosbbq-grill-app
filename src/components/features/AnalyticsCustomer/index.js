@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import {
   Button,
   DatePicker,
@@ -17,6 +17,15 @@ import useAnalyticsCustomer from "./hook"
 import { VerticalAutoScroll } from "../AnalyticsTransaction/styles"
 import sumArray from "Restructured/Utilities/sumArray"
 import { AMOUNT_PAID, TOTAL_DUE } from "components/PaymentDetails/types"
+import PrintComponent from "./PrintComponent"
+import othersTableColumns from "./othersTableColumns"
+import Animate, {
+  FadeIn,
+  SlideInRight,
+  SlideOutRight,
+  Wobble,
+} from "animate-css-styled-components"
+import { useRef } from "react"
 const { RangePicker } = DatePicker
 const { TabPane } = Tabs
 
@@ -26,6 +35,7 @@ const numbeStyle = {
   },
 }
 function AnalyticsCustomer() {
+  const [scrollPosition, setScrollPosition] = useState(0)
   const [tabValue, setTabValue] = useState("")
   const [filteredCustomer, setFilteredCustomer] = useState([])
   const [grandTotals, setGrandTotals] = useState({
@@ -34,11 +44,18 @@ function AnalyticsCustomer() {
     amountPaid: 0,
     balanceDue: 0,
   })
+
+  useEffect(() => {
+    window.onscroll = (e) => {
+      setScrollPosition(document.documentElement.scrollTop)
+    }
+  }, [])
   /// main hook
   const [
     { rangeProps, searchButtonProps, tableProps },
     customerList,
     dataByCustomer,
+    filteredData,
   ] = useAnalyticsCustomer()
 
   const style = {
@@ -47,6 +64,11 @@ function AnalyticsCustomer() {
     padding: "1rem",
   }
 
+  const othersTableProps = {
+    ...tableProps,
+    columns: [...othersTableColumns],
+    pagination: true,
+  }
   const handleFilter = (e) => {
     const _filteredCustomer = customerList.filter(
       (key) =>
@@ -100,43 +122,43 @@ function AnalyticsCustomer() {
   return (
     <>
       <Grid>
-        <VerticalAutoScroll>
-          <Space direction="horizontal" style={style}>
-            <span>
-              {customerList.length > 0 && (
-                <Space>
-                  <label>Name </label>
-                  <Input
-                    placeholder="Filter"
-                    onChange={handleFilter}
-                    suffix={
-                      <Tooltip title="Filter by name">
-                        <FilterOutlined style={{ color: "rgba(0,0,0,.45)" }} />
-                      </Tooltip>
-                    }
-                  />
-                </Space>
-              )}
-            </span>
-            <Space wrap>
-              Date Order:
-              <RangePicker {...rangeProps} />
-              <Button
-                {...searchButtonProps}
-                danger
-                type="primary"
-                shape="circle"
-                icon={<SearchOutlined />}
-              />
-            </Space>
+        <Space direction="horizontal" style={style}>
+          <span>
+            {customerList.length > 0 && (
+              <Space>
+                <label>Name </label>
+                <Input
+                  placeholder="Filter"
+                  onChange={handleFilter}
+                  suffix={
+                    <Tooltip title="Filter by name">
+                      <FilterOutlined style={{ color: "rgba(0,0,0,.45)" }} />
+                    </Tooltip>
+                  }
+                />
+              </Space>
+            )}
+          </span>
+          <Space wrap>
+            Date Order:
+            <RangePicker {...rangeProps} />
+            <Button
+              {...searchButtonProps}
+              danger
+              type="primary"
+              shape="circle"
+              icon={<SearchOutlined />}
+            />
           </Space>
+        </Space>
 
+        <VerticalAutoScroll>
           <Row style={{ padding: "1rem" }}>
             <Col xs={24} sm={24} md={24} lg={24} xl={24}>
               <Tabs
                 activeKey={tabValue}
                 tabPosition="top"
-                style={{ height: "77vh" }}
+                style={{ height: "77vh", position: "relative" }}
                 size="small"
                 onChange={handleClickCustomer}
               >
@@ -159,7 +181,19 @@ function AnalyticsCustomer() {
                             height: "80vh",
                           }}
                         >
-                          <Card title={customer} extra={recordFound}>
+                          <Card
+                            title={customer}
+                            extra={
+                              <PrintComponent
+                                dataByCustomer={[...dataByCustomer[customer]]}
+                                customer={customer}
+                                grandTotals={grandTotals}
+                              />
+                            }
+                            actions={[
+                              <div>{`Records Found: ${recordFound}`}</div>,
+                            ]}
+                          >
                             <VerticalAutoScroll>
                               <Table
                                 {...tableProps}
@@ -186,9 +220,22 @@ function AnalyticsCustomer() {
                             backgroundColor: "#eee",
                             padding: "1rem",
                             height: "80vh",
+                            position: "relative",
                           }}
                         >
-                          <Card title={customer} extra={recordFound}>
+                          <Card
+                            title={customer}
+                            extra={
+                              <PrintComponent
+                                dataByCustomer={[...dataByCustomer[customer]]}
+                                customer={customer}
+                                grandTotals={grandTotals}
+                              />
+                            }
+                            actions={[
+                              <div>{`Records Found: ${recordFound}`}</div>,
+                            ]}
+                          >
                             <VerticalAutoScroll>
                               <Table
                                 {...tableProps}
@@ -272,6 +319,49 @@ function AnalyticsCustomer() {
               </Space>
             </Col>
           </Row>
+        </VerticalAutoScroll>
+
+        <VerticalAutoScroll>
+          <Space
+            direction="vertical"
+            style={{ padding: "1rem", height: "100vh", width: "100%" }}
+          >
+            <Card
+              title="OTHER ORDERS"
+              extra={
+                scrollPosition > 800 && (
+                  <Animate
+                    Animation={[SlideInRight]}
+                    duration={["1s"]}
+                    delay={["0.2s"]}
+                  >
+                    <Space wrap>
+                      Date Order:
+                      <RangePicker {...rangeProps} />
+                      <Button
+                        {...searchButtonProps}
+                        danger
+                        type="primary"
+                        shape="circle"
+                        icon={<SearchOutlined />}
+                      />
+                    </Space>
+                  </Animate>
+                )
+              }
+            >
+              <VerticalAutoScroll>
+                <Table
+                  {...othersTableProps}
+                  dataSource={[
+                    ...filteredData.filter(
+                      (data) => data.orderVia === "[ OTH ] OTHER"
+                    ),
+                  ]}
+                />
+              </VerticalAutoScroll>
+            </Card>
+          </Space>
         </VerticalAutoScroll>
       </Grid>
     </>
