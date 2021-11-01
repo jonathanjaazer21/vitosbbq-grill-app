@@ -1,8 +1,0 @@
-export const SCHEDULER_COMPONENT = "schedulerComponent"
-export const USER = "userComponent"
-export const NAVIGATION = "navigationComponent"
-export const TABLE_COMPONENT = "tableComponent"
-export const ORDER_SLIP_COMPONENT = "orderSlipComponent"
-export const MENU_COMPONENT = "menuComponent"
-export const ORDER_VIA_FIELD = "orderViaField"
-export const SCHEDULER_OPENED_ID = "schedulerOpenedId"
