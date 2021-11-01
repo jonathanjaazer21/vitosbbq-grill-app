@@ -246,6 +246,11 @@ export default function useGroupPaymentHook() {
           dataIndex: "orderNo",
         },
         {
+          title: "UTAK #",
+          key: "utakNo",
+          dataIndex: "utakNo",
+        },
+        {
           title: "PARTNER MERCH ORDER #",
           key: "partnerMerchantOrderNo",
           dataIndex: "partnerMerchantOrderNo",

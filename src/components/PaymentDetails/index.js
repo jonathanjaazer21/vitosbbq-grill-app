@@ -135,7 +135,9 @@ export default function PaymentDetails(props) {
         <Grid>
           <Flex>
             <button
-              onClick={props.handleBack}
+              onClick={() => {
+                props.handleBack()
+              }}
               style={{
                 border: "none",
                 backgroundColor: "transparent",
@@ -355,7 +357,7 @@ export default function PaymentDetails(props) {
               <Paymentform
                 id={props?.id}
                 subTotal={subTotal}
-                onBack={props.handleBack}
+                onBack={() => props.handleBack(props?.id)}
               />
               <br />
               <br />

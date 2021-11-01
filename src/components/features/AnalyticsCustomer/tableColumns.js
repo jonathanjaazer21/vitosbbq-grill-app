@@ -15,6 +15,7 @@ import {
   MODE_PAYMENT,
   REF_NO,
 } from "components/PaymentDetails/types"
+import { UTAK_NO } from "components/SchedulerComponent/orderSlip/types"
 const tableColumns = [
   // {
   //   title: "DATE PLACED",
@@ -35,6 +36,11 @@ const tableColumns = [
         return <span>{data}</span>
       }
     },
+  },
+  {
+    title: "UTAK #",
+    dataIndex: UTAK_NO,
+    key: UTAK_NO,
   },
   {
     title: "DATE ORDER",

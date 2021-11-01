@@ -30,7 +30,12 @@ import { Uploads } from "components/uploads"
 import formatNumber from "commonFunctions/formatNumber"
 import DiscountAndOthersDialog from "./DiscountAndOthersDialog"
 import PartialPayments from "./partialModal"
-import { formatDateFromDatabase } from "Restructured/Utilities/dateFormat"
+import {
+  formatDateDash,
+  formatDateFromDatabase,
+  formatDateSlash,
+} from "Restructured/Utilities/dateFormat"
+import FirestoreCommands from "services/firebase/FirestoreCommands"
 
 export function Paymentform(props) {
   const tableSlice = useSelector(selectTableSlice)
@@ -41,10 +46,17 @@ export function Paymentform(props) {
   const dropdowns = useGetDropdowns()
   useEffect(() => {
     setBalance(parseInt(props?.subTotal))
+    if (props?.id) {
+      loadData()
+    }
+  }, [props?.subTotal, props?.id, dropdowns])
+
+  const loadData = async () => {
     const newFormFields = {}
     const newOthers = {}
     const { dataList } = tableSlice
-    const data = dataList.find((row) => row._id === props?.id)
+    // const data = dataList.find((row) => row._id === props?.id)
+    const data = await FirestoreCommands.getDataById("schedules", props?.id)
     if (data?.partials) {
       newFormFields.partials = data?.partials.map((partial) => {
         return {
@@ -57,6 +69,11 @@ export function Paymentform(props) {
     for (const obj of dropdowns) {
       newFormFields[obj?.name] =
         typeof data[obj?.name] !== "undefined" ? data[obj?.name] : ""
+    }
+
+    if (data?.datePayment) {
+      const dateFromD = formatDateFromDatabase(data[DATE_PAYMENT])
+      newFormFields[DATE_PAYMENT] = new Date(formatDateDash(dateFromD))
     }
 
     for (const key in data.others) {
@@ -79,13 +96,14 @@ export function Paymentform(props) {
     setOthers(newOthers)
     setFormFields(newFormFields)
     calculateBalance(props.subTotal)
-  }, [props?.subTotal, props?.id, dropdowns])
-
+  }
+  console.log("formFields", others)
+  console.log("subTotal", props.subTotal)
   useEffect(() => {
-    calculateBalance(formFields[AMOUNT_PAID])
+    calculateBalance(formFields[AMOUNT_PAID], others)
   }, [others, formFields[AMOUNT_PAID]])
 
-  const calculateBalance = (amountPaid = 0) => {
+  const calculateBalance = (amountPaid = 0, less) => {
     // console.log(props.subTotal)
     // const amountPaid = formFields[AMOUNT_PAID]
     // const paid = isNaN(amountPaid)
@@ -101,12 +119,20 @@ export function Paymentform(props) {
     //   newBalance = newBalance - discount
     // }
     // setBalance(newBalance)
-    let _newBalance = parseInt(props.subTotal) || 0
-    for (const key in others) {
-      _newBalance = _newBalance - others[key]
+    // let _newBalance = parseInt(props.subTotal) || 0
+    // for (const key in others) {
+    //   _newBalance = _newBalance - others[key]
+    // }
+    // _newBalance = _newBalance - parseInt(amountPaid)
+    // setBalance(_newBalance)
+
+    let _newBalance = 0
+    for (const key in less) {
+      _newBalance = Number(less[key])
     }
-    _newBalance = _newBalance - parseInt(amountPaid)
-    setBalance(_newBalance)
+    const totalBalance =
+      Number(props?.subTotal) - Number(amountPaid) - _newBalance
+    setBalance(totalBalance)
   }
 
   const handleOthers = (data) => {
@@ -132,7 +158,7 @@ export function Paymentform(props) {
     setOthers(newOthers)
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const d = new Date(formFields[DATE_PAYMENT])
     if (Object.prototype.toString.call(d) === "[object Date]") {
       // it is a date
@@ -148,16 +174,17 @@ export function Paymentform(props) {
       // not a date
     }
 
-    console.log("submitted", formFields)
-    update({
-      data: {
-        ...formFields,
-        [DATE_PAYMENT]: new Date(formFields[DATE_PAYMENT]),
-        others: { ...others },
-      },
-      collection: SCHEDULES,
-      id: props?.id,
-    })
+    const data = {
+      ...formFields,
+      [DATE_PAYMENT]: new Date(formFields[DATE_PAYMENT]),
+      others: { ...others },
+    }
+
+    const result = await FirestoreCommands.updateDataById(
+      "schedules",
+      props?.id,
+      data
+    )
     props.onBack()
   }
 

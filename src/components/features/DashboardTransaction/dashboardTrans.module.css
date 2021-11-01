@@ -1,0 +1,49 @@
+.CONFIRMED {
+  background-color: lightblue;
+  cursor: pointer;
+}
+
+.CANCELLED {
+  background-color: orange;
+  cursor: pointer;
+}
+
+.FULFILLED {
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.PENDING_DIRECT {
+  background-color: yellow;
+  cursor: pointer;
+}
+
+.PENDING_PARTNER {
+  background-color: pink;
+  cursor: pointer;
+}
+
+.CONFIRMED:hover {
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.CANCELLED:hover {
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.FULFILLED:hover {
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.PENDING_DIRECT:hover {
+  font-weight: 300;
+  cursor: pointer;
+}
+
+.PENDING_PARTNER:hover {
+  font-weight: 300;
+  cursor: pointer;
+}

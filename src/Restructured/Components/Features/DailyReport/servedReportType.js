@@ -32,6 +32,7 @@ import thousandsSeparators from "Restructured/Utilities/formatNumber"
 import {
   ORDER_NO,
   ORDER_VIA_PARTNER,
+  UTAK_NO,
 } from "components/SchedulerComponent/orderSlip/types"
 import LiquidChart from "../LiquidChart"
 import sumArray, {
@@ -123,6 +124,7 @@ function ServedReportType({ Services, filterBasis, title, back }) {
           [ACCOUNT_NUMBER]: obj[ACCOUNT_NUMBER],
           [CUSTOMER]: obj[CUSTOMER],
           [ORDER_NO]: obj[ORDER_NO],
+          [UTAK_NO]: obj[UTAK_NO],
           [DATE_PAYMENT]: datePaid ? formatDateSlash(datePaid) : 0,
           [DATE_START]: formatDateSlash(dateStart),
           [DATE_ORDER_PLACED]: formatDateSlash(dateOrderPlaced),
@@ -196,7 +198,12 @@ function ServedReportType({ Services, filterBasis, title, back }) {
       dataIndex: DATE_ORDER_PLACED,
     },
     {
-      title: "ORDER #",
+      title: "UTAK #",
+      key: UTAK_NO,
+      dataIndex: UTAK_NO,
+    },
+    {
+      title: "VBS #",
       key: ORDER_NO,
       dataIndex: ORDER_NO,
     },
@@ -206,12 +213,12 @@ function ServedReportType({ Services, filterBasis, title, back }) {
       dataIndex: CUSTOMER,
     },
     {
-      title: "ORDER VIA",
+      title: "VIA",
       key: ORDER_VIA,
       dataIndex: ORDER_VIA,
     },
     {
-      title: "TOTAL DUE",
+      title: "TOTAL",
       key: TOTAL_DUE,
       dataIndex: TOTAL_DUE,
       align: "right",
@@ -220,7 +227,7 @@ function ServedReportType({ Services, filterBasis, title, back }) {
       },
     },
     {
-      title: "AMOUNT PAID",
+      title: "AMT PAID",
       key: AMOUNT_PAID,
       dataIndex: AMOUNT_PAID,
       align: "right",
@@ -233,7 +240,6 @@ function ServedReportType({ Services, filterBasis, title, back }) {
   const getPageMargins = () => {
     return `@page { margin: 1rem 1rem 1rem 1rem !important; }`
   }
-  console.log("dataes", dataList)
   return (
     <>
       <div>

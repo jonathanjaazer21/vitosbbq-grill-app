@@ -60,7 +60,7 @@ export const MenuItem = styled.div`
 `
 
 export const SubMenuContainer = styled.div`
-  max-height: ${(props) => (props.active && props.isToggled ? "300px" : "0")};
+  max-height: ${(props) => (props.active && props.isToggled ? "350px" : "0")};
   overflow: hidden;
   transition: max-height 0.5s ease-in-out;
 

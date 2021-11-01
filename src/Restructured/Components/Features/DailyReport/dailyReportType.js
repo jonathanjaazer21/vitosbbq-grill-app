@@ -182,7 +182,7 @@ function DailyReportType({ Services, filterBasis, title, back }) {
       dataIndex: DATE_ORDER_PLACED,
     },
     {
-      title: "ORDER #",
+      title: "VBS #",
       key: ORDER_NO,
       dataIndex: ORDER_NO,
     },
