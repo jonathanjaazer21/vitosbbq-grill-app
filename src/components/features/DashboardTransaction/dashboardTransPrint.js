@@ -8,7 +8,7 @@ import {
   AiFillPrinter,
   AiOutlineClose,
 } from "react-icons/ai"
-import Print from "../Print"
+import Print from "Restructured/Components/Features/Print"
 import {
   CONTACT_NUMBER,
   CUSTOMER,
@@ -19,6 +19,7 @@ import {
 } from "Restructured/Constants/schedules"
 import { RangePicker } from "Restructured/Components/Commons"
 import {
+  formatDateDash,
   formatDateFromDatabase,
   formatDateSlash,
   formatTime,
@@ -37,55 +38,18 @@ import { QUANTITY } from "Restructured/Constants/products"
 import sumArray, { sumArrayDatas } from "Restructured/Utilities/sumArray"
 
 const defaultDate = moment(new Date(), "MM/DD/YYYY")
-function PaymentTransactionPrint({
-  dataList,
-  setDataList,
-  setIsFilteredClicked,
-  isFilteredClicked,
-}) {
-  const tableComponentSlice = useSelector(selectTableSlice)
-  const [dates, setDates] = useState([defaultDate, defaultDate])
-
-  const loadData = async () => {
-    if (dates) {
-      const Service = new Services()
-      const data = await Service.getSchedulesByDate(
-        [dates[0]._d, dates[1]._d],
-        DATE_ORDER_PLACED
-      )
-      let newData = []
-      for (const obj of data) {
-        const foundObj = tableComponentSlice.dataList.find(
-          (field) => field._id === obj._id
-        )
-        const dateOrderPlaced = formatDateFromDatabase(obj[DATE_ORDER_PLACED])
-        const dateStart = formatDateFromDatabase(obj[DATE_START])
-        delete obj[DATE_END]
-        delete obj[DATE_PAYMENT]
-        if (foundObj) {
-          newData.push({
-            ...foundObj,
-            // [DATE_ORDER_PLACED]: formatDateSlash(dateOrderPlaced),
-            // [DATE_START]: `${formatDateSlash(dateStart)} ${formatTime(
-            //   dateStart
-            // )}`,
-          })
-        }
-      }
-      setDataList(newData)
-      setIsFilteredClicked(true)
-    }
+const formatDate = (date) => {
+  const formatD = formatDateFromDatabase(date)
+  const formattedD = formatDateDash(formatD)
+  return formattedD
+}
+function DashboardTransPrint({ dataList }) {
+  const handleQty = () => {
+    return 0
   }
-
   return (
     <div style={{ display: "flex", paddingLeft: "3rem" }}>
-      <RangePicker
-        format="MM/DD/YYYY"
-        showTime={false}
-        value={dates}
-        onChange={(date) => setDates(date)}
-      />
-      {dataList.length > 0 ? (
+      {dataList.length > 0 && (
         <Print
           component={
             <div>
@@ -114,14 +78,14 @@ function PaymentTransactionPrint({
                           : { backgroundColor: "#999" }
                       }
                     >
-                      <td>{data[DATE_ORDER_PLACED]}</td>
-                      <td>{data[DATE_START]}</td>
+                      <td>{formatDate(data[DATE_ORDER_PLACED])}</td>
+                      <td>{formatDate(data[DATE_START])}</td>
                       <td>{data[ORDER_NO]}</td>
                       <td>{data[CUSTOMER]}</td>
                       <td>{data[CONTACT_NUMBER]}</td>
-                      <td>{data["totalQty"]}</td>
+                      <td>{handleQty(data)}</td>
                       <td align="right">{data["totalDue"]}</td>
-                      <td>{data[DATE_PAYMENT]}</td>
+                      <td>{formatDate(data[DATE_PAYMENT])}</td>
                       <td>{data[MODE_PAYMENT]}</td>
                       <td>{data[SOURCE]}</td>
                       <td>{data[ACCOUNT_NUMBER]}</td>
@@ -154,27 +118,9 @@ function PaymentTransactionPrint({
           }
           button={<AiFillPrinter fontSize="1rem" />}
         />
-      ) : (
-        <Button
-          shape="circle"
-          icon={<AiFillFilter />}
-          size="large"
-          onClick={() => loadData()}
-        />
-      )}
-      {isFilteredClicked > 0 && (
-        <Button
-          shape="circle"
-          icon={<AiOutlineClose />}
-          size="large"
-          onClick={() => {
-            setIsFilteredClicked(false)
-            setDataList([])
-          }}
-        />
       )}
     </div>
   )
 }
 
-export default PaymentTransactionPrint
+export default DashboardTransPrint

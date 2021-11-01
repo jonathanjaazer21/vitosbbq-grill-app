@@ -20,6 +20,7 @@ export const INVENTORY = "Store Inventory"
 export const INCIDENT_REPORTS = "Incident Reports"
 export const DAILY_REPORTS = "Daily Reports"
 export const CUSTOMER_REPORTS = "Customer Reports"
+export const DISCOUNT_OTHERS = "Discount and Others"
 
 export const useSelectMenus = () => {
   const [roles, setRoles] = useState([])
@@ -125,6 +126,12 @@ const menuData = (modules) => {
           active: false,
           path: "/reports/customerReports",
           display: modules.includes(CUSTOMER_REPORTS),
+        },
+        {
+          title: DISCOUNT_OTHERS,
+          active: false,
+          path: "/reports/analyticsDiscounts",
+          display: modules.includes(DISCOUNT_OTHERS),
         },
       ],
     },

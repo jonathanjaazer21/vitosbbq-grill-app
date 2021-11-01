@@ -71,8 +71,6 @@ function DiscountAndOthersDialog(props) {
     ...initialState,
   })
 
-  console.log("state", state)
-  console.log("state", additionalDetails)
   useEffect(() => {
     const { formFields, others, orderNo } = props
     if (others) {

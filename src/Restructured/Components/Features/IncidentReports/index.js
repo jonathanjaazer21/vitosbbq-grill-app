@@ -33,6 +33,11 @@ function IncidentReports() {
       key: "contactNo",
     },
     {
+      title: "Brief Description",
+      dataIndex: "briefDescription",
+      key: "briefDescription",
+    },
+    {
       title: "On duty",
       dataIndex: "onDuty",
       key: "onDuty",

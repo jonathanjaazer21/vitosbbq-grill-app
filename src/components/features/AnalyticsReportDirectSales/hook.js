@@ -177,7 +177,12 @@ export default function useReportDirectSales() {
           },
         },
         {
-          title: "ORDER #",
+          title: "UTAK #",
+          key: "utakNo",
+          dataIndex: "utakNo",
+        },
+        {
+          title: "VBS #",
           key: "orderNo",
           dataIndex: "orderNo",
           editable: true,

@@ -200,6 +200,12 @@ export default function useReportDirectSales() {
           editable: true,
         },
         {
+          title: "UTAK #",
+          key: "utakNo",
+          dataIndex: "utakNo",
+          editable: true,
+        },
+        {
           title: "CUSTOMER",
           key: "customer",
           dataIndex: "customer",

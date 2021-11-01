@@ -62,6 +62,7 @@ import {
   TIME_SLOT,
   TOTAL,
   TWELVE,
+  UTAK_NO,
   _ID,
 } from "./types"
 
@@ -95,22 +96,16 @@ export const DROPDOWN_DATAS = {
   ],
 }
 export default [
-  {
-    name: BLANK_FIELD,
-    type: BLANK_FIELD,
-    isInlineBlock: true,
-  },
+  // {
+  //   name: BLANK_FIELD,
+  //   type: BLANK_FIELD,
+  //   isInlineBlock: true,
+  // },
   {
     name: DATE_ORDER_PLACED,
     type: DATE_TIME_PICKER,
     label: LABELS[DATE_ORDER_PLACED],
     default: "StartTime",
-    isInlineBlock: true,
-  },
-  {
-    name: BRANCH,
-    type: DROP_DOWN_LIST,
-    label: LABELS[BRANCH],
     isInlineBlock: true,
   },
   {
@@ -120,6 +115,18 @@ export default [
     isInlineBlock: true,
     disabled: true,
     placeholder: "Auto generate after save",
+  },
+  {
+    name: BRANCH,
+    type: DROP_DOWN_LIST,
+    label: LABELS[BRANCH],
+    isInlineBlock: true,
+  },
+  {
+    name: UTAK_NO,
+    type: INPUT,
+    label: LABELS[UTAK_NO],
+    isInlineBlock: true,
   },
   {
     name: CUSTOMER,
