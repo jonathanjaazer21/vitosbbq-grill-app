@@ -1,13 +1,7 @@
-import { UnauthorizedContext } from "Error/Unauthorized"
-import { useContext, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
-export default function () {
-  const { user } = useContext(UnauthorizedContext)
-  const [userInfo, setUserInfo] = useState({})
-  useEffect(() => {
-    return () => {
-      cleanup
-    }
-  }, [user])
-  return { userInfo }
+export default function useUserProfile() {
+  const [enablePasswordChange, setEnablePasswordChange] = useState(false)
+
+  return { enablePasswordChange, setEnablePasswordChange }
 }

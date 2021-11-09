@@ -61,15 +61,21 @@ export default class AuthClass {
     })
   }
 
-  static logout(history) {
+  static async changePassword() {}
+
+  static async logout(history) {
     const auth = getAuth()
-    signOut(auth)
-      .then(() => {
-        history.push("/login")
-      })
-      .catch((error) => {
-        // An error happened.
-      })
+    return new Promise((resolve, reject) => {
+      signOut(auth)
+        .then(() => {
+          resolve("Logged Out")
+          // history.push("/login")
+        })
+        .catch((error) => {
+          reject(error)
+          // An error happened.
+        })
+    })
   }
 
   static async checkEmailIfExist(username, password) {

@@ -1,7 +1,8 @@
+import AnalyticsScheduler from "Components/Features/AnalyticsScheduler"
 import React from "react"
 
 function DashboardGrillingPage() {
-  return <div>I am DashboardGrillingPage</div>
+  return <AnalyticsScheduler />
 }
 
 export default DashboardGrillingPage
