@@ -8,10 +8,10 @@ import AuthClass from "Services/Classes/AuthClass"
 import AutoSelect from "Components/Commons/AutoSelect"
 import VitosLogo from "Images/vitosLogo.png"
 import { UnauthorizedContext } from "Error/Unauthorized"
-import { Result, Space, Spin, Typography } from "antd"
+import { Result, Space, Spin } from "antd"
 import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint"
+import CustomTitle from "Components/Commons/CustomTitle"
 
-const { Title } = Typography
 function Authentication() {
   const {
     data,
@@ -28,7 +28,7 @@ function Authentication() {
         <img src={VitosLogo} style={{ width: "100%" }} />
       </Logo>
       <br />
-      <Title level={5}>Setup New Password</Title>
+      <CustomTitle typographyType="text" label="Setup New Password" level={5} />
       <br />
       <Password
         onChange={handleChange}

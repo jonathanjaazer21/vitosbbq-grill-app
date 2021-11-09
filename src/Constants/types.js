@@ -1,0 +1,6 @@
+export const STRING_TYPE = "stringType"
+export const ARRAY_OF_OBJECT_TYPE = "arrayOfObjectType"
+export const ARRAY_OF_STRING_TYPE = "arrayOfStringType"
+export const DATE_TYPE = "dateType"
+export const OBJECT_TYPE = "objectType"
+export const NUMBER_TYPE = "numberType"

@@ -27,9 +27,9 @@ const Welcome = () => {
       <Avatar
         src={CookedChef}
         shape="circle"
-        style={{ width: "20rem", height: "20rem" }}
+        style={{ width: "15rem", height: "15rem" }}
       />
-      <Title>Welcome to Vito's BBQ</Title>
+      <Title level={3}>Welcome to Vito's BBQ</Title>
     </Space>
   )
 }

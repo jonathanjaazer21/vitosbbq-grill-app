@@ -8,9 +8,6 @@ import { Spin } from "antd"
 
 function LoginPage() {
   const { isAuthenticated, isLoading, loaded } = useContext(UnauthorizedContext)
-  console.log("isAuth", isAuthenticated)
-  console.log("isLoading", isLoading)
-  console.log("loaded", loaded)
   return (
     <LoginContainer>
       <Switch>
