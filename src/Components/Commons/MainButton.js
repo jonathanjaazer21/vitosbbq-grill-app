@@ -9,6 +9,7 @@ function MainButton({
   type = "primary",
   Icon = <></>,
   danger = false,
+  ...rest
 }) {
   return (
     <Button
@@ -18,6 +19,7 @@ function MainButton({
       onClick={onClick}
       icon={Icon}
       danger={danger}
+      {...rest}
     >
       {label}
     </Button>

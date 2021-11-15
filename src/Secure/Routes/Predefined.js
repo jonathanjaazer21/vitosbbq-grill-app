@@ -1,9 +1,12 @@
 import { useSelectMenus } from "Components/Features/Sidenav/hook"
 import URLNotFound from "Error/URLNotFound"
+import DashboardTransactionPage from "Pages/DashboardTransactionPage"
 import MainPage from "Pages/MainPage"
 import React, { useContext, useEffect } from "react"
 import { Switch, Route } from "react-router-dom"
 import Pages from "./Pages"
+import RouteWithSubRoutes from "./RouteWithSubRoutes"
+
 function Predefined({}) {
   const { menus } = useSelectMenus()
   return (
@@ -13,16 +16,21 @@ function Predefined({}) {
       </Route>
       {menus.map((menu) => {
         return (
+          // <RouteWithSubRoutes key={menu.dataKey} {...menu} />
           <Route exact path={`${menu.path}`}>
-            {Pages[menu.key]}
+            {Pages[menu.dataKey]}
+            {/* <Pages pageKey={menu.key} /> */}
           </Route>
         )
       })}
+
       {menus.map(({ subMenu = [] }) => {
         return subMenu.map((sub) => {
           return (
-            <Route exact path={`${sub.path}`}>
-              {Pages[sub.key]}
+            <Route path={`${sub.path}`}>
+              {Pages[sub.dataKey]}
+              {/* <sub.component /> */}
+              {/* <Pages pageKey={sub.key} /> */}
             </Route>
           )
         })

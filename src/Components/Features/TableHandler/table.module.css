@@ -1,0 +1,54 @@
+/* .CONFIRMED {
+  background-color: lightblue;
+  cursor: pointer;
+}
+
+.CANCELLED {
+  background-color: orange;
+  cursor: pointer;
+}
+
+.FULFILLED {
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.PENDING_DIRECT {
+  background-color: yellow;
+  cursor: pointer;
+}
+
+.PENDING_PARTNER {
+  background-color: pink;
+  cursor: pointer;
+} */
+
+/* .CONFIRMED:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.CANCELLED:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.FULFILLED:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.PENDING_DIRECT:hover {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.PENDING_PARTNER:hover {
+  font-weight: bold;
+  cursor: pointer;
+} */
+
+.DEFAULT:hover {
+  cursor: pointer;
+  font-weight: bold;
+}

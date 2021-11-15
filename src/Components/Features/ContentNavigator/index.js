@@ -51,7 +51,7 @@ function ContentNavigator({ children }) {
       </Breadcrumb>
       <Content
         style={{
-          padding: defaultPadding,
+          padding: "0rem 1rem",
         }}
       >
         {children}
