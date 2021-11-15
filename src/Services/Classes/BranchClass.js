@@ -1,8 +1,8 @@
 import { ARRAY_OF_STRING_TYPE, STRING_TYPE } from "Constants/types"
 import Base from "Services/Base"
 
-export default class RolesClass {
-  static COLLECTION_NAME = "roles"
+export default class BranchClass {
+  static COLLECTION_NAME = "branches"
   static getData() {
     return Base.getData(this.COLLECTION_NAME)
   }
@@ -29,17 +29,17 @@ export default class RolesClass {
     return Base.addData(this.COLLECTION_NAME, data)
   }
   static _ID = "_id"
-  static LIST = "list"
-  static NAME = "name"
+  static BRANCH_ADDRESS = "branchAddress"
+  static BRANCH_NAME = "branchName"
 
-  static PROPERTIES = [this._ID, this.NAME, this.LIST]
+  static PROPERTIES = [this._ID, this.BRANCH_NAME, this.BRANCH_ADDRESS]
 
   static LABELS = {
-    [this.LIST]: "Modules",
-    [this.NAME]: "Roles Name",
+    [this.BRANCH_ADDRESS]: "Address",
+    [this.BRANCH_NAME]: "Branch",
   }
   static TYPES = {
-    [this.LIST]: ARRAY_OF_STRING_TYPE,
-    [this.NAME]: STRING_TYPE,
+    [this.BRANCH_ADDRESS]: STRING_TYPE,
+    [this.BRANCH_NAME]: STRING_TYPE,
   }
 }

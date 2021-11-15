@@ -23,7 +23,7 @@ export const objectContainsNull = (data = {}) => {
   return errors
 }
 
-// remove key from a data object if it is optional key contains null otherwise it will be included
+// remove key from the data object. If it is optional key and contains null it will be included
 export const validateOptionals = (
   optionalKeys = [], //array of strings
   data = {}

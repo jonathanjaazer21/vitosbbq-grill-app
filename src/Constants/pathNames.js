@@ -16,6 +16,9 @@ export const DAILY_REPORTS = "dailyReports"
 export const CUSTOMER_REPORTS = "customerReports"
 export const DISCOUNT_OTHERS = "analyticsDiscounts"
 
+export const ADD = "add"
+export const MODIFIED = "modified"
+
 export const LABEL = {
   [DASHBOARD]: "Dashboard",
   [REPORTS]: "Analytics",
@@ -34,6 +37,8 @@ export const LABEL = {
   [DROPDOWN_MASTERFILE]: "Dropdown Masterfile",
   [ROLES_MASTERFILE]: "Roles Masterfile",
   [PRODUCTS_MASTERFILE]: "Product Masterfile",
+  [MODIFIED]: "Edit Data",
+  [ADD]: "Add Data",
 }
 
 // Notes: this pathNames is used by breadcrumbs located at HeaderPage Component hook (src/Features/HeaderPage/hook.js)

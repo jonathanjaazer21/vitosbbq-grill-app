@@ -11,6 +11,7 @@ import {
   addDoc,
   where,
   updateDoc,
+  limit,
 } from "firebase/firestore"
 import {
   getAuth,
@@ -59,5 +60,6 @@ export {
   onAuthStateChanged,
   where,
   updateDoc,
+  limit,
 }
 export default db

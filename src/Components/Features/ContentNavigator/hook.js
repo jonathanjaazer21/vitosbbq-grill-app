@@ -17,11 +17,12 @@ export default function useContentNavigator() {
     }
     for (const routeName of pathNames) {
       let url = producedURL(routeName, pathNames)
+      const title = LABEL[routeName] ? LABEL[routeName] : routeName
       _breadcrumb.push({
-        title: LABEL[routeName],
+        title,
         url: url,
       })
-      setHeader(LABEL[routeName])
+      setHeader(title)
     }
     setBreadcrumb(_breadcrumb)
   }, [location.pathname])

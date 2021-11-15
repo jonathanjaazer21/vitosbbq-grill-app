@@ -1,9 +1,14 @@
 import { UnavailableContext } from "Error/Unavailable"
 import { useContext, useEffect, useState } from "react"
 
-export default function useGetDocument(ServiceClass) {
+export default function useGetDocumentById(ServiceClass, id) {
   const { setError, setIsLoading, setLoaded } = useContext(UnavailableContext)
   const [data, setData] = useState({})
+  useEffect(() => {
+    if (id) {
+      loadData(id)
+    }
+  }, [id])
   const loadData = async (id) => {
     setLoaded(false)
     setIsLoading(true)

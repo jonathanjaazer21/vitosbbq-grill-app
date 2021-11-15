@@ -24,24 +24,35 @@ function Unavailable({ children }) {
   }
   return (
     <UnavailableContext.Provider value={{ setError, setIsLoading, setLoaded }}>
-      {isLoading && (
-        <Container>
-          <Spin size="large" />
-        </Container>
-      )}
+      <div
+        style={
+          isLoading || error
+            ? {
+                height: "85vh",
+                overflow: "hidden",
+              }
+            : {}
+        }
+      >
+        {isLoading && (
+          <Container>
+            <Spin size="large" />
+          </Container>
+        )}
 
-      {error && isLoading === false && (
-        <Container>
-          <Result
-            status="500"
-            title="500"
-            subTitle={error}
-            extra={<MainButton label="Back Home" onClick={reloadPage} />}
-          />
-        </Container>
-      )}
+        {error && isLoading === false && (
+          <Container>
+            <Result
+              status="500"
+              title="500"
+              subTitle={error}
+              extra={<MainButton label="Back Home" onClick={reloadPage} />}
+            />
+          </Container>
+        )}
 
-      {loaded && children}
+        {children}
+      </div>
     </UnavailableContext.Provider>
   )
 }
@@ -51,11 +62,10 @@ const Container = ({ children }) => {
     <div
       style={{
         display: "flex",
+        height: "100%",
+        width: "100%",
         alignItems: "center",
         justifyContent: "center",
-        height: "80vh",
-        backgroundColor: "transparent",
-        height: "90%",
         bottom: 0,
       }}
     >

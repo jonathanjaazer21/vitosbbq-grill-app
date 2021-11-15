@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import CookedChef from "Images/cookedChef.jpg"
 import { Avatar, Space, Typography } from "antd"
 const { Title } = Typography

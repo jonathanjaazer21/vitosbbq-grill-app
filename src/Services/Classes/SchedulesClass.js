@@ -1,3 +1,4 @@
+import { AMOUNT_TYPE, ARRAY_OF_OBJECT_TYPE, DATE_TYPE } from "Constants/types"
 import Base from "Services/Base"
 import PaginateCommands from "Services/PaginateCommands"
 
@@ -6,13 +7,24 @@ export default class SchedulersClass {
   static getData() {
     return Base.getData(this.COLLECTION_NAME)
   }
+  static getDataBySort(customSort = []) {
+    return Base.getDataBySort(
+      this.COLLECTION_NAME,
+      customSort.length > 0 ? [...customSort] : [this.DATE_START, "asc"]
+    )
+  }
   static getDataById(id) {
     return Base.getDataById(this.COLLECTION_NAME, id)
   }
-  static addData() {}
+
+  static addData(data) {
+    return Base.addData(this.COLLECTION_NAME, data)
+  }
+
   static getPaginatedData(branch = "") {
     return PaginateCommands.getData(this.COLLECTION_NAME, 15, branch)
   }
+
   static getNextPaginatedData(lastVisible, branch = "") {
     return PaginateCommands.getMoreData(
       this.COLLECTION_NAME,
@@ -22,22 +34,6 @@ export default class SchedulersClass {
     )
   }
 
-  static PROPERTIES = [
-    this.DATE_ORDER_PLACED,
-    this.DATE_START,
-    this.UTAK_NO,
-    this.ORDER_NO,
-    this.CUSTOMER,
-    this.CONTACT_NUMBER,
-    this.QTY,
-    this.DATE_PAYMENT,
-    this.MODE_PAYMENT,
-    this.SOURCE,
-    this.ACCOUNT_NUMBER,
-    this.TOTAL_DUE,
-    this.AMOUNT_PAID,
-    this.OTHERS,
-  ]
   static QTY = "qty" // this is not a firebase field
   static OTHERS = "others"
   static MODE_PAYMENT = "modePayment"
@@ -54,7 +50,6 @@ export default class SchedulersClass {
   static BC_HALF = "gBcHalf"
   static DATE_ORDER_PLACED = "dateOrderPlaced"
   static UTAK_NO = "utakNo"
-  static ORDER_VIA = "orderVia"
   static ACCOUNT_NAME = "accountName"
   static ACCOUNT_NUMBER = "accountNumber"
   static PAYMENT_MODE = "paymentMode"
@@ -97,20 +92,48 @@ export default class SchedulersClass {
   static M_B = "M-B"
   static PRT = "PRT"
   static JV_1 = "JV_1"
+  static ORDER_VIA = "orderVia"
   static ORDER_VIA_PARTNER = "orderViaPartner"
   static PARTNER_MERCHANT_ORDER_NO = "partnerMerchantOrderNo"
 
   // this is not included in the database post of data, this is only for viewing in print document particular field
   static TIME_SLOT = "timeSlot"
+  static PROPERTIES = [
+    this._ID,
+    this.DATE_ORDER_PLACED,
+    this.DATE_START,
+    this.UTAK_NO,
+    this.ORDER_NO,
+    this.CUSTOMER,
+    this.CONTACT_NUMBER,
+    this.QTY,
+    this.TOTAL_DUE,
+    this.DATE_PAYMENT,
+    this.MODE_PAYMENT,
+    this.SOURCE,
+    this.ACCOUNT_NUMBER,
+    this.AMOUNT_PAID,
+    this.OTHERS,
+  ]
+
+  static TYPES = {
+    [this.TOTAL_DUE]: AMOUNT_TYPE,
+    [this.DATE_PAYMENT]: DATE_TYPE,
+    [this.AMOUNT_PAID]: AMOUNT_TYPE,
+    [this.DATE_START]: DATE_TYPE,
+    [this.DATE_ORDER_PLACED]: DATE_TYPE,
+    [this.DATE_END]: DATE_TYPE,
+    [this.OTHERS]: AMOUNT_TYPE,
+  }
 
   static LABELS = {
     [this.STATUS]: "STATUS",
     [this.UTAK_NO]: "UTAK #",
     [this.INDICATE_REASON]: "REASON",
     [this.BRANCH]: "BRANCH",
-    [this.CUSTOMER]: "CUSTOMER NAME",
-    [this.CONTACT_NUMBER]: "CONTACT_NUMBER",
-    [this.DELIVERY_DATE]: "Delivery Date/Time",
+    [this.CUSTOMER]: "CUSTOMER",
+    [this.CONTACT_NUMBER]: "CONTACT #",
+    [this.DELIVERY_DATE]: "DELIVERY DATE/TIME",
     [this.DATE_ORDER_PLACED]: "DATE/TIME PLACED",
     [this.DATE_START]: "DATE/TIME START", // cannot be change
     [this.DATE_END]: "DATE/TIME END", // cannot be change
@@ -150,6 +173,21 @@ export default class SchedulersClass {
     [this.TIME_SLOT]: "TIME SLOT",
     [this.PARTNER_MERCHANT_ORDER_NO]: "PARTNER MERCHANT ORDER #",
     [this.ORDER_VIA_PARTNER]: "ORDER VIA {PARTNER MERCHANT}",
-    [this.ACCOUNT_NUMBER]: "RECEIVING ACCOUNT",
+    [this.ACCOUNT_NUMBER]: "RECEIVING ACCT",
+    [this.QTY]: "QTY",
+    [this.DATE_PAYMENT]: "DATE PAID",
+    [this.MODE_PAYMENT]: "MOP",
+    [this.SOURCE]: "SOURCE",
+    [this.TOTAL_DUE]: "AMT",
+    [this.AMOUNT_PAID]: "PAID AMT",
+    [this.OTHERS]: "OTHERS / DEDUCTION",
   }
 }
+/* (
+  <center>
+  <span>
+    OTHERS / <br />
+    DEDUCTIONS
+  </span>
+</center>
+),*/

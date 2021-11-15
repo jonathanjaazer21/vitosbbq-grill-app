@@ -1,3 +1,4 @@
+import { ARRAY_OF_STRING_TYPE, STRING_TYPE } from "Constants/types"
 import Base from "Services/Base"
 
 export default class DropdownsClass {
@@ -5,16 +6,27 @@ export default class DropdownsClass {
   static getData() {
     return Base.getData(this.COLLECTION_NAME)
   }
-
-  static NAME = "name"
-  static PRODUCT_LIST = "productList"
-  static PROPERTIES = "properties"
-  static LABELS = {
-    [this.NAME]: "Name",
-    [this.PRODUCT_LIST]: "Product list",
+  static getDataById(id) {
+    return Base.getDataById(this.COLLECTION_NAME, id)
   }
+
+  static updateDataById(id, data) {
+    return Base.updateDataById(this.COLLECTION_NAME, id, data)
+  }
+
+  static addData(data) {
+    return Base.addData(this.COLLECTION_NAME, data)
+  }
+  static _ID = "_id"
+  static NAME = "name"
+  static LIST = "list"
+  static PROPERTIES = [this._ID, this.NAME, this.LIST]
   static TYPES = {
-    [this.NAME]: "string",
-    [this.PRODUCT_LIST]: "arrayOfString",
+    [this.NAME]: STRING_TYPE,
+    [this.LIST]: ARRAY_OF_STRING_TYPE,
+  }
+  static LABELS = {
+    [this.NAME]: "Fieldnames",
+    [this.LIST]: "Dropdown List",
   }
 }

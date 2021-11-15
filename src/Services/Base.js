@@ -9,13 +9,11 @@ import db, {
   query,
   where,
   updateDoc,
+  limit,
 } from "./firebase"
 export default class Base {
   static async getData(collectionName) {
-    const q = query(
-      collection(db, collectionName)
-      // orderBy(orderedBy[0], orderedBy[1])
-    )
+    const q = query(collection(db, collectionName))
     const querySnapshot = await getDocs(q)
     // use .metadata.fromCache of firebase instead since try catch is not working here
     if (querySnapshot.metadata.fromCache) {
@@ -23,8 +21,28 @@ export default class Base {
     }
     const data = []
     querySnapshot.forEach((doc) => {
-      data.push({ _id: doc.id, ...doc.data() })
+      data.push({ ...doc.data(), _id: doc.id })
     })
+    return data
+  }
+
+  static async getDataBySort(collectionName, orderedBy) {
+    const q = query(
+      collection(db, collectionName),
+      orderBy(orderedBy[0], orderedBy[1]),
+      limit(150)
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    console.log("responsedata", data)
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+    console.log("responsedata", data)
     return data
   }
 
@@ -58,7 +76,7 @@ export default class Base {
     }
     const data = []
     querySnapshot.forEach((doc) => {
-      data.push({ _id: doc.id, ...doc.data() })
+      data.push({ ...doc.data(), _id: doc.id })
     })
     return data
   }
