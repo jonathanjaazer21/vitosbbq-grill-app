@@ -1,11 +1,21 @@
 import React from "react"
 import { Typography } from "antd"
 const { Text, Title } = Typography
-function CustomTitle({ typographyType, label = "", children, ...rest }) {
+function CustomTitle({
+  typographyType,
+  label = "",
+  ellipsis = true,
+  children,
+  ...rest
+}) {
   return typographyType === "text" ? (
-    <Text {...rest}>{children ? children : label}</Text>
+    <Text {...rest} ellipsis={ellipsis}>
+      {children ? children : label}
+    </Text>
   ) : (
-    <Title {...rest}>{children ? children : label}</Title>
+    <Title {...rest} ellipsis={ellipsis}>
+      {children ? children : label}
+    </Title>
   )
 }
 

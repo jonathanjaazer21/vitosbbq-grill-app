@@ -13,7 +13,11 @@ const { Header, Content } = Layout
 const defaultPadding = "1rem 1rem"
 function ContentNavigator({ children }) {
   const { xs } = useBreakpoint()
-  const { header = "", breadcrumb = [] } = useContentNavigator()
+  const {
+    header = "",
+    breadcrumb = [],
+    breadcrumbCount = 0,
+  } = useContentNavigator()
   return (
     <Layout>
       <StyledHeader>
@@ -37,7 +41,7 @@ function ContentNavigator({ children }) {
           </Link>
         </Breadcrumb.Item>
         {breadcrumb.map((breadcrumb, index) => {
-          const lastIndex = breadcrumb.length - 1
+          const lastIndex = breadcrumbCount - 1
           return (
             <Breadcrumb.Item key={index}>
               {lastIndex === index ? (
@@ -52,6 +56,7 @@ function ContentNavigator({ children }) {
       <Content
         style={{
           padding: "0rem 1rem",
+          overflow: "auto",
         }}
       >
         {children}

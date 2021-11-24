@@ -12,6 +12,11 @@ import {
   where,
   updateDoc,
   limit,
+  setDoc,
+  startAfter,
+  onSnapshot,
+  startAt,
+  endAt,
 } from "firebase/firestore"
 import {
   getAuth,
@@ -61,5 +66,10 @@ export {
   where,
   updateDoc,
   limit,
+  setDoc,
+  startAfter,
+  onSnapshot,
+  startAt,
+  endAt,
 }
 export default db

@@ -1,4 +1,5 @@
 import { ARRAY_OF_STRING_TYPE, STRING_TYPE } from "Constants/types"
+import moduleList from "Helpers/moduleList"
 import Base from "Services/Base"
 
 export default class RolesClass {
@@ -28,6 +29,10 @@ export default class RolesClass {
   static addData(data) {
     return Base.addData(this.COLLECTION_NAME, data)
   }
+
+  static setData(id, data) {
+    return Base.setData(this.COLLECTION_NAME, id, data)
+  }
   static _ID = "_id"
   static LIST = "list"
   static NAME = "name"
@@ -41,5 +46,11 @@ export default class RolesClass {
   static TYPES = {
     [this.LIST]: ARRAY_OF_STRING_TYPE,
     [this.NAME]: STRING_TYPE,
+  }
+
+  static async getDropdowns() {
+    return {
+      [this.LIST]: moduleList(),
+    }
   }
 }

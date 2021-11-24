@@ -1,8 +1,11 @@
 import {
   BRANCH_MASTERFILE,
+  CUSTOMER_REPORTS,
+  DAILY_REPORTS,
   DASHBOARD,
   DROPDOWN_MASTERFILE,
   GRILL_RESERVATION,
+  INCIDENT_REPORTS,
   INVENTORY,
   MASTER_DATA,
   PAYMENT_TRANSACTION,
@@ -16,6 +19,7 @@ import {
   SettingOutlined,
   FolderOutlined,
 } from "@ant-design/icons"
+import React from "react"
 import DashboardGrillingPage from "Pages/DashboardGrillingPage"
 import DashboardTransactionPage from "Pages/DashboardTransactionPage"
 import MainPage from "Pages/MainPage"
@@ -27,6 +31,9 @@ import { useRouteMatch } from "react-router"
 import SettingsRoleMasterfile from "Components/Features/SettingsRoleMasterfile"
 import SettingsDropdownMasterfile from "Components/Features/SettingsDropdownMasterfile"
 import SettingsBranchMasterfile from "Components/Features/SettingsBranchMasterfile"
+import AnalyticsIncidents from "Components/Features/AnalyticsIncidents"
+import AnalyticsCustomer from "Components/Features/AnalyticsCustomer"
+import AnalyticsDailyReport from "Components/Features/AnalyticsDailyReport"
 
 const iconSize = {
   fontSize: "15rem",
@@ -56,6 +63,9 @@ export default {
   [ROLES_MASTERFILE]: <SettingsRoleMasterfile />,
   [DROPDOWN_MASTERFILE]: <SettingsDropdownMasterfile />,
   [BRANCH_MASTERFILE]: <SettingsBranchMasterfile />,
+  [INCIDENT_REPORTS]: <AnalyticsIncidents />,
+  [CUSTOMER_REPORTS]: <AnalyticsCustomer />,
+  [DAILY_REPORTS]: <AnalyticsDailyReport />,
 }
 
 // const Pages = (props) => {

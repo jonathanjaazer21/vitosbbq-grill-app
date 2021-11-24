@@ -8,7 +8,6 @@ function Sidenav() {
   const history = useHistory()
   const { menus, selectedKeys } = useSelectMenus()
 
-  useEffect(() => {})
   return (
     <Menu
       mode="inline"

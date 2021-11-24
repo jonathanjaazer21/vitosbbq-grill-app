@@ -29,6 +29,7 @@ function SecuredRoutes() {
             position: "sticky",
             top: 0,
             left: 0,
+            bottom: 0,
           }}
         >
           <LogoBanner collapse={collapse} />

@@ -28,6 +28,10 @@ export default class BranchClass {
   static addData(data) {
     return Base.addData(this.COLLECTION_NAME, data)
   }
+
+  static setData(id, data) {
+    return Base.setData(this.COLLECTION_NAME, id, data)
+  }
   static _ID = "_id"
   static BRANCH_ADDRESS = "branchAddress"
   static BRANCH_NAME = "branchName"

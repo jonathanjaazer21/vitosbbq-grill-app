@@ -10,12 +10,19 @@ export default class DropdownsClass {
     return Base.getDataById(this.COLLECTION_NAME, id)
   }
 
+  static getDataByFieldname(fieldname, value) {
+    return Base.getDataByFieldname(this.COLLECTION_NAME, fieldname, value)
+  }
   static updateDataById(id, data) {
     return Base.updateDataById(this.COLLECTION_NAME, id, data)
   }
 
   static addData(data) {
     return Base.addData(this.COLLECTION_NAME, data)
+  }
+
+  static setData(id, data) {
+    return Base.setData(this.COLLECTION_NAME, id, data)
   }
   static _ID = "_id"
   static NAME = "name"

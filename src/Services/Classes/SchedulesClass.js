@@ -1,4 +1,11 @@
-import { AMOUNT_TYPE, ARRAY_OF_OBJECT_TYPE, DATE_TYPE } from "Constants/types"
+import {
+  AMOUNT_TYPE,
+  ARRAY_OF_OBJECT_TYPE,
+  DATE_TYPE,
+  DROPDOWN_TYPE,
+  NUMBER_TYPE,
+  TEXT_AREA_TYPE,
+} from "Constants/types"
 import Base from "Services/Base"
 import PaginateCommands from "Services/PaginateCommands"
 
@@ -16,21 +23,48 @@ export default class SchedulersClass {
   static getDataById(id) {
     return Base.getDataById(this.COLLECTION_NAME, id)
   }
+  static getDataByDate(dates, fieldname, branch) {
+    return Base.getDataByDate(this.COLLECTION_NAME, dates, fieldname, branch)
+  }
 
+  static getDataByFieldname(fieldname, value) {
+    return Base.getDataByFieldname(this.COLLECTION_NAME, fieldname, value)
+  }
+
+  static getDataByKeyword(fieldname, value) {
+    return Base.getDataByKeyword(this.COLLECTION_NAME, fieldname, value)
+  }
   static addData(data) {
     return Base.addData(this.COLLECTION_NAME, data)
   }
-
-  static getPaginatedData(branch = "") {
-    return PaginateCommands.getData(this.COLLECTION_NAME, 15, branch)
+  static updateDataById(id, data) {
+    return Base.updateDataById(this.COLLECTION_NAME, id, data)
   }
 
-  static getNextPaginatedData(lastVisible, branch = "") {
+  static setData(id, data) {
+    return Base.setData(this.COLLECTION_NAME, id, data)
+  }
+
+  static getPaginatedData(branch = "", customSort = ["StartTime", "desc"]) {
+    return PaginateCommands.getData(
+      this.COLLECTION_NAME,
+      150,
+      branch,
+      customSort
+    )
+  }
+
+  static getNextPaginatedData(
+    lastVisible,
+    branch = "",
+    customSort = ["StartTime", "desc"]
+  ) {
     return PaginateCommands.getMoreData(
       this.COLLECTION_NAME,
-      15,
+      150,
       lastVisible,
-      branch
+      branch,
+      customSort
     )
   }
 
@@ -52,11 +86,15 @@ export default class SchedulersClass {
   static UTAK_NO = "utakNo"
   static ACCOUNT_NAME = "accountName"
   static ACCOUNT_NUMBER = "accountNumber"
+  static REF_NO = "refNo"
   static PAYMENT_MODE = "paymentMode"
   static MERCHANT_ORDER = "merchantOrder"
   static STATUS = "status"
   static ID = "Id" // this is default of syncfusion
   static GUID = "Guid" // this is default of syncfusion
+  static START_TIME_ZONE = "StartTimezone" // this is default of syncfusion
+  static END_TIME_ZONE = "EndTimezone" // this is default of syncfusion
+  static SUBJECT = "Subject"
   static _ID = "_id"
   static ORDER_NO = "orderNo"
   static INDICATE_REASON = "indicateReason"
@@ -94,40 +132,65 @@ export default class SchedulersClass {
   static JV_1 = "JV_1"
   static ORDER_VIA = "orderVia"
   static ORDER_VIA_PARTNER = "orderViaPartner"
+  static ORDER_VIA_WEBSITE = "orderViaWebsite"
   static PARTNER_MERCHANT_ORDER_NO = "partnerMerchantOrderNo"
+  static DISCOUNT_ADDITIONAL_DETAILS = "discountAdditionalDetails"
+  static PAYMENT_NOTES = "paymentNotes"
 
   // this is not included in the database post of data, this is only for viewing in print document particular field
   static TIME_SLOT = "timeSlot"
   static PROPERTIES = [
     this._ID,
+    this.BRANCH,
     this.DATE_ORDER_PLACED,
     this.DATE_START,
+    this.DATE_END,
     this.UTAK_NO,
     this.ORDER_NO,
     this.CUSTOMER,
     this.CONTACT_NUMBER,
     this.QTY,
-    this.TOTAL_DUE,
     this.DATE_PAYMENT,
     this.MODE_PAYMENT,
     this.SOURCE,
+    this.SUBJECT,
+    this.ACCOUNT_NAME,
     this.ACCOUNT_NUMBER,
     this.AMOUNT_PAID,
+    this.TOTAL_DUE,
+    this.DISCOUNT_ADDITIONAL_DETAILS,
+    this.ORDER_VIA_WEBSITE,
+    this.ORDER_VIA,
+    this.ORDER_VIA_PARTNER,
+    this.END_TIME_ZONE, // should be null value
+    this.START_TIME_ZONE, // should be null value
+    this.PARTNER_MERCHANT_ORDER_NO,
+    this.PAYMENT_NOTES,
     this.OTHERS,
+    this.REF_NO,
   ]
 
   static TYPES = {
     [this.TOTAL_DUE]: AMOUNT_TYPE,
     [this.DATE_PAYMENT]: DATE_TYPE,
-    [this.AMOUNT_PAID]: AMOUNT_TYPE,
     [this.DATE_START]: DATE_TYPE,
-    [this.DATE_ORDER_PLACED]: DATE_TYPE,
     [this.DATE_END]: DATE_TYPE,
+    [this.DATE_ORDER_PLACED]: DATE_TYPE,
     [this.OTHERS]: AMOUNT_TYPE,
+    [this.AMOUNT_PAID]: AMOUNT_TYPE,
+    [this.QTY]: NUMBER_TYPE,
+    [this.REMARKS]: TEXT_AREA_TYPE,
+    [this.ORDER_VIA]: DROPDOWN_TYPE,
+    [this.ORDER_VIA_PARTNER]: DROPDOWN_TYPE,
+    [this.ORDER_VIA_WEBSITE]: DROPDOWN_TYPE,
+    [this.STATUS]: DROPDOWN_TYPE,
+    [this.INDICATE_REASON]: TEXT_AREA_TYPE,
   }
 
   static LABELS = {
+    [this.DATE_ORDER_PLACED]: "DATE/TIME PLACED",
     [this.STATUS]: "STATUS",
+    [this.REF_NO]: "Ref No",
     [this.UTAK_NO]: "UTAK #",
     [this.INDICATE_REASON]: "REASON",
     [this.BRANCH]: "BRANCH",
@@ -137,7 +200,7 @@ export default class SchedulersClass {
     [this.DATE_ORDER_PLACED]: "DATE/TIME PLACED",
     [this.DATE_START]: "DATE/TIME START", // cannot be change
     [this.DATE_END]: "DATE/TIME END", // cannot be change
-    [this.ORDER_VIA]: "ORDER VIA {DIRECT}",
+    [this.ORDER_VIA]: "DIRECT",
     [this.PAYMENT_MODE]: "PAYMENT CODE",
     [this.MERCHANT_ORDER]: "MERCHANT ORDER #",
     [this.ACCOUNT_NAME]: "ACCOUNT NAME",
@@ -172,13 +235,14 @@ export default class SchedulersClass {
     [this.REMARKS]: "NOTES",
     [this.TIME_SLOT]: "TIME SLOT",
     [this.PARTNER_MERCHANT_ORDER_NO]: "PARTNER MERCHANT ORDER #",
-    [this.ORDER_VIA_PARTNER]: "ORDER VIA {PARTNER MERCHANT}",
+    [this.ORDER_VIA_PARTNER]: "PARTNER MERCHANT",
+    [this.ORDER_VIA_WEBSITE]: "WEBSITE",
     [this.ACCOUNT_NUMBER]: "RECEIVING ACCT",
     [this.QTY]: "QTY",
     [this.DATE_PAYMENT]: "DATE PAID",
     [this.MODE_PAYMENT]: "MOP",
     [this.SOURCE]: "SOURCE",
-    [this.TOTAL_DUE]: "AMT",
+    [this.TOTAL_DUE]: "AMOUNT DUE",
     [this.AMOUNT_PAID]: "PAID AMT",
     [this.OTHERS]: "OTHERS / DEDUCTION",
   }

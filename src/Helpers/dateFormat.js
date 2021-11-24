@@ -29,3 +29,10 @@ export const formatDateFromDatabase = (date) => {
   }
   return new Date(date.seconds * 1000 + date.nanoseconds / 1000000)
 }
+
+export const defaultTimeRange = (date) => {
+  const minutes = date.getMinutes()
+  const hours = date.getHours()
+  const defaultMin = minutes >= 30 ? 30 : 0
+  return new Date(date.setHours(hours, defaultMin, 0, 0))
+}

@@ -1,4 +1,8 @@
-import { producedProductListOfAllCodes } from "./collectionData"
+import {
+  producedProductListOfAllCodes,
+  producedBranches,
+  producedRoles,
+} from "./collectionData"
 
 test("produce product list of all codes", () => {
   expect(
@@ -66,4 +70,20 @@ test("produce product list of all codes", () => {
     "test3code2",
     "test3code3",
   ])
+})
+
+test("produce branchname", () => {
+  expect(
+    producedBranches([{ branchName: "Libis" }, { branchName: "Ronac" }])
+  ).toStrictEqual(["Libis", "Ronac"])
+})
+
+test("produce roles", () => {
+  expect(
+    producedRoles([
+      { name: "Admin" },
+      { name: "Scheduler" },
+      { name: "Cashier" },
+    ])
+  ).toStrictEqual(["Admin", "Scheduler", "Cashier"])
 })

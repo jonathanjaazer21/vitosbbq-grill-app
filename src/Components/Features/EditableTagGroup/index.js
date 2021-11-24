@@ -3,11 +3,13 @@ import { PlusOutlined } from "@ant-design/icons"
 import React, { useEffect, useRef, useState } from "react"
 import CustomInput from "Components/Commons/CustomInput"
 import styled from "styled-components"
+import AutoSelect from "Components/Commons/AutoSelect"
 
 function EditableTag({
   tags = [],
   exposeData = () => {},
   setIsTouched = () => {},
+  dropdowns = [],
 }) {
   const inputRef = useRef()
   const editInputRef = useRef()
@@ -15,7 +17,6 @@ function EditableTag({
   const [editableIndex, setEditableIndex] = useState(null)
   const [visibleInput, setVisibleInput] = useState(false)
   useEffect(() => {
-    console.log("tags", tags)
     if (tags.length > 0) {
       mergeDuplicates(tags)
     }
@@ -46,6 +47,11 @@ function EditableTag({
   }
 
   const addTag = (value) => {
+    if (typeof value === "object") {
+      setVisibleInput(false)
+      setIsTouched(true)
+      return
+    }
     if (value.trim() !== "") {
       const _tags = [...newTags]
       _tags.push(value)
@@ -76,14 +82,13 @@ function EditableTag({
     <Space wrap>
       {newTags.map((tag, index) => {
         return index === editableIndex ? (
-          <Input
-            value={tag}
-            ref={editInputRef}
-            onChange={(e) => {
-              editTag(e.target.value, index)
-            }}
-            onBlur={() => setEditableIndex(null)}
-            onPressEnter={() => setEditableIndex(null)}
+          <RenderEditField
+            dropdowns={dropdowns}
+            tag={tag}
+            index={index}
+            editTag={editTag}
+            setEditableIndex={setEditableIndex}
+            editInputRef={editInputRef}
           />
         ) : (
           <Tag closable onClose={(e) => removeTag(e, tag)}>
@@ -92,11 +97,10 @@ function EditableTag({
         )
       })}
       {visibleInput ? (
-        <Input
-          onPressEnter={(e) => addTag(e.target.value)}
-          onBlur={(e) => addTag(e.target.value)}
-          size="small"
-          ref={inputRef}
+        <RenderAddField
+          dropdowns={dropdowns}
+          addTag={addTag}
+          inputRef={inputRef}
         />
       ) : (
         <StyledAddButton onClick={() => setVisibleInput(true)} color="cyan">
@@ -107,8 +111,97 @@ function EditableTag({
   )
 }
 
+const RenderEditField = (props) => {
+  if (props.dropdowns.length > 0) {
+    return (
+      <AutoSelect
+        value={props.tag}
+        options={[...props.dropdowns]}
+        onChange={(value) => {
+          props.editTag(value, props.index)
+          props.setEditableIndex(null)
+        }}
+        onBlur={() => props.setEditableIndex(null)}
+        onPressEnter={() => props.setEditableIndex(null)}
+        ref={props.editInputRef}
+      />
+    )
+  } else {
+    return (
+      <Input
+        value={props.tag}
+        ref={props.editInputRef}
+        onChange={(e) => {
+          props.editTag(e.target.value, props.index)
+        }}
+        onBlur={() => props.setEditableIndex(null)}
+        onPressEnter={() => props.setEditableIndex(null)}
+        ref={props.editInputRef}
+      />
+    )
+  }
+}
+
+const RenderAddField = (props) => {
+  if (props.dropdowns.length > 0) {
+    return (
+      <AutoSelect
+        options={[...props.dropdowns]}
+        onChange={(value) => {
+          props.addTag(value)
+        }}
+        onBlur={(value) => props.addTag(value)}
+        onPressEnter={(value) => props.addTag(value)}
+        ref={props.inputRef}
+      />
+    )
+  } else {
+    return (
+      <Input
+        onPressEnter={(e) => props.addTag(e.target.value)}
+        onBlur={(e) => props.addTag(e.target.value)}
+        size="small"
+        ref={props.inputRef}
+      />
+    )
+  }
+}
+
 const StyledAddButton = styled(Tag)`
   cursor: pointer;
 `
 
 export default EditableTag
+
+// <AutoSelect
+//   value={tag}
+//   options={["Dashboard", "Ronac"]}
+//   onChange={(value) => {
+//     editTag(value, index)
+//     setEditableIndex(null)
+//   }}
+//   onBlur={() => setEditableIndex(null)}
+//   onPressEnter={() => setEditableIndex(null)}
+// />
+// <Input
+//   value={tag}
+//   ref={editInputRef}
+//   onChange={(e) => {
+//     editTag(e.target.value, index)
+//   }}
+//   onBlur={() => setEditableIndex(null)}
+//   onPressEnter={() => setEditableIndex(null)}
+// />
+
+// <AutoSelect
+//   options={["Libis", "Ronac"]}
+//   onChange={(value) => addTag(value)}
+//   onPressEnter={(value) => addTag(value)}
+//   onBlur={(value) => addTag(value)}
+// />
+// <Input
+//   onPressEnter={(e) => addTag(e.target.value)}
+//   onBlur={(e) => addTag(e.target.value)}
+//   size="small"
+//   ref={inputRef}
+// />

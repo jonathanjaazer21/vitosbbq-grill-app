@@ -18,5 +18,8 @@ export default function useGetDocumentsByFn(ServiceClass) {
       setLoaded(true)
     }
   }
-  return [data, loadData]
+  const clearData = () => {
+    setData([])
+  }
+  return [data, loadData, clearData]
 }
