@@ -1,8 +1,8 @@
-import DashboardScheduler from "Components/Features/DashboardTransaction"
+import DashboardScheduler from "Components/Features/DashboardScheduler"
 import React from "react"
 
 function DashboardGrillingPage() {
-  return <>I am schedule</>
+  return <DashboardScheduler />
 }
 
 export default DashboardGrillingPage

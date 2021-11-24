@@ -6,10 +6,10 @@ function StringField({ ServiceClass, name, ...rest }) {
   const [value, setValue] = useState("")
   const [isTouched, setIsTouched] = useState(false)
   useEffect(() => {
-    if (rest.collectionData) {
+    if (rest?.collectionData) {
       setValue(rest.collectionData[name])
     }
-  }, [rest.collectionData])
+  }, [rest?.collectionData])
 
   useEffect(() => {
     if (isTouched) {

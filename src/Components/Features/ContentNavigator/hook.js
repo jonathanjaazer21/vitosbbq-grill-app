@@ -9,8 +9,10 @@ export default function useContentNavigator() {
   const location = useLocation()
   const [breadcrumb, setBreadcrumb] = useState([])
   const [header, setHeader] = useState("")
+  const [breadcrumbCount, setBreadcrumbCount] = useState(0)
   useEffect(() => {
     const pathNames = handlePathNames(location.pathname)
+    setBreadcrumbCount(pathNames.length)
     const _breadcrumb = []
     if (pathNames.length === 0) {
       setHeader("Home")
@@ -34,7 +36,7 @@ export default function useContentNavigator() {
     const pathNames = pathNameSplit.filter((e) => e)
     return pathNames
   }
-  return { header, breadcrumb }
+  return { header, breadcrumb, breadcrumbCount }
 }
 
 // this function will produced a path url for each breadcrumb click

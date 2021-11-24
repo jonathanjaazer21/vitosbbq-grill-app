@@ -1,38 +1,55 @@
 import React, { useState, useEffect, useContext } from "react"
 import { UnauthorizedContext } from "Error/Unauthorized"
+import { arrayReplace } from "Helpers/arrayFuntions"
+import { UnavailableContext } from "Error/Unavailable"
 
-function usePaginate(Service) {
+// this is default config = { bySort: true, customSort: ["StartTime": "asc" or "desc"]}
+function usePaginate(ServiceClass, config) {
+  const { setError, setIsLoading } = useContext(UnavailableContext)
   const { user } = useContext(UnauthorizedContext)
   const [lastVisible, setLastVisible] = useState(null)
   const [dataSource, setDataSource] = useState([])
   useEffect(() => {
-    if (lastVisible === null && userComponent?.branches.length > 0) {
-      const branch = userComponent?.branches[0]
-      loadData(branch)
+    if (lastVisible === null && user?.branchSelected) {
+      const branch = user?.branchSelected
+      loadData({}, branch)
     }
-  }, [lastVisible, userComponent?.branches])
-  const loadData = async (branch) => {
-    if (lastVisible) {
-      const [_lastVisible, colData = []] = await PaginateCommands.getMoreData(
-        collectionName,
-        limit,
-        lastVisible,
-        branch
+  }, [lastVisible, user])
+  const loadData = async (data = {}, branch, refresh = false) => {
+    if (Object.keys(data).length > 0) {
+      // this is for static data changes triggered from formHandler
+      const _dataIndex = dataSource.findIndex(
+        (d) => d[ServiceClass._ID] === data[ServiceClass._ID]
       )
+      const newData = arrayReplace(dataSource, _dataIndex, {
+        ...dataSource[_dataIndex],
+        ...data,
+      })
+      setDataSource(newData)
+      return
+    }
+
+    setIsLoading(true)
+    if (lastVisible && refresh === false) {
+      const [_lastVisible, colData = []] =
+        await ServiceClass.getNextPaginatedData(
+          lastVisible,
+          user?.branchSelected
+        )
       if (colData.length > 0) {
         const newData = [...dataSource, ...colData]
         setDataSource(newData)
         setLastVisible(_lastVisible)
       }
+      setIsLoading(false)
     } else {
       // this will be the first load of data
-      const [_lastVisible, colData] = await PaginateCommands.getData(
-        collectionName,
-        limit,
+      const [_lastVisible, colData] = await ServiceClass.getPaginatedData(
         branch
       )
       setDataSource(colData)
       setLastVisible(_lastVisible)
+      setIsLoading(false)
     }
   }
 
@@ -47,7 +64,7 @@ function usePaginate(Service) {
   // }
 
   // return { dataSource, loadData }
-  return [user]
+  return [dataSource, loadData, lastVisible]
 }
 
 export default usePaginate

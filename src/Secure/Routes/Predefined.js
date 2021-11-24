@@ -17,9 +17,8 @@ function Predefined({}) {
       {menus.map((menu) => {
         return (
           // <RouteWithSubRoutes key={menu.dataKey} {...menu} />
-          <Route exact path={`${menu.path}`}>
+          <Route key={menu.key} exact path={`${menu.path}`}>
             {Pages[menu.dataKey]}
-            {/* <Pages pageKey={menu.key} /> */}
           </Route>
         )
       })}
@@ -27,10 +26,8 @@ function Predefined({}) {
       {menus.map(({ subMenu = [] }) => {
         return subMenu.map((sub) => {
           return (
-            <Route path={`${sub.path}`}>
+            <Route key={sub.key} path={`${sub.path}`}>
               {Pages[sub.dataKey]}
-              {/* <sub.component /> */}
-              {/* <Pages pageKey={sub.key} /> */}
             </Route>
           )
         })

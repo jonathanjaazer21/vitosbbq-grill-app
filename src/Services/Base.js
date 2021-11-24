@@ -10,6 +10,9 @@ import db, {
   where,
   updateDoc,
   limit,
+  setDoc,
+  startAt,
+  endAt,
 } from "./firebase"
 export default class Base {
   static async getData(collectionName) {
@@ -29,8 +32,7 @@ export default class Base {
   static async getDataBySort(collectionName, orderedBy) {
     const q = query(
       collection(db, collectionName),
-      orderBy(orderedBy[0], orderedBy[1]),
-      limit(150)
+      orderBy(orderedBy[0], orderedBy[1])
     )
     const querySnapshot = await getDocs(q)
     // use .metadata.fromCache of firebase instead since try catch is not working here
@@ -63,11 +65,77 @@ export default class Base {
     }
   }
 
+  static async getDataByDate(collectionName, dates, fieldname, branch) {
+    const startTime = new Date(dates[0].setHours(0, 0, 0, 0))
+    const endTime = new Date(dates[1].setHours(23, 59, 59, 59))
+    const q = query(
+      collection(db, collectionName),
+      where(fieldname, ">=", startTime),
+      where(fieldname, "<=", endTime),
+      where("branch", "==", branch),
+      orderBy(fieldname, "asc")
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+    return data
+  }
+
   static async getDataByFieldname(collectionName, fieldname, value) {
     const q = query(
       collection(db, collectionName),
       where(fieldname, "==", value)
       // orderBy(orderedBy[0], orderedBy[1])
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+    return data
+  }
+
+  static async getDataByKeyword(collectionName, fieldname, value) {
+    const q = query(
+      collection(db, collectionName),
+      orderBy(fieldname),
+      startAt(value),
+      endAt(fieldname + "\uf8ff")
+      // orderBy(orderedBy[0], orderedBy[1])
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+    return data
+  }
+
+  static async getDataNotEqualToFieldname(
+    collectionName,
+    orderedBy,
+    fieldname,
+    value
+  ) {
+    const q = query(
+      collection(db, collectionName),
+      where(fieldname, "!=", value),
+      orderBy(fieldname),
+      orderBy(orderedBy[0], orderedBy[1])
     )
     const querySnapshot = await getDocs(q)
     // use .metadata.fromCache of firebase instead since try catch is not working here
@@ -93,7 +161,21 @@ export default class Base {
     }
   }
 
-  static updateDataById(collectionName, id, data) {
+  static async setData(collectionName, id, data) {
+    try {
+      return await setDoc(
+        doc(db, collectionName, id),
+        {
+          ...data,
+        },
+        { merge: true }
+      )
+    } catch (error) {
+      throw new Error(error.code)
+    }
+  }
+
+  static async updateDataById(collectionName, id, data) {
     try {
       const docRef = doc(db, collectionName, id)
       updateDoc(docRef, {

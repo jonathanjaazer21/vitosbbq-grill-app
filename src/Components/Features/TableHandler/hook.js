@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { Space, Tag } from "antd"
 import MainButton from "Components/Commons/MainButton"
 import { formatDateDash, formatDateFromDatabase } from "Helpers/dateFormat"
@@ -15,6 +15,7 @@ import {
 import { EditOutlined } from "@ant-design/icons"
 import { arrayReplace, replaceArrayData } from "Helpers/arrayFuntions"
 import { useHistory, useRouteMatch } from "react-router"
+import thousandsSeparators from "Helpers/formatNumber"
 export default function useTableHandler({
   ServiceClass, // Class
   hideColumns = [],
@@ -28,10 +29,12 @@ export default function useTableHandler({
   enableEdit = false,
   enableFilter = false,
   enableAdd = false,
+  defaultAddForm = true,
   enableRowSelect = false,
   rowSelection = () => {},
   onCell = () => {},
   useHook = useGetDocuments,
+  paginateRequest = false,
   exposeData = () => {},
   modifiedData,
 }) {
@@ -56,14 +59,19 @@ export default function useTableHandler({
     handleColumns(data)
   }, [data])
 
-  // this is testing modifier for now
+  // if modifiedData is trigger it will automatically update the state base on the new data save
   useEffect(() => {
-    const collectionIndex = data.findIndex(
-      (obj) => obj[ServiceClass._ID] === modifiedData[ServiceClass._ID]
-    )
-    const updatedData = arrayReplace(data, collectionIndex, modifiedData)
-    console.log("updatedData", updatedData)
-    setData(updatedData)
+    // const collectionIndex = data.findIndex(
+    //   (obj) => obj[ServiceClass._ID] === modifiedData[ServiceClass._ID]
+    // )
+    // if (collectionIndex >= 0) {
+    //   const updatedData = arrayReplace(data, collectionIndex, modifiedData)
+    //   setData(updatedData)
+    // }
+    // handleModified(modifiedData)
+    if (Object.keys(modifiedData).length > 0) {
+      loadData(modifiedData)
+    }
   }, [modifiedData])
 
   const handleColumns = (data) => {
@@ -213,6 +221,9 @@ export default function useTableHandler({
           </Space>
         )
         break
+      case AMOUNT_TYPE:
+        result = thousandsSeparators(Number(value).toFixed(2))
+        break
       case DATE_TYPE:
         const formattedDate = formatDateFromDatabase(value)
         result = formatDateDash(formattedDate)
@@ -233,6 +244,7 @@ export default function useTableHandler({
   }
   return {
     columns,
+    hideColumns,
     data,
     loadData,
     enableFilter,
@@ -240,9 +252,11 @@ export default function useTableHandler({
     enableRowSelect,
     rowSelection,
     enableAdd,
+    defaultAddForm,
     setIsLoading,
     isLoading,
     ServiceClass,
     handleModified,
+    paginateRequest,
   }
 }

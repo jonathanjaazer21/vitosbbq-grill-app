@@ -1,5 +1,8 @@
 import { ARRAY_OF_STRING_TYPE, BOOLEAN_TYPE } from "Constants/types"
+import { producedBranches, producedRoles } from "Helpers/collectionData"
 import Base from "Services/Base"
+import BranchClass from "./BranchClass"
+import RolesClass from "./RolesClass"
 
 export default class UsersClass {
   static COLLECTION_NAME = "users"
@@ -16,6 +19,10 @@ export default class UsersClass {
 
   static addData(data) {
     return Base.addData(this.COLLECTION_NAME, data)
+  }
+
+  static setData(id, data) {
+    return Base.setData(this.COLLECTION_NAME, id, data)
   }
 
   static BRANCH_SELECTED = "branchSelected"
@@ -38,6 +45,16 @@ export default class UsersClass {
     [this.IS_ENABLED]: BOOLEAN_TYPE,
     [this.ROLES]: ARRAY_OF_STRING_TYPE,
   }
+
+  static async getDropdowns() {
+    const branches = await Base.getData(BranchClass.COLLECTION_NAME)
+    const roles = await Base.getData(RolesClass.COLLECTION_NAME)
+    return {
+      [this.BRANCHES]: producedBranches(branches),
+      [this.ROLES]: producedRoles(roles),
+    }
+  }
+
   static LABELS = {
     [this.BRANCH_SELECTED]: "Branch Selected",
     [this._ID]: "Email",

@@ -10,6 +10,7 @@ const AutoSelect = React.forwardRef((props, ref) => {
     size = "default",
     width = 120,
     value = "",
+    ...rest
   } = props
   return (
     <Select
@@ -21,6 +22,7 @@ const AutoSelect = React.forwardRef((props, ref) => {
       optionFilterProp="children"
       onChange={onChange}
       value={value}
+      {...rest}
       // onFocus={onFocus}
       // onBlur={onBlur}
       // onSearch={onSearch}

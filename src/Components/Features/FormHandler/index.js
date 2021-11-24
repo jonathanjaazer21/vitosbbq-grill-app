@@ -18,12 +18,8 @@ import CustomPopConfirm from "Components/Commons/CustomPopConfirm"
 import StringField from "./StringField"
 import StringFieldArray from "./StringFieldArray"
 import BooleanField from "./BooleanField"
-function FormHandler({
-  ServiceClass,
-  back,
-  formType = "add",
-  formSave = () => {},
-}) {
+import ObjectFieldArray from "./ObjectFieldArray"
+function FormHandler({ ServiceClass, back, formSave = () => {} }) {
   const query = useQuery()
   const id = query.get("id")
   const [collectionData] = useGetDocumentById(ServiceClass, id)
@@ -41,18 +37,21 @@ function FormHandler({
   const handleModification = (value, name) => {
     const _modifiedData = { ...modifiedData }
     _modifiedData[name] = value
-    setModifiedData(_modifiedData)
+    setModifiedData({ ..._modifiedData })
   }
 
   const handleSave = async () => {
-    if (formType === "modified") {
-      await ServiceClass.updateDataById(id, modifiedData)
-      formSave({ ...collectionData, ...modifiedData })
-      back()
-    } else {
-      console.log("submit add", modifiedData)
-      back()
+    const dataToBeSaved = { ...modifiedData }
+    // remove if field is not included in the properties of a class
+    for (const key in dataToBeSaved) {
+      if (!properties.includes(key)) {
+        delete dataToBeSaved[key]
+      }
     }
+
+    await ServiceClass.updateDataById(id, dataToBeSaved)
+    formSave({ ...collectionData, ...dataToBeSaved, [ServiceClass._ID]: id })
+    back()
   }
   return (
     <>
@@ -82,7 +81,14 @@ function FormHandler({
                       />
                     )
                   case ARRAY_OF_OBJECT_TYPE:
-                    return <div>I am array of object</div>
+                    return (
+                      <ObjectFieldArray
+                        ServiceClass={ServiceClass}
+                        collectionData={collectionData}
+                        name={name}
+                        handleModification={handleModification}
+                      />
+                    )
                   case BOOLEAN_TYPE:
                     return (
                       <BooleanField
@@ -142,7 +148,7 @@ const ActionButtons = (props) => {
           disabled: modifiedCount > 0 ? false : true,
         }}
         onConfirm={props.back}
-        count={modifiedCount}
+        count={modifiedCount} // count is used for notification discard Changes
       />
       <MainButton
         label="Save"

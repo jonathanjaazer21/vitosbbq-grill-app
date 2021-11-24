@@ -19,15 +19,8 @@ import StringField from "./StringField"
 import StringFieldArray from "./StringFieldArray"
 import BooleanField from "./BooleanField"
 import UsersClass from "Services/Classes/UsersClass"
-function FormHandlerAdd({
-  ServiceClass,
-  back,
-  formType = "add",
-  formSave = () => {},
-}) {
-  const query = useQuery()
-  const id = query.get("id")
-  const [collectionData] = useGetDocumentById(ServiceClass, id)
+function FormHandlerAdd({ ServiceClass, back, formSave = () => {} }) {
+  const [defaultData, setDefaultData] = useState()
   const [properties, setProperties] = useState([])
   const [modifiedData, setModifiedData] = useState({})
   useEffect(() => {
@@ -37,9 +30,31 @@ function FormHandlerAdd({
       )
 
       if (ServiceClass.COLLECTION_NAME === UsersClass.COLLECTION_NAME) {
+        // includes the _id property if it is user class
         newProperties.splice(0, 0, ServiceClass._ID)
       }
       setProperties(newProperties)
+
+      const _defaultData = {} // set some default value to prevent error when the fields do not have an input
+      for (const key of newProperties) {
+        switch (ServiceClass.TYPES[key]) {
+          case STRING_TYPE:
+            _defaultData[key] = ""
+            break
+          case ARRAY_OF_STRING_TYPE:
+            _defaultData[key] = []
+            break
+          case ARRAY_OF_OBJECT_TYPE:
+            _defaultData[key] = []
+            break
+          case BOOLEAN_TYPE:
+            _defaultData[key] = true
+            break
+          default:
+            _defaultData[key] = ""
+        }
+      }
+      setDefaultData(_defaultData)
     }
   }, [ServiceClass])
 
@@ -50,17 +65,21 @@ function FormHandlerAdd({
   }
 
   const handleSave = async () => {
-    if (formType === "modified") {
-      // await ServiceClass.updateDataById(id, modifiedData)
-      // formSave({ ...collectionData, ...modifiedData })
+    if (ServiceClass.COLLECTION_NAME === UsersClass.COLLECTION_NAME) {
+      await ServiceClass.setData(modifiedData[ServiceClass._ID], {
+        ...defaultData,
+        ...modifiedData,
+      })
       back()
-    } else {
-      console.log("submit add", modifiedData)
-      back()
+      return
     }
+    // if the collection is not equal to user this function will be trigger
+    await ServiceClass.addData({
+      ...defaultData,
+      ...modifiedData,
+    })
+    back()
   }
-
-  console.log()
   return (
     <>
       <StyledContainer>
@@ -73,7 +92,7 @@ function FormHandlerAdd({
                   return (
                     <StringField
                       ServiceClass={ServiceClass}
-                      collectionData={collectionData}
+                      collectionData={defaultData}
                       name={name}
                       handleModification={handleModification}
                     />
@@ -82,7 +101,7 @@ function FormHandlerAdd({
                   return (
                     <StringFieldArray
                       ServiceClass={ServiceClass}
-                      collectionData={collectionData}
+                      collectionData={defaultData}
                       name={name}
                       handleModification={handleModification}
                     />
@@ -93,7 +112,7 @@ function FormHandlerAdd({
                   return (
                     <BooleanField
                       ServiceClass={ServiceClass}
-                      collectionData={collectionData}
+                      collectionData={defaultData}
                       name={name}
                       handleModification={handleModification}
                     />
@@ -102,7 +121,7 @@ function FormHandlerAdd({
               return (
                 <StringField
                   ServiceClass={ServiceClass}
-                  collectionData={collectionData}
+                  collectionData={defaultData}
                   name={name}
                   handleModification={handleModification}
                 />

@@ -1,8 +1,12 @@
 import { Space } from "antd"
 import CustomTable from "Components/Commons/CustomTable"
 import MainButton from "Components/Commons/MainButton"
-import React, { useEffect, useState } from "react"
-import { ReloadOutlined, FilterOutlined } from "@ant-design/icons"
+import React, { useContext, useEffect, useState } from "react"
+import {
+  ReloadOutlined,
+  FileExcelOutlined,
+  PrinterOutlined,
+} from "@ant-design/icons"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import styled from "styled-components"
 import CustomInput from "Components/Commons/CustomInput"
@@ -17,15 +21,23 @@ import {
 } from "react-router"
 import URLNotFound from "Error/URLNotFound"
 import FormHandler from "../FormHandler"
-import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint"
 import FormHandlerAdd from "../FormHandler/FormHandlerAdd"
+import { UnauthorizedContext } from "Error/Unauthorized"
+import FilterOptions from "../FilterOptions"
+import CustomTitle from "Components/Commons/CustomTitle"
+import { DATE_TYPE, STRING_TYPE } from "Constants/types"
+import CustomRangePicker from "Components/Commons/RangePicker"
+import useRangeHandler from "Hooks/useRangeHandler"
+import useGetDocumentsByKeyword from "Hooks/useGetDocumentsByKeyword"
 function TableHandler(props) {
   const {
     ServiceClass,
     columns,
+    hideColumns,
     data,
     loadData,
     enableAdd,
+    defaultAddForm, // this is true or false
     enableFilter,
     enableRowSelect,
     isLoading,
@@ -33,12 +45,13 @@ function TableHandler(props) {
     rowSelection,
     enableEdit,
     handleModified,
+    paginateRequest,
   } = useTableHandler(props)
-  const { sm } = useBreakpoint()
   const { path } = useRouteMatch()
   const history = useHistory()
   const location = useLocation()
-
+  const [isFiltered, setIsFiltered] = useState(false)
+  const [filteredData, setFilteredData] = useState([])
   return (
     <div style={{ position: "relative" }}>
       {data.length > 0 && isLoading === false && (
@@ -54,11 +67,16 @@ function TableHandler(props) {
             enableAdd={enableAdd}
             ServiceClass={ServiceClass}
             setIsLoading={setIsLoading}
+            isFiltered={isFiltered}
+            setIsFiltered={setIsFiltered}
             loadData={loadData}
+            hideColumns={hideColumns}
+            setFilteredData={setFilteredData}
           />
           <CustomTable
+            isFiltered={isFiltered}
             columns={[...columns]}
-            dataSource={[...data]}
+            dataSource={isFiltered ? [...filteredData] : [...data]}
             size="small"
             scroll={{ x: "calc(375px + 50%)", y: "90vh" }}
             rowClassName={() => {
@@ -73,39 +91,46 @@ function TableHandler(props) {
                   }
                 : {}
             }}
+            pagination={{ pageSize: 15, showSizeChanger: false }}
+            loadData={paginateRequest ? loadData : () => {}}
+            paginateRequest={paginateRequest}
           />
         </div>
       )}
       <Switch>
         <Route exact path={path}></Route>
-        {enableAdd && (
+        {enableAdd && defaultAddForm && (
           <Route exact path={`${path}/add`}>
             <FormHandlerAdd
               ServiceClass={ServiceClass}
               back={() => {
                 history.push(path)
               }}
-              formType="add"
+              hideColumns={hideColumns}
             />
           </Route>
         )}
-        {enableEdit && (
+        {enableEdit && defaultAddForm && (
           <Route exact path={`${path}/modified`}>
             <FormHandler
               ServiceClass={ServiceClass}
               back={() => {
                 history.push(path)
               }}
-              formType="modified"
               formSave={(data) => {
                 handleModified(data)
               }}
+              hideColumns={hideColumns}
             />
           </Route>
         )}
-        <Route path="*">
-          <URLNotFound />
-        </Route>
+        {defaultAddForm && (
+          <Route path="*">
+            <StyledURLNotFound>
+              <URLNotFound />
+            </StyledURLNotFound>
+          </Route>
+        )}
       </Switch>
     </div>
   )
@@ -114,24 +139,98 @@ function TableHandler(props) {
 export default TableHandler
 
 const ActionButtons = (props) => {
+  const { user } = useContext(UnauthorizedContext)
   const history = useHistory()
   const { path } = useRouteMatch()
-  const { enableFilter, enableAdd, ServiceClass, loadData, setIsLoading } =
-    props
+  const {
+    enableFilter,
+    enableAdd,
+    ServiceClass,
+    loadData,
+    setIsLoading,
+    setIsFiltered,
+    isFiltered,
+    hideColumns,
+    setFilteredData,
+  } = props
+  const types = ServiceClass.TYPES
+  const [rangeData = [], loadRangeData, clearRangeData] =
+    useRangeHandler(ServiceClass)
+  const [documentData, loadDocumentData, clearDocumentData] =
+    useGetDocumentsByKeyword(ServiceClass)
+  const [selectedFilter, setSelectedFilter] = useState("")
 
+  useEffect(() => {
+    setFilteredData(rangeData)
+  }, [rangeData])
+
+  useEffect(() => {
+    setFilteredData(rangeData)
+  }, [documentData])
+  useEffect(() => {
+    clearRangeData()
+    clearDocumentData()
+  }, [selectedFilter])
   return (
-    <StyledContainer enableFilter={enableFilter}>
+    <StyledContainer enableFilter={enableFilter} wrap>
       <StyledLeftContent enableFilter={enableFilter}>
-        <MainButton type="default" shape="circle" Icon={<FilterOutlined />} />
-        <CustomInput placeholder="Search" />
+        <FilterOptions
+          ServiceClass={ServiceClass}
+          isFiltered={isFiltered}
+          setIsFiltered={setIsFiltered}
+          hideColumns={hideColumns}
+          valueSelected={(data) => setSelectedFilter(data)}
+        />
+        {selectedFilter !== "NONE" && (
+          <Space>
+            <CustomTitle
+              typographyType="text"
+              type="secondary"
+              label={`${ServiceClass.LABELS[selectedFilter]} :`}
+            />
+            {types[selectedFilter] === DATE_TYPE && (
+              <CustomRangePicker
+                format="MM/DD/YYYY"
+                onChange={(dates) => {
+                  loadRangeData(dates, selectedFilter)
+                }}
+              />
+            )}
+
+            {types[selectedFilter] === STRING_TYPE ||
+              (typeof types[selectedFilter] === "undefined" && (
+                <CustomInput
+                  placeholder="Search here..."
+                  onChange={(e) =>
+                    loadDocumentData(selectedFilter, e.target.value)
+                  }
+                />
+              ))}
+          </Space>
+        )}
+        <Space>
+          <MainButton
+            label=""
+            type="default"
+            shape="circle"
+            Icon={<PrinterOutlined />}
+          />
+          <MainButton
+            label=""
+            type="default"
+            shape="circle"
+            Icon={<FileExcelOutlined />}
+          />
+        </Space>
       </StyledLeftContent>
       <StyledRightContent enableAdd={enableAdd}>
         <MainButton
           Icon={<ReloadOutlined />}
-          label="Refresh"
+          label=""
           type="default"
+          shape="circle"
           onClick={() => {
-            loadData()
+            loadData({}, user?.branchSelected, true) // refresh data if true
             setIsLoading(true)
           }}
         />
@@ -152,6 +251,19 @@ const ActionButtons = (props) => {
 const MobileTableView = (props) => {
   return <div>Mobile view</div>
 }
+
+const StyledURLNotFound = styled.div`
+  display: grid;
+  grid-template-rows: 3rem 1fr;
+  grid-template-columns: 1fr;
+  justify-content: flex-start;
+  position: absolute;
+  top: 0;
+  height: 85vh;
+  width: 100%;
+  z-index: 1000;
+  background-color: #eee;
+`
 
 const StyledContainer = styled(Space)`
   display: flex;

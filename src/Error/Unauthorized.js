@@ -8,7 +8,7 @@ function Unauthorized({ children }) {
   const [user, setUser] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [loaded, setLoaded] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
