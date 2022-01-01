@@ -23,33 +23,46 @@ function ProductPurchased({ modifiedData = () => {}, orderData }) {
     isTouched,
   } = useProductPurchased(orderData)
   useEffect(() => {
-    if (dataSource.length > 0 && isTouched) {
-      const modifiedObj = {}
-      // set default list of products
-      for (const key in products) {
-        modifiedObj[key] = 0
-      }
-      for (const obj of dataSource) {
-        modifiedObj[obj?.code] = obj?.qty
-        const customPrice = `customPrice${obj?.code}`
-        if (typeof obj[customPrice] !== "undefined") {
-          modifiedObj[customPrice] = obj[customPrice]
+    const modifiedObj = {}
+    for (const key in products) {
+      modifiedObj[key] = 0
+    }
+    if (isTouched) {
+      if (dataSource.length > 0) {
+        // set default list of products
+        for (const obj of dataSource) {
+          modifiedObj[obj?.code] = obj?.qty
+          const customPrice = `customPrice${obj?.code}`
+          if (typeof obj[customPrice] !== "undefined") {
+            modifiedObj[customPrice] = obj[customPrice]
+          }
         }
         modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
+        modifiedObj[SchedulersClass.OTHERS] = {}
+        modifiedData(modifiedObj)
+      } else {
+        modifiedObj[SchedulersClass.TOTAL_DUE] = 0
+        modifiedObj[SchedulersClass.OTHERS] = {}
+        modifiedData(modifiedObj)
       }
-      modifiedData(modifiedObj)
     }
   }, [dataSource, isTouched])
 
+  const sortedProductList = productList.sort(
+    (a, b) => a[ProductsClass.NO] - b[ProductsClass.NO]
+  )
   return (
     <Card
       title="Product Purchased"
       actions={[
         <Due label="Total Due" value={totalDue} />,
         <ActionButton
-          productList={productList}
+          productList={sortedProductList}
           addProduct={addProduct}
           products={products}
+          dataSource={dataSource}
+          setEditableId={setEditableId}
+          handleEditing={handleEditing}
         />,
       ]}
     >
@@ -57,12 +70,35 @@ function ProductPurchased({ modifiedData = () => {}, orderData }) {
         pagination={{ pageSize: 4 }}
         dataSource={[...dataSource]}
         columns={[
-          { title: "Code", dataIndex: "code", key: "code" },
+          {
+            title: "Code",
+            dataIndex: "code",
+            key: "code",
+            width: 50,
+            onCell: (data) => {
+              return {
+                onClick: () => {
+                  setEditableId(data?.code)
+                },
+              }
+            },
+            render: (data) => {
+              return <span>{data}</span>
+            },
+          },
           {
             title: "Price",
             dataIndex: "price",
             key: "price",
             align: "right",
+            width: 100,
+            onCell: (data) => {
+              return {
+                onClick: () => {
+                  setEditableId(data?.code)
+                },
+              }
+            },
             render: (value, record) => {
               const isCustomPrice =
                 typeof record[`customPrice${record?.code}`] !== "undefined"
@@ -74,11 +110,7 @@ function ProductPurchased({ modifiedData = () => {}, orderData }) {
                   onPressEnter={() => setEditableId(null)}
                 />
               ) : (
-                <span
-                  onClick={() => {
-                    setEditableId(record?.code)
-                  }}
-                >
+                <span>
                   {thousandsSeparators(Number(customPrice).toFixed(2))}
                 </span>
               )
@@ -88,6 +120,14 @@ function ProductPurchased({ modifiedData = () => {}, orderData }) {
             title: "Qty",
             dataIndex: "qty",
             key: "qty",
+            width: 80,
+            onCell: (data) => {
+              return {
+                onClick: () => {
+                  setEditableId(data?.code)
+                },
+              }
+            },
             render: (value, record) => {
               return editableId === record?.code ? (
                 <CustomInput
@@ -96,13 +136,7 @@ function ProductPurchased({ modifiedData = () => {}, orderData }) {
                   onPressEnter={() => setEditableId(null)}
                 />
               ) : (
-                <span
-                  onClick={() => {
-                    setEditableId(record?.code)
-                  }}
-                >
-                  {value}
-                </span>
+                <span>{value}</span>
               )
             },
           },
@@ -111,6 +145,14 @@ function ProductPurchased({ modifiedData = () => {}, orderData }) {
             dataIndex: "total",
             key: "total",
             align: "right",
+            width: 100,
+            onCell: (data) => {
+              return {
+                onClick: () => {
+                  setEditableId(data?.code)
+                },
+              }
+            },
             render: (value, record) => {
               return (
                 <span>
@@ -151,6 +193,9 @@ const ActionButton = ({
   productList = [],
   addProduct = () => {},
   products,
+  dataSource = [],
+  handleEditing,
+  setEditableId,
 }) => {
   return (
     <div
@@ -164,6 +209,7 @@ const ActionButton = ({
       <CustomModal
         title="Product list"
         buttonLabel="Add Product"
+        buttonType="default"
         footer={false}
       >
         <Space
@@ -171,7 +217,74 @@ const ActionButton = ({
           wrap
           style={{ width: "100%", justifyContent: "center" }}
         >
-          {productList.map((obj) => {
+          {productList.map((obj, index) => {
+            const customCol = [
+              {
+                title: "Code",
+                dataIndex: "code",
+                render: (data) => {
+                  return <span style={{ fontSize: "10px" }}>{data}</span>
+                },
+                width: "12rem",
+              },
+              {
+                title: "Description",
+                dataIndex: "description",
+                render: (data) => {
+                  return <span style={{ fontSize: "10px" }}>{data}</span>
+                },
+                width: "10rem",
+              },
+              {
+                title: "Price",
+                dataIndex: "price",
+                render: (data) => {
+                  return <span style={{ fontSize: "10px" }}>{data}</span>
+                },
+                width: "7rem",
+                align: "right",
+              },
+              {
+                title: "Qty",
+                dataIndex: "qty",
+                render: (data, record) => {
+                  return (
+                    <CustomInput
+                      type="number"
+                      style={{ fontSize: "10px", width: "5rem" }}
+                      value={data}
+                      onClick={() => {
+                        addProduct(record?.code, true)
+                        setEditableId(record?.code)
+                      }}
+                      onChange={(e) => {
+                        if (e.target.value === "") {
+                          addProduct(record?.code, false)
+                        }
+                        handleEditing(e.target.value, "qty")
+                      }}
+                    />
+                  )
+                },
+                width: "7rem",
+              },
+              {
+                title: "Total",
+                dataIndex: "total",
+                render: (data, record) => {
+                  const qty = Number(record?.qty)
+                  const price = Number(record?.price)
+                  const total = qty * price
+                  return (
+                    <span style={{ fontSize: "10px" }}>
+                      {thousandsSeparators(total.toFixed(2))}
+                    </span>
+                  )
+                },
+                align: "right",
+                width: "7rem",
+              },
+            ]
             return (
               <Space direction="vertical">
                 <CustomTitle
@@ -179,9 +292,27 @@ const ActionButton = ({
                   type="secondary"
                   label={obj[ProductsClass.GROUP_HEADER]}
                 />
+                <Table
+                  style={{ width: "100%" }}
+                  size="small"
+                  pagination={false}
+                  showHeader={index === 0}
+                  columns={customCol}
+                  dataSource={[
+                    ...obj[ProductsClass.PRODUCT_LIST].map((data) => {
+                      const prodDetails = dataSource.find(
+                        (d) => d.code === data.code
+                      )
+                      if (Object.keys(prodDetails || {}).length > 0) {
+                        return { ...prodDetails }
+                      }
+                      return { ...data, qty: 0 }
+                    }),
+                  ]}
+                />
                 <Space wrap>
-                  {obj[ProductsClass.PRODUCT_LIST].map(
-                    ({ code, description }) => {
+                  {/* {obj[ProductsClass.PRODUCT_LIST].map(
+                    ({ code, description, price  }) => {
                       return (
                         <MainButton
                           label={`${code} : ${description}`}
@@ -191,7 +322,7 @@ const ActionButton = ({
                         />
                       )
                     }
-                  )}
+                  )} */}
                 </Space>
               </Space>
             )

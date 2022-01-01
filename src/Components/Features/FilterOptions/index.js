@@ -24,6 +24,17 @@ function FilterOptions({
       (key) => ServiceClass.TYPES[key] === DATE_TYPE
     )
 
+    if ((ServiceClass.COLLECTION_NAME = SchedulersClass.COLLECTION_NAME)) {
+      // selectedProperties.push(ServiceClass.SOURCE)
+      // selectedProperties.push(ServiceClass.MODE_PAYMENT)
+      selectedProperties.push(ServiceClass.DATE_START)
+      selectedProperties.push(ServiceClass.REVENUE_CHANNEL)
+      selectedProperties.push(ServiceClass.SALES_TYPE)
+      selectedProperties.push(ServiceClass.PARTNER_MERCHANT_ORDER_NO)
+      selectedProperties.push(ServiceClass.UTAK_NO)
+      selectedProperties.push(ServiceClass.CUSTOMER)
+    }
+
     setProperties(selectedProperties)
   }, [ServiceClass, hideColumns])
 

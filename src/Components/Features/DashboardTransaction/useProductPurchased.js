@@ -146,6 +146,7 @@ export default function useProductPurchased(orderData) {
     handleTotalDue(_dataSource)
     setIsTouched(true)
   }
+
   return {
     products,
     addProduct,

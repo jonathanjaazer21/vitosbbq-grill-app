@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { Modal, Button } from "antd"
 import { Radio, Input, Space, Slider } from "antd"
+import MainButton from "Components/Commons/MainButton"
 const { TextArea } = Input
 
 const SENIOR = "Senior Citizen"
@@ -33,12 +34,12 @@ const initialState = {
     amount: 0,
   },
   [AUTOMATIC]: {
-    remarks: "",
     amount: 0,
+    remarks: "",
   },
   [REFUND]: {
-    remarks: "",
     amount: 0,
+    remarks: "",
   },
   [PROMO]: {
     percentage: 0,
@@ -72,16 +73,18 @@ function DiscountAndOthersDialog(props) {
   })
 
   useEffect(() => {
-    const { formFields, others, orderNo } = props
-    if (others) {
+    const { formFields = {}, others = {}, orderNo = "" } = props
+    if (Object.keys(others).length > 0) {
       for (const discName of Object.keys(others)) {
         setState(discName)
       }
+    } else {
+      setState(SENIOR)
     }
-    if (formFields?.discountAdditionalDetails) {
+    if (formFields) {
       setAdditionalDetails({
         ...initialState,
-        ...formFields?.discountAdditionalDetails,
+        ...formFields,
       })
     } else {
       setAdditionalDetails({
@@ -95,14 +98,14 @@ function DiscountAndOthersDialog(props) {
 
   const onChange = (e) => {
     const automatic = { ...additionalDetails[AUTOMATIC] }
-    const incidents = { ...additionalDetails[INCIDENTS] }
+    const incidents = { ...additionalDetails[INCIDENTS], orderNo: "" }
     setAdditionalDetails({
       ...additionalDetails,
       [AUTOMATIC]: {
         remarks: automatic?.remarks,
         amount: props.totalDue * 0.5,
       },
-      [INCIDENTS]: { ...incidents, orderNo: props?.orderNo },
+      [INCIDENTS]: { ...incidents, orderNo: props?.orderNo || "" },
     })
     setState(e.target.value)
   }
@@ -126,16 +129,23 @@ function DiscountAndOthersDialog(props) {
 
   return (
     <>
-      <Button danger type="primary" onClick={() => setVisible(true)}>
-        Less
-      </Button>
+      <MainButton
+        disabled={
+          Number(props.totalDue) === 0 || typeof props?.totalDue === "undefined"
+        }
+        label="Less"
+        danger
+        type="default"
+        onClick={() => setVisible(true)}
+      />
       <Modal
         title="Discount and Others"
         centered
         visible={visible}
         onOk={() => {
           setVisible(false)
-          props.setDiscountAdditionalDetails(additionalDetails, state)
+          // console.log("additionalDetails", additionalDetails)
+          props.modifiedData(additionalDetails, state)
         }}
         onCancel={() => setVisible(false)}
         width={1000}
@@ -258,7 +268,10 @@ function DiscountAndOthersDialog(props) {
           >
             <div style={{ width: "25rem", marginBottom: ".6rem" }}>
               <label>Order #:</label>
-              <Input value={additionalDetails[state].orderNo} />
+              <Input
+                value={additionalDetails[state].orderNo}
+                onChange={(e) => handleFormChange(e, state, "orderNo")}
+              />
             </div>
             <div style={{ width: "25rem", marginBottom: ".6rem" }}>
               <label>Client name:</label>

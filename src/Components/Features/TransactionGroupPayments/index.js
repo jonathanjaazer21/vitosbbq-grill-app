@@ -175,7 +175,7 @@ const GroupPayments = () => {
 
   return (
     <>
-      <Button type="primary" onClick={() => setVisible(true)} danger>
+      <Button type="default" shape="round" onClick={() => setVisible(true)}>
         Add Group Payment
       </Button>
       {visible && <CustomModal visible={visible} setVisible={setVisible} />}

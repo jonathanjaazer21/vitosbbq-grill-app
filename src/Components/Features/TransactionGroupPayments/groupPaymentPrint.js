@@ -1,9 +1,10 @@
 import { Button, DatePicker, Input } from "antd"
-import {
-  AMOUNT_PAID,
-  DATE_PAYMENT,
-  REF_NO,
-} from "components/PaymentDetails/types"
+import React from "react"
+// import {
+//   AMOUNT_PAID,
+//   DATE_PAYMENT,
+//   REF_NO,
+// } from "components/PaymentDetails/types"
 import moment from "moment"
 import {
   AiFillCloseCircle,
@@ -11,24 +12,29 @@ import {
   AiFillPrinter,
   AiOutlineClose,
 } from "react-icons/ai"
-import Print from "Restructured/Components/Features/Print"
-import {
-  CUSTOMER,
-  DATE_START,
-  ORDER_NO,
-  PARTNER_MERCHANT_ORDER_NO,
-} from "Restructured/Constants/schedules"
+import Print from "Components/Features/Print"
+// import {
+//   CUSTOMER,
+//   DATE_START,
+//   ORDER_NO,
+//   PARTNER_MERCHANT_ORDER_NO,
+// } from "Constants/schedules"
 import {
   formatDateDash,
   formatDateFromDatabase,
   formatDateSlash,
-} from "Restructured/Utilities/dateFormat"
-import sumArray from "Restructured/Utilities/sumArray"
+} from "Helpers/dateFormat"
+import sumArray from "Helpers/sumArray"
+import SchedulersClass from "Services/Classes/SchedulesClass"
 
 const defaultDate = moment(new Date(), "MM/DD/YYYY")
 function GroupPaymentPrint({ filteredData }) {
-  const startDate = formatDateFromDatabase(filteredData[DATE_START])
-  const datePayment = formatDateFromDatabase(filteredData[DATE_PAYMENT])
+  const startDate = formatDateFromDatabase(
+    filteredData[SchedulersClass.DATE_START]
+  )
+  const datePayment = formatDateFromDatabase(
+    filteredData[SchedulersClass.DATE_PAYMENT]
+  )
   return (
     <Print
       component={
@@ -48,13 +54,13 @@ function GroupPaymentPrint({ filteredData }) {
               return (
                 <tr>
                   <td>{formatDateSlash(startDate)}</td>
-                  <td>{data[ORDER_NO]}</td>
-                  <td>{data[PARTNER_MERCHANT_ORDER_NO]}</td>
-                  <td>{data[CUSTOMER]}</td>
-                  <td>{data[REF_NO]}</td>
+                  <td>{data[SchedulersClass.ORDER_NO]}</td>
+                  <td>{data[SchedulersClass.PARTNER_MERCHANT_ORDER_NO]}</td>
+                  <td>{data[SchedulersClass.CUSTOMER]}</td>
+                  <td>{data[SchedulersClass.REF_NO]}</td>
                   <td>{formatDateSlash(datePayment)}</td>
                   <td align="right">{data?.totalDue}</td>
-                  <td align="right">{data[AMOUNT_PAID]}</td>
+                  <td align="right">{data[SchedulersClass.AMOUNT_PAID]}</td>
                 </tr>
               )
             })}
@@ -69,7 +75,7 @@ function GroupPaymentPrint({ filteredData }) {
                 {sumArray(filteredData, "totalDue").toFixed(2)}
               </td>
               <td align="right">
-                {sumArray(filteredData, AMOUNT_PAID).toFixed(2)}
+                {sumArray(filteredData, SchedulersClass.AMOUNT_PAID).toFixed(2)}
               </td>
             </tr>
           </table>

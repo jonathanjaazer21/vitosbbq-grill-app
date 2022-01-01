@@ -1,5 +1,5 @@
 import Commands from "./base"
-import db from "services/firebase"
+import db from "Services/firebase"
 const collectionName = "dropdowns"
 export default class ScheduleServicess extends Commands {
   #fieldName

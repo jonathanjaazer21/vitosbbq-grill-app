@@ -16,6 +16,12 @@ export default function useGetDocuments(ServiceClass, config) {
       const _dataIndex = data.findIndex(
         (d) => d[ServiceClass._ID] === _data[ServiceClass._ID]
       )
+      // this is for new added data in the table
+      // if (Object.keys(_dataIndex || {}).length === 0) {
+      //   const newData = data.splice(0, 0, _data)
+      //   setData(newData)
+      //   return
+      // }
       const newData = arrayReplace(data, _dataIndex, _data)
       setData(newData)
       return

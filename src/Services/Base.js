@@ -56,6 +56,7 @@ export default class Base {
       const docRef = doc(db, collectionName, id)
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
+        console.log("docSnap", docSnap.data())
         return docSnap.data()
       } else {
         return {}
@@ -157,7 +158,7 @@ export default class Base {
       }
       return {}
     } catch (error) {
-      throw new Error(error.code)
+      throw new Error(error)
     }
   }
 

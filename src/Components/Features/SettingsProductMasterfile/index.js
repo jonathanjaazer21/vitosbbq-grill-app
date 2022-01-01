@@ -1,6 +1,6 @@
 import React from "react"
 import ProductsClass from "Services/Classes/ProductsClass"
-import TableHandler from "../TableHandler"
+import TableHandler from "../SettingsTableHandler"
 
 function SettingsProductMasterfile() {
   return (
