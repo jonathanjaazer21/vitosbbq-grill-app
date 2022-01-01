@@ -43,7 +43,7 @@ export const useSelectMenus = () => {
       const _menu = menuData(modules)
       setMenus(_menu)
     } else {
-      const _menu = menuData(["Dashboard", "Scheduler", "Cashier"])
+      const _menu = menuData([])
       setMenus(_menu)
     }
   }

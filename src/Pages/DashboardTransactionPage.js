@@ -1,7 +1,7 @@
 import DashboardTransaction from "Components/Features/DashboardTransaction"
 import { Link, Route, Switch } from "react-router-dom"
 import { useHistory, useRouteMatch, useParams } from "react-router"
-import React, { useEffect, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import useGetDocumentById from "Hooks/useGetDocumentById"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import URLNotFound from "Error/URLNotFound"
@@ -14,24 +14,29 @@ import OrderForm, {
   StyledContainer,
 } from "Components/Features/DashboardTransaction/OrderForm"
 import useQuery from "Hooks/useQuery"
+import { UnauthorizedContext } from "Error/Unauthorized"
 const { TabPane } = Tabs
 
 function DashboardTransactionPage() {
+  const { user } = useContext(UnauthorizedContext)
   const { path } = useRouteMatch()
   const history = useHistory()
-  const [dataSelected, setDataSelected] = useState()
+  const [dataLoaded, setDataLoaded] = useState(null)
   const [modifiedData, setModifiedData] = useState({})
-
   return (
     <div style={{ position: "relative" }}>
       <DashboardTransaction
-        exposeData={(data) => setDataSelected(data)}
+        // exposeData={(data) => setDataLoaded(data)}
         modifiedData={modifiedData}
       />
       <Switch>
         <Route exact path={path}></Route>
         <Route exact path={`${path}/add`}>
-          <OrderForm back={() => history.push(path)} formType="add" />
+          <OrderForm
+            back={() => history.push(path)}
+            formType="add"
+            modifiedData={(data) => setModifiedData(data)}
+          />
         </Route>
         <Route exact path={`${path}/modified`}>
           <OrderForm

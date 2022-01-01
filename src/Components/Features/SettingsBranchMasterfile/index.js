@@ -1,6 +1,6 @@
 import React from "react"
 import BranchClass from "Services/Classes/BranchClass"
-import TableHandler from "../TableHandler"
+import TableHandler from "../SettingsTableHandler"
 
 function SettingsBranchMasterfile() {
   return (

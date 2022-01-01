@@ -1,19 +1,22 @@
-import ScheduleServicess from "services/firebase/SchedulesServicess"
-import DropdownServicess from "services/firebase/DropdownServicess"
-import useSelectComponentHandler from "hooks/selectComponentHandler"
-import useRangeHandler from "hooks/rangeHandler"
-import useFindDataHandler from "hooks/findDataHandler"
+import React from "react"
+import ScheduleServicess from "Services/firebase/SchedulesServicess"
+import DropdownServicess from "Services/firebase/DropdownServicess"
+import useSelectComponentHandler from "./selectComponentHandler"
+import useRangeHandler from "./rangeHandler"
+// import useFindDataHandler from "hooks/findDataHandler"
 import {
   formatDateDash,
   formatDateDashWithTime,
   formatDateFromDatabase,
-} from "Restructured/Utilities/dateFormat"
+} from "Helpers/dateFormat"
 import handleAutoFill from "./handleAutoFill"
 import { useState, useEffect, useContext } from "react"
-import { arrayReplace } from "Restructured/Utilities/arrayFuntions"
+import { arrayReplace } from "Helpers/arrayFuntions"
 import moment from "moment"
 import useFindDataHandlers from "./findDataHandler"
 import { UnauthorizedContext } from "Error/Unauthorized"
+import SchedulersClass from "Services/Classes/SchedulesClass"
+import { displayPaymentProp } from "Helpers/collectionData"
 
 export default function useGroupPaymentHook() {
   const format = "MM/DD/YYYY"
@@ -87,8 +90,8 @@ export default function useGroupPaymentHook() {
       search: {
         //optional
         partnerMerchantOrderNo: searchValue,
-        orderViaPartner: selectHandler.value,
-        branch: user?.branches[0],
+        [SchedulersClass.ORDER_VIA_WEBSITE]: selectHandler.value,
+        branch: user?.branchSelected,
       },
     })
   }
@@ -114,20 +117,46 @@ export default function useGroupPaymentHook() {
   const submitHandler = () => {
     if (selectedRows.length > 0) {
       for (const obj of cacheFilteredData) {
+        console.log("cacheFilteredData", cacheFilteredData)
         if (selectedRows.includes(obj._id)) {
-          const submissionData = {
-            modePayment: obj?.modePayment,
-            source: obj?.source,
-            accountNumber: obj?.accountNumber,
-            amountPaid: obj?.amountPaid,
-            datePayment: obj?.datePayment,
-            refNo: obj?.refNo,
+          let others = 0
+          for (const key of Object.keys(obj[SchedulersClass.OTHERS] || {})) {
+            others = obj[SchedulersClass.OTHERS][key]
           }
-          const service = new ScheduleServicess({
-            _id: obj._id,
-            _data: submissionData,
-          })
-          service.mergeData()
+          console.log("others", others)
+          const _totalAmountDeducted =
+            Number(obj[SchedulersClass.TOTAL_DUE]) -
+            Number(obj[SchedulersClass.AMOUNT_PAID])
+          const submissionData = {
+            [SchedulersClass.PARTIALS]: [
+              {
+                [SchedulersClass.ACCOUNT_NUMBER]:
+                  obj[SchedulersClass.ACCOUNT_NUMBER],
+                [SchedulersClass.REF_NO]: obj[SchedulersClass.REF_NO],
+                [SchedulersClass.MODE_PAYMENT]:
+                  obj[SchedulersClass.MODE_PAYMENT],
+                [SchedulersClass.SOURCE]: obj[SchedulersClass.SOURCE],
+                date: obj[SchedulersClass.DATE_PAYMENT],
+                amount: Number(obj?.amountPaid) - Number(others),
+                [SchedulersClass.SOA_NUMBER]:
+                  obj[SchedulersClass.SOA_NUMBER] || "",
+                [SchedulersClass.PAYMENT_NOTES]:
+                  obj[SchedulersClass.PAYMENT_NOTES] || "",
+                [SchedulersClass.OR_NO]: obj[SchedulersClass.OR_NO] || "",
+              },
+            ],
+            [SchedulersClass.FIXED_DEDUCTION]: {
+              amountDeduction: 10,
+              percentage: 0.95,
+              totalAmountDeducted: _totalAmountDeducted, // not yet done
+            },
+          }
+          console.log("submissionData", submissionData)
+          // const service = new ScheduleServicess({
+          //   _id: obj._id,
+          //   _data: submissionData,
+          // })
+          // service.mergeData()
         }
       }
     } else {
@@ -263,6 +292,14 @@ export default function useGroupPaymentHook() {
           title: "REF #",
           key: "refNo",
           dataIndex: "refNo",
+          render: (data, record) => {
+            if (typeof record[SchedulersClass.PARTIALS] !== "undefined") {
+              if (record[SchedulersClass.PARTIALS].length > 0) {
+                return displayPaymentProp(data, record, SchedulersClass.REF_NO)
+              }
+            }
+            return data
+          },
         },
         {
           title: "DATE PAID",

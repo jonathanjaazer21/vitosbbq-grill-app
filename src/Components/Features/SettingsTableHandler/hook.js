@@ -40,7 +40,7 @@ export default function useTableHandler({
 }) {
   const history = useHistory()
   const { path } = useRouteMatch()
-  const [collectionData, loadData] = useHook(ServiceClass, {
+  const [collectionData, loadData] = useGetDocuments(ServiceClass, {
     bySort,
     customSort,
   })

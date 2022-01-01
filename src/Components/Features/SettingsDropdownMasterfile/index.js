@@ -1,6 +1,6 @@
-import React from "react"
+import React, { useEffect } from "react"
 import DropdownsClass from "Services/Classes/DropdownsClass"
-import TableHandler from "../TableHandler"
+import TableHandler from "../SettingsTableHandler"
 
 function SettingsDropdownMasterfile() {
   return (

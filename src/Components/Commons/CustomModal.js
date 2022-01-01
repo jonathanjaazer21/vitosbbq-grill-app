@@ -1,8 +1,16 @@
 import { Modal } from "antd"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import MainButton from "./MainButton"
 
-function CustomModal({ buttonLabel = "", handleOk = () => {}, ...rest }) {
+function CustomModal({
+  buttonLabel = "",
+  handleOk = () => {},
+  buttonType = "primary",
+  buttonShape = "round",
+  buttonSize = "medium",
+  ButtonIcon = <></>,
+  ...rest
+}) {
   const [isModalVisible, setIsModalVisible] = useState(false)
 
   const showModal = () => {
@@ -13,13 +21,24 @@ function CustomModal({ buttonLabel = "", handleOk = () => {}, ...rest }) {
     setIsModalVisible(false)
   }
 
+  const handleConfirm = () => {
+    handleOk()
+    setIsModalVisible(false)
+  }
   return (
     <>
-      <MainButton type="primary" onClick={showModal} label={buttonLabel} />
+      <MainButton
+        type={buttonType}
+        onClick={showModal}
+        label={buttonLabel}
+        shape={buttonShape}
+        size={buttonSize}
+        Icon={ButtonIcon}
+      />
       <Modal
         title={rest.title}
         visible={isModalVisible}
-        onOk={handleOk}
+        onOk={handleConfirm}
         onCancel={handleCancel}
         footer={rest.footer}
       >

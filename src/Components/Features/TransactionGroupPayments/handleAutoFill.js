@@ -1,4 +1,4 @@
-import { formatDateDash } from "Restructured/Utilities/dateFormat"
+import { formatDateDash } from "Helpers/dateFormat"
 
 const ifOrigHasRef = (originalData) => {
   if (originalData?.refNo && originalData?.datePayment) {

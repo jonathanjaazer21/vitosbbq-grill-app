@@ -9,11 +9,11 @@ export default function useGetDocumentById(ServiceClass, id) {
       loadData(id)
     }
   }, [id])
-  const loadData = async (id) => {
+  const loadData = async (_id) => {
     setLoaded(false)
     setIsLoading(true)
     try {
-      const _data = await ServiceClass.getDataById(id)
+      const _data = await ServiceClass.getDataById(_id)
       setData(_data)
       setIsLoading(false)
       setLoaded(true)

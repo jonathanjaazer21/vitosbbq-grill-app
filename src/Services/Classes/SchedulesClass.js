@@ -1,6 +1,7 @@
 import {
   AMOUNT_TYPE,
   ARRAY_OF_OBJECT_TYPE,
+  ARRAY_OF_STRING_TYPE,
   DATE_TYPE,
   DROPDOWN_TYPE,
   NUMBER_TYPE,
@@ -8,6 +9,16 @@ import {
 } from "Constants/types"
 import Base from "Services/Base"
 import PaginateCommands from "Services/PaginateCommands"
+import db, {
+  query,
+  where,
+  collection,
+  getDocs,
+  orderBy,
+  endAt,
+} from "Services/firebase"
+import { UNAVAILABLE } from "Constants/errorCodes"
+import { startAt } from "@firebase/firestore"
 
 export default class SchedulersClass {
   static COLLECTION_NAME = "schedules"
@@ -31,9 +42,73 @@ export default class SchedulersClass {
     return Base.getDataByFieldname(this.COLLECTION_NAME, fieldname, value)
   }
 
-  static getDataByKeyword(fieldname, value) {
-    return Base.getDataByKeyword(this.COLLECTION_NAME, fieldname, value)
+  static async getDataByKeyword(fieldname, value = "", branchSelected = "") {
+    // return Base.getDataByKeyword(this.COLLECTION_NAME, fieldname, value)
+    const q = query(
+      collection(db, this.COLLECTION_NAME),
+      orderBy(fieldname),
+      startAt(value),
+      endAt(value + "\uf8ff"),
+      where(this.BRANCH, "==", branchSelected)
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+
+    console.log("data list", data)
+    return data
   }
+
+  static async getDataNotEqualToFieldname(
+    fieldname = "",
+    value = "",
+    branchSelected = ""
+  ) {
+    const q = query(
+      collection(db, this.COLLECTION_NAME),
+      where(fieldname, "!=", value),
+      where(this.BRANCH, "==", branchSelected)
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+
+    console.log("data list", data)
+    return data
+  }
+
+  static async getDataOthers(fieldname, value, branchSelected = "") {
+    const q = query(
+      collection(db, this.COLLECTION_NAME),
+      where(`others.${fieldname}`, "!=", value),
+      where(this.BRANCH, "==", branchSelected)
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+
+    console.log("data list", data)
+    return data
+  }
+
   static addData(data) {
     return Base.addData(this.COLLECTION_NAME, data)
   }
@@ -66,6 +141,32 @@ export default class SchedulersClass {
       branch,
       customSort
     )
+  }
+
+  static async getGeneratedIdToday(
+    branchCode = "",
+    orderNo = "",
+    orderNoDate = ""
+  ) {
+    console.log("branchCode", branchCode)
+    console.log("orderNo", orderNo)
+    console.log("orderNoDate", orderNoDate)
+    const q = query(
+      collection(db, this.COLLECTION_NAME),
+      where(this.ORDER_NO, "<=", `${branchCode}-${orderNo}-685`),
+      where(this.ORDER_NO, ">", `${branchCode}-${orderNoDate}-685`)
+      // orderBy(orderedBy[0], orderedBy[1])
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+    return data
   }
 
   static QTY = "qty" // this is not a firebase field
@@ -137,8 +238,21 @@ export default class SchedulersClass {
   static DISCOUNT_ADDITIONAL_DETAILS = "discountAdditionalDetails"
   static PAYMENT_NOTES = "paymentNotes"
 
+  static PARTIALS = "partials"
+
   // this is not included in the database post of data, this is only for viewing in print document particular field
   static TIME_SLOT = "timeSlot"
+  static BALANCE_DUE = "balanceDue"
+
+  static REVENUE_CHANNEL = "revenueChannel"
+  static OR_NO = "orNo"
+  static SOA_NUMBER = "soaNumber"
+  static VIA = "via"
+  static SALES_TYPE = "salesType"
+  static FIXED_DEDUCTION = "fixedDeduction"
+  static IS_VIP = "isVIP"
+  static ZAP_NUMBER = "zapNumber"
+
   static PROPERTIES = [
     this._ID,
     this.BRANCH,
@@ -146,28 +260,35 @@ export default class SchedulersClass {
     this.DATE_START,
     this.DATE_END,
     this.UTAK_NO,
+    this.OR_NO,
     this.ORDER_NO,
+    this.REVENUE_CHANNEL,
     this.CUSTOMER,
     this.CONTACT_NUMBER,
+    this.VIA,
+    this.PARTNER_MERCHANT_ORDER_NO,
+    this.TIME_SLOT,
+    this.ORDER_VIA_WEBSITE,
+    this.ORDER_VIA,
+    this.ORDER_VIA_PARTNER,
     this.QTY,
     this.DATE_PAYMENT,
     this.MODE_PAYMENT,
     this.SOURCE,
+    this.SOA_NUMBER,
+    this.REF_NO,
     this.SUBJECT,
     this.ACCOUNT_NAME,
     this.ACCOUNT_NUMBER,
-    this.AMOUNT_PAID,
-    this.TOTAL_DUE,
+    this.SALES_TYPE,
     this.DISCOUNT_ADDITIONAL_DETAILS,
-    this.ORDER_VIA_WEBSITE,
-    this.ORDER_VIA,
-    this.ORDER_VIA_PARTNER,
     this.END_TIME_ZONE, // should be null value
     this.START_TIME_ZONE, // should be null value
-    this.PARTNER_MERCHANT_ORDER_NO,
     this.PAYMENT_NOTES,
     this.OTHERS,
-    this.REF_NO,
+    this.TOTAL_DUE,
+    this.BALANCE_DUE,
+    this.AMOUNT_PAID,
   ]
 
   static TYPES = {
@@ -185,20 +306,27 @@ export default class SchedulersClass {
     [this.ORDER_VIA_WEBSITE]: DROPDOWN_TYPE,
     [this.STATUS]: DROPDOWN_TYPE,
     [this.INDICATE_REASON]: TEXT_AREA_TYPE,
+    [this.BALANCE_DUE]: AMOUNT_TYPE,
+    [this.PARTIALS]: ARRAY_OF_OBJECT_TYPE,
   }
 
   static LABELS = {
-    [this.DATE_ORDER_PLACED]: "DATE/TIME PLACED",
+    [this.SOA_NUMBER]: "SOA #",
+    [this.ZAP_NUMBER]: "ZAP #",
+    [this.TIME_SLOT]: "TIME SLOT",
+    [this.REVENUE_CHANNEL]: "R/C",
+    [this.DATE_ORDER_PLACED]: "DATE PLACED",
     [this.STATUS]: "STATUS",
-    [this.REF_NO]: "Ref No",
+    [this.REF_NO]: "REF #",
+    [this.SALES_TYPE]: "S/T",
     [this.UTAK_NO]: "UTAK #",
+    [this.OR_NO]: "OR #",
     [this.INDICATE_REASON]: "REASON",
     [this.BRANCH]: "BRANCH",
-    [this.CUSTOMER]: "CUSTOMER",
-    [this.CONTACT_NUMBER]: "CONTACT #",
+    [this.CUSTOMER]: "CUSTOMER NAME",
+    [this.CONTACT_NUMBER]: "CONTACT NUMBER",
     [this.DELIVERY_DATE]: "DELIVERY DATE/TIME",
-    [this.DATE_ORDER_PLACED]: "DATE/TIME PLACED",
-    [this.DATE_START]: "DATE/TIME START", // cannot be change
+    [this.DATE_START]: "DATE SERVED", // cannot be change
     [this.DATE_END]: "DATE/TIME END", // cannot be change
     [this.ORDER_VIA]: "DIRECT",
     [this.PAYMENT_MODE]: "PAYMENT CODE",
@@ -234,17 +362,19 @@ export default class SchedulersClass {
     [this.TOTAL]: "TOTAL",
     [this.REMARKS]: "NOTES",
     [this.TIME_SLOT]: "TIME SLOT",
-    [this.PARTNER_MERCHANT_ORDER_NO]: "PARTNER MERCHANT ORDER #",
+    [this.PARTNER_MERCHANT_ORDER_NO]: "PP #",
+    [this.VIA]: "VIA",
     [this.ORDER_VIA_PARTNER]: "PARTNER MERCHANT",
     [this.ORDER_VIA_WEBSITE]: "WEBSITE",
-    [this.ACCOUNT_NUMBER]: "RECEIVING ACCT",
+    [this.ACCOUNT_NUMBER]: "ACCT #",
     [this.QTY]: "QTY",
     [this.DATE_PAYMENT]: "DATE PAID",
     [this.MODE_PAYMENT]: "MOP",
     [this.SOURCE]: "SOURCE",
-    [this.TOTAL_DUE]: "AMOUNT DUE",
-    [this.AMOUNT_PAID]: "PAID AMT",
-    [this.OTHERS]: "OTHERS / DEDUCTION",
+    [this.TOTAL_DUE]: "TOTAL",
+    [this.AMOUNT_PAID]: "AMOUNT PAID",
+    [this.OTHERS]: "OTHERS",
+    [this.BALANCE_DUE]: "COLLECTIBLE",
   }
 }
 /* (

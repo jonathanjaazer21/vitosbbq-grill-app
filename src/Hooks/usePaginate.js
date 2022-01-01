@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from "react"
 import { UnauthorizedContext } from "Error/Unauthorized"
 import { arrayReplace } from "Helpers/arrayFuntions"
 import { UnavailableContext } from "Error/Unavailable"
+import { Timestamp } from "Services/firebase"
 
 // this is default config = { bySort: true, customSort: ["StartTime": "asc" or "desc"]}
 function usePaginate(ServiceClass, config) {
@@ -21,6 +22,25 @@ function usePaginate(ServiceClass, config) {
       const _dataIndex = dataSource.findIndex(
         (d) => d[ServiceClass._ID] === data[ServiceClass._ID]
       )
+      // this is for new added data in the table
+      if (_dataIndex < 0) {
+        let newData = [...dataSource]
+        const updatedData = { ...data }
+        if (ServiceClass.COLLECTION_NAME) {
+          updatedData[ServiceClass.DATE_START] = Timestamp.fromDate(
+            data[ServiceClass.DATE_START]
+          )
+          updatedData[ServiceClass.DATE_END] = Timestamp.fromDate(
+            data[ServiceClass.DATE_END]
+          )
+          updatedData[ServiceClass.DATE_ORDER_PLACED] = Timestamp.fromDate(
+            data[ServiceClass.DATE_ORDER_PLACED]
+          )
+          newData.unshift(updatedData)
+        }
+        setDataSource(newData)
+        return
+      }
       const newData = arrayReplace(dataSource, _dataIndex, {
         ...dataSource[_dataIndex],
         ...data,

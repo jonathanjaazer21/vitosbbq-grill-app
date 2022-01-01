@@ -1,6 +1,6 @@
 import React from "react"
 import RolesClass from "Services/Classes/RolesClass"
-import TableHandler from "../TableHandler"
+import TableHandler from "../SettingsTableHandler"
 
 function SettingsRoleMasterfile() {
   return (

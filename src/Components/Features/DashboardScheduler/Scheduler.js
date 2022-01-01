@@ -27,14 +27,33 @@ import { UnauthorizedContext } from "Error/Unauthorized"
 import { formatDateFromDatabase } from "Helpers/dateFormat"
 import { UnavailableContext } from "Error/Unavailable"
 import CustomTitle from "Components/Commons/CustomTitle"
-import { Space, Tag } from "antd"
+import { Space, Tag, Table } from "antd"
 import useGetDocuments from "Hooks/useGetDocuments"
 import ProductsClass from "Services/Classes/ProductsClass"
-import { producedProductListOfAllCodes } from "Helpers/collectionData"
+import {
+  producedProductListOfAllCodes,
+  producedProductListWithGroupAndAmounts,
+} from "Helpers/collectionData"
+import thousandsSeparators from "Helpers/formatNumber"
+import sumArray from "Helpers/sumArray"
 
 const db = getFirestore()
 const CellTemplate = (props) => {
-  return <span>{props?.status === "CANCELLED" ? "VOID" : props.Subject}</span>
+  const [subject, setSubject] = useState("")
+  useEffect(() => {
+    console.log("productData", props)
+    const productOrders = []
+    const productList = producedProductListOfAllCodes(props?.productData)
+    for (const value of productList) {
+      if (typeof props[value] !== "undefined") {
+        if (Number(props[value]) > 0) {
+          productOrders.push(`${value}: ${props[value]}`)
+        }
+      }
+    }
+    setSubject(productOrders.join(", "))
+  }, [props])
+  return <span>{props?.status === "CANCELLED" ? "VOID" : subject}</span>
 }
 function Scheduler({ handleNavigate, navigate }) {
   const [productData, loadProductData] = useGetDocuments(ProductsClass)
@@ -42,7 +61,9 @@ function Scheduler({ handleNavigate, navigate }) {
   const { user } = useContext(UnauthorizedContext)
   const [eventSettings, setEventSettings] = useState({
     dataSource: [],
-    template: CellTemplate,
+    template: (props) => {
+      return <CellTemplate {...props} productData={productData} />
+    },
     allowDeleting: false,
     allowEditing: false,
     allowAdding: false,
@@ -50,6 +71,9 @@ function Scheduler({ handleNavigate, navigate }) {
 
   useEffect(() => {
     loadProductData()
+  }, [])
+
+  useEffect(() => {
     const productList = producedProductListOfAllCodes(productData)
     if (navigate.currentView === "Day") return
     if (!user.branchSelected) return
@@ -97,6 +121,9 @@ function Scheduler({ handleNavigate, navigate }) {
       setIsLoading(false)
       setEventSettings({
         ...eventSettings,
+        template: (props) => {
+          return <CellTemplate {...props} productData={productData} />
+        },
         dataSource,
       })
     })
@@ -107,7 +134,7 @@ function Scheduler({ handleNavigate, navigate }) {
       })
       unsubscribe()
     }
-  }, [navigate?.dateRange, user])
+  }, [navigate?.dateRange, user, productData])
 
   const onEventRendered = (args) => {
     const { element, data } = args
@@ -128,72 +155,105 @@ function Scheduler({ handleNavigate, navigate }) {
         }
       >
         {props.status === "CANCELLED" ? (
-          <CustomTitle
-            label="VOID"
-            typographyType="text"
-            style={{ color: "white" }}
-          />
+          <CustomTitle label="VOID" typographyType="text" />
         ) : (
-          <CustomTitle
-            label={props?.Subject}
-            typographyType="text"
-            style={{
-              color: "white",
-            }}
-          />
+          <CustomTitle label={props?.Subject} typographyType="text" />
         )}
       </div>
     )
   }
 
   const ContentTemplate = (props) => {
-    const productOrders = {}
+    const productOrders = []
     const productList = producedProductListOfAllCodes(productData)
     for (const value of productList) {
       if (typeof props[value] !== "undefined") {
         if (Number(props[value]) > 0) {
-          productOrders[value] = props[value]
+          const productGroups =
+            producedProductListWithGroupAndAmounts(productData)
+          const productDetails = productGroups.find(
+            (data) => data[ProductsClass.CODE] === value
+          )
+          const price =
+            props[`customPrice${value}`] || productDetails[ProductsClass.PRICE]
+          const total = Number(price) * Number(props[value])
+          productOrders.push({
+            ...productDetails,
+            qty: props[value],
+            price,
+            total,
+          })
         }
       }
     }
+
+    const subTotal = sumArray(productOrders, "total") || 0
     return (
       <>
         <Space direction="vertical" style={{ width: "100%" }}>
-          <Space style={{ justifyContent: "space-between", width: "100%" }}>
-            <Tag color="cyan">
-              <CustomTitle
-                label="PRODUCT CODE"
-                typographyType="text"
-                styles={{ fontWeight: "bold", color: "white" }}
-              />
-            </Tag>
-            <Tag color="cyan">
-              <CustomTitle
-                label="QTY"
-                typographyType="text"
-                styles={{ fontWeight: "bold", color: "white" }}
-              />
-            </Tag>
+          <Table
+            columns={[
+              {
+                title: "Code",
+                dataIndex: ProductsClass.CODE,
+                render: (data) => {
+                  return <span style={{ fontSize: "10px" }}>{data}</span>
+                },
+              },
+              {
+                title: "Products",
+                dataIndex: ProductsClass.DESCRIPTION,
+                render: (data) => {
+                  return <span style={{ fontSize: "10px" }}>{data}</span>
+                },
+              },
+              {
+                title: "Qty",
+                dataIndex: "qty",
+                render: (data) => {
+                  return <span style={{ fontSize: "10px" }}>{data}</span>
+                },
+              },
+              {
+                title: "Price",
+                dataIndex: ProductsClass.PRICE,
+                align: "right",
+                render: (data) => {
+                  return (
+                    <span style={{ fontSize: "10px" }}>
+                      {thousandsSeparators(Number(data).toFixed(2))}
+                    </span>
+                  )
+                },
+              },
+              {
+                title: "Total",
+                dataIndex: "total",
+                align: "right",
+                render: (data) => {
+                  return (
+                    <span style={{ fontSize: "10px" }}>
+                      {thousandsSeparators(Number(data || 0).toFixed(2))}
+                    </span>
+                  )
+                },
+              },
+            ]}
+            dataSource={productOrders}
+            size="small"
+            pagination={false}
+          />
+          <Space
+            style={{
+              justifyContent: "space-between",
+              width: "100%",
+              padding: "0rem .5rem",
+              color: "red",
+            }}
+          >
+            <span>Total</span>
+            <span>{thousandsSeparators(Number(subTotal).toFixed(2))}</span>
           </Space>
-
-          {Object.keys(productOrders).map((key) => {
-            return (
-              <Space
-                style={{
-                  justifyContent: "space-between",
-                  width: "100%",
-                  padding: ".1rem 1rem",
-                }}
-              >
-                <CustomTitle
-                  typographyType="text"
-                  type="secondary"
-                  label={key}
-                />
-                <CustomTitle typographyType="text" label={productOrders[key]} />
-              </Space>
-            )
-          })}
         </Space>
       </>
     )
