@@ -34,8 +34,18 @@ export default class SchedulersClass {
   static getDataById(id) {
     return Base.getDataById(this.COLLECTION_NAME, id)
   }
+
   static getDataByDate(dates, fieldname, branch) {
     return Base.getDataByDate(this.COLLECTION_NAME, dates, fieldname, branch)
+  }
+
+  static getDataByDatePanel(dates, fieldname, branch) {
+    return Base.getDataByDatePanel(
+      this.COLLECTION_NAME,
+      dates,
+      fieldname,
+      branch
+    )
   }
 
   static getDataByFieldname(fieldname, value) {

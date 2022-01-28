@@ -106,7 +106,8 @@ const ConfigSpace = ({ children }) => {
         alignItems: "center",
         width: "23rem",
         padding: "2rem 2rem 2rem 2rem",
-        boxShadow: isLoading || error ? "none" : "0px 1px 1rem #999",
+        // boxShadow: isLoading || error ? "none" : "0px 1px 1rem #999",
+        borderRadius: ".5rem",
         backgroundColor: isLoading || error ? "transparent" : "white",
       }}
     >

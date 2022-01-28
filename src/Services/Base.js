@@ -88,6 +88,29 @@ export default class Base {
     return data
   }
 
+  // only for filter panel of dashboard scheduler
+  static async getDataByDatePanel(collectionName, dates, fieldname, branch) {
+    const startTime = new Date(dates[0].setHours(0, 0, 0, 0))
+    const endTime = new Date(dates[1].setHours(23, 59, 59, 59))
+    const q = query(
+      collection(db, collectionName),
+      where(fieldname, ">=", startTime),
+      where(fieldname, "<=", endTime),
+      where("branch", "==", branch),
+      orderBy(fieldname, "asc")
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+    return data
+  }
+
   static async getDataByFieldname(collectionName, fieldname, value) {
     const q = query(
       collection(db, collectionName),
