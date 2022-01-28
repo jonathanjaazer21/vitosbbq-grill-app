@@ -94,16 +94,17 @@ const paymentDetails = (key, data) => {
   const payments = handlePayments(key, data[SchedulersClass.PARTIALS])
   if (payments) {
     return payments
-  }
-  if (typeof data[key] !== "undefined") {
-    if (key === SchedulersClass.DATE_PAYMENT) {
-      const dateFormat = formatDateFromDatabase(data[key])
-      const datePaid = formatDateDash(dateFormat)
-      return datePaid
-    }
-    return data[key] || ""
   } else {
-    return ""
+    if (typeof data[key] !== "undefined") {
+      if (key === SchedulersClass.DATE_PAYMENT) {
+        const dateFormat = formatDateFromDatabase(data[key])
+        const datePaid = formatDateDash(dateFormat)
+        return datePaid
+      }
+      return data[key] || ""
+    } else {
+      return ""
+    }
   }
 }
 
@@ -173,7 +174,7 @@ const via = (data) => {
 }
 
 const revenueChan = (data) => {
-  if (data[SchedulersClass.ORDER_VIA]) return "DD"
+  if (data[SchedulersClass.ORDER_VIA]) return "DR"
   if (data[SchedulersClass.ORDER_VIA_PARTNER]) return "PP"
   if (data[SchedulersClass.ORDER_VIA_WEBSITE]) return "WB"
   return ""
@@ -210,16 +211,26 @@ const producePurchasedProducts = (
   data,
   properties,
   count,
-  numCount /*schedules length by row*/
+  numCount /*schedules length by row*/,
+  hiddenRevenueChannelData = false
 ) => {
   const row = []
   for (const key of properties) {
     switch (key) {
       case "no":
-        row.push(count === 0 ? numCount : "")
+        row.push(count === 0 && numCount ? numCount : "")
         break
       case SchedulersClass.REVENUE_CHANNEL:
-        row.push(revenueChan(data))
+        if (hiddenRevenueChannelData === false) {
+          row.push(revenueChan(data))
+          // if (count === 0) {
+          //   row.push(revenueChan(data))
+          // } else {
+          //   row.push("")
+          // }
+        } else {
+          row.push("")
+        }
         break
       case SchedulersClass.DATE_PAYMENT:
         row.push(paymentDetails(SchedulersClass.DATE_PAYMENT, data))
@@ -237,16 +248,28 @@ const producePurchasedProducts = (
         row.push(paymentDetails(SchedulersClass.ACCOUNT_NUMBER, data))
         break
       case SchedulersClass.OR_NO:
-        row.push(paymentDetails(SchedulersClass.OR_NO, data))
+        if (count > 0 || hiddenRevenueChannelData) {
+          row.push("")
+        } else {
+          row.push(paymentDetails(SchedulersClass.OR_NO, data))
+        }
         break
       case SchedulersClass.SALES_TYPE:
         row.push(displaySalesType(data))
         break
       case SchedulersClass.TIME_SLOT:
-        row.push(timeSlot(data))
+        if (data?.timeSlot) {
+          row.push(timeSlot(data))
+        } else {
+          row.push("")
+        }
         break
       case SchedulersClass.VIA:
-        row.push(via(data))
+        if (count > 0 && hiddenRevenueChannelData) {
+          row.push("")
+        } else {
+          row.push(via(data))
+        }
         break
       case SchedulersClass.AMOUNT_PAID:
         row.push(amountPaid(data, count, numCount))
@@ -290,9 +313,33 @@ const producePurchasedProducts = (
           row.push("")
           break
         }
-      default:
+      case "price":
+        row.push(data[key] || "")
+        break
+
+      case SchedulersClass.QTY:
         if (typeof data[key] !== "undefined") {
           row.push(data[key])
+          break
+        } else {
+          row.push("")
+          break
+        }
+      case "productCode":
+        if (typeof data[key] !== "undefined") {
+          row.push(data[key])
+          break
+        } else {
+          row.push("")
+          break
+        }
+      default:
+        if (typeof data[key] !== "undefined") {
+          if (count > 0 && hiddenRevenueChannelData) {
+            row.push("")
+          } else {
+            row.push(data[key])
+          }
           break
         } else {
           row.push("")
@@ -313,7 +360,7 @@ export default async function (
   const productListWithAmounts =
     producedProductListWithGroupAndAmounts(productData)
 
-  const reversedSchedules = [...schedules].reverse()
+  const reversedSchedules = [...schedules]
 
   // creation of sheets and its data rows happened here
   const sheets = {}
@@ -375,48 +422,86 @@ export default async function (
               qty,
               price: produceAmount(productPrice[code]),
               [SchedulersClass.TOTAL_DUE]: totalPrice[code],
+              timeSlot: true,
             }
-            if (count >= 0) {
+            if (count > 0) {
               // delete renewedData[SchedulersClass.DATE_ORDER_PLACED]
               delete renewedData[SchedulersClass.UTAK_NO]
-              delete renewedData[SchedulersClass.OR_NO]
-              delete renewedData[SchedulersClass.CUSTOMER]
-              delete renewedData[SchedulersClass.CONTACT_NUMBER]
-              delete renewedData[SchedulersClass.ORDER_VIA]
-              delete renewedData[SchedulersClass.ORDER_VIA_PARTNER]
-              delete renewedData[SchedulersClass.ORDER_VIA_WEBSITE]
-              delete renewedData[SchedulersClass.PARTNER_MERCHANT_ORDER_NO]
-              delete renewedData[SchedulersClass.PARTIALS]
+              // delete renewedData[SchedulersClass.OR_NO]
+              // delete renewedData[SchedulersClass.CUSTOMER]
+              // delete renewedData[SchedulersClass.CONTACT_NUMBER]
+              // delete renewedData[SchedulersClass.ORDER_VIA]
+              // delete renewedData[SchedulersClass.ORDER_VIA_PARTNER]
+              // delete renewedData[SchedulersClass.ORDER_VIA_WEBSITE]
+              // delete renewedData[SchedulersClass.PARTNER_MERCHANT_ORDER_NO]
+              // delete renewedData[SchedulersClass.PARTIALS]
               delete renewedData[SchedulersClass.OTHERS]
-              delete renewedData[SchedulersClass.DATE_START]
+              // delete renewedData[SchedulersClass.DATE_START]
               delete renewedData[SchedulersClass.BALANCE_DUE]
               delete renewedData[SchedulersClass.AMOUNT_PAID]
+              // delete renewedData?.timeSlot
             }
-            sheets[sheetName].push(
-              producePurchasedProducts(
-                renewedData,
-                headers.properties,
-                count,
-                numCount
-              )
+            // if (count === 0) {
+            //   delete renewedData[SchedulersClass.OTHERS]
+            // }
+            const _producedPurchasedProducts = producePurchasedProducts(
+              renewedData,
+              headers.properties,
+              count,
+              numCount
             )
             count = count + 1
-            if (numberOfPurchased === count) {
-              let _totalRow = { ...data, productCode: code, qty }
+
+            if (numberOfPurchased !== count) {
+              sheets[sheetName].push(_producedPurchasedProducts)
+            } else {
+              let _totalRow = {
+                ...data,
+                productCode: code,
+                qty,
+                price: produceAmount(productPrice[code]),
+                [SchedulersClass.TOTAL_DUE]: totalPrice[code],
+                timeSlot: true,
+              }
               sheets[sheetName].push(
                 producePurchasedProducts(
                   {
                     ..._totalRow,
-                    productCode: "TOTAL",
-                    [SchedulersClass.QTY]: totalQty,
-                    price: produceAmount(totalProductPrice),
                   },
                   headers.properties,
-                  0
+                  0, // important do not remove,
+                  ""
                 )
               )
               numberOfPurchased = 0
             }
+            // if (numberOfPurchased === count) {
+            // let _totalRow = {
+            //   ...data,
+            //   productCode: code,
+            //   qty: "",
+            // }
+            // sheets[sheetName].push(
+            //   producePurchasedProducts(
+            //     {
+            //       ..._totalRow,
+            //       productCode: "",
+            //       [SchedulersClass.QTY]: "",
+            //       price: "__",
+            //       [SchedulersClass.UTAK_NO]: "",
+            //       // [SchedulersClass.DATE_ORDER_PLACED]: "",
+            //       // productCode: "TOTAL",
+            //       // [SchedulersClass.QTY]: totalQty,
+            //       // price: produceAmount(totalProductPrice),
+            //     },
+            //     headers.properties,
+            //     0, // important do not remove,
+            //     "",
+            //     true
+            //   )
+            // )
+            // numberOfPurchased = 0
+            // }
           }
         }
       }
@@ -438,10 +523,11 @@ export default async function (
         const others = list[list.length - 4] || "0" // others Column
         const totalQty = isNaN(Number(list[11])) ? "0" : Number(list[11]) // qty column
         const revenueChannel = list[4] // R/C column
+        const price = list[12] // PRICE column
         const salesType = list[19] // S/T column
         const source = list[15] // Source column
         console.log("others", others)
-        if (revenueChannel) {
+        if (revenueChannel === "" && price === "__") {
           if (revenueChannel === "R/C") return
           // if (typeof subTotals[revenueChannel] === "undefined") {
           //   subTotals[revenueChannel] = []
@@ -491,7 +577,7 @@ export default async function (
     const amountPaid = sumArray(subTotals, "amountPaid")
     const totalQty = sumArray(subTotals, "totalQty")
     const blankColumns = [...new Array(19)].map((d, i) => {
-      return i === 11 ? totalQty : ""
+      return i === 11 ? "" /*totalQty*/ : ""
     })
 
     sheets[key].push([
@@ -526,7 +612,7 @@ export default async function (
         "D/PM",
         "--",
         "",
-        "CASH COLLECTIBLE",
+        "CASH RECEIVED", //"CASH RECEIVABLE",
       ]
       const finalSummary = []
       let firstPartTotal = 0
@@ -547,7 +633,7 @@ export default async function (
         } else {
           if (subKey === "--") {
             finalSummary.push([subKey, "", "", produceAmount(firstPartTotal)])
-          } else if (subKey === "CASH COLLECTIBLE") {
+          } else if (subKey === "CASH RECEIVED") {
             const cashList = sources["Cash"] || []
             const cash = sumArray(cashList, "amountPaid")
             finalSummary.push([subKey, "", "", produceAmount(cash)])

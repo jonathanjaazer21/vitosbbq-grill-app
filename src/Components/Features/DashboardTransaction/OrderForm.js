@@ -214,9 +214,13 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
       const data = {
         ...sched,
         [SchedulersClass.PARTIALS]: paymentList,
+        [SchedulersClass.SUBJECT]: sched[SchedulersClass.CUSTOMER],
         ...fixedDeduction,
       }
-      sched[SchedulersClass.SUBJECT] = data[SchedulersClass.CUSTOMER]
+      if (paymentList.length > 0) {
+        console.log("date payment", paymentList[0].date)
+        data[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
+      }
       console.log("id", data)
       const result = await SchedulersClass.updateDataById(id, data)
       modifiedData(data)
@@ -233,10 +237,15 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
           ...sched,
           [SchedulersClass.PARTIALS]: paymentList,
           [SchedulersClass.ORDER_NO]: newOrderNo,
+          [SchedulersClass.BRANCH]: user.branchSelected,
           ...fixedDeduction,
         }
         try {
           console.log("newSched", { ...newSched })
+          if (paymentList.length > 0) {
+            console.log("date payment", paymentList[0].date)
+            newSched[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
+          }
           const result = await SchedulersClass.addData(newSched)
           modifiedData(result)
           setLoadingButton(true)
@@ -262,7 +271,20 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
   if (formType === "modified" && Object.keys(orderData).length === 0) {
     return (
       <StyledContainer>
-        <URLNotFound />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: "80vh",
+            backgroundColor: "transparent",
+            bottom: 0,
+          }}
+        >
+          <Spin size="large" />
+        </div>
+        {/* <URLNotFound /> */}
       </StyledContainer>
     )
   } else {

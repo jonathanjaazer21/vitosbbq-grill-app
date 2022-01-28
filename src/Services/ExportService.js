@@ -26,14 +26,14 @@ export default class ExportService {
 
         // this is for the merging of NO column
         if (name !== "RC") {
-          if (Number(row[0]) > 0) {
-            numberMerges[row[0]] = {
-              s: { r: index + 1, c: 0 },
-              e: { r: index, c: 0 },
-            }
-            noColumn = Number(row[0])
-            noIndex = index + 1
-          }
+          // if (Number(row[0]) > 0) {
+          //   numberMerges[row[0]] = {
+          //     s: { r: index + 1, c: 0 },
+          //     e: { r: index, c: 0 },
+          //   }
+          //   noColumn = Number(row[0])
+          //   noIndex = index + 1
+          // }
 
           if (noColumn > 0 && row[0] !== "__") {
             if (row[1] !== "") {

@@ -27,7 +27,7 @@ function UserProfile() {
             danger={true}
             onClick={async () => {
               const result = await AuthClass.logout()
-              console.log("re", result)
+              console.log("logout: ", result)
               if (result) {
                 message.info(result)
                 history.push("/")

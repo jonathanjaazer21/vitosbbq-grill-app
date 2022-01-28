@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from "react"
+import { PrinterFilled, FilterFilled } from "@ant-design/icons"
 import {
   ScheduleComponent,
   ViewDirective,
@@ -36,6 +37,11 @@ import {
 } from "Helpers/collectionData"
 import thousandsSeparators from "Helpers/formatNumber"
 import sumArray from "Helpers/sumArray"
+import MainButton from "Components/Commons/MainButton"
+import Print from "../Print"
+import CustomTable from "Components/Commons/CustomTable"
+import CustomDrawer from "Components/Commons/CustomDrawer"
+import FilteringPanel from "Components/Features/FilteringPanel"
 
 const db = getFirestore()
 const CellTemplate = (props) => {
@@ -188,57 +194,58 @@ function Scheduler({ handleNavigate, navigate }) {
     }
 
     const subTotal = sumArray(productOrders, "total") || 0
+    const _columns = [
+      {
+        title: "Code",
+        dataIndex: ProductsClass.CODE,
+        render: (data) => {
+          return <span style={{ fontSize: "10px" }}>{data}</span>
+        },
+      },
+      {
+        title: "Products",
+        dataIndex: ProductsClass.DESCRIPTION,
+        render: (data) => {
+          return <span style={{ fontSize: "10px" }}>{data}</span>
+        },
+      },
+      {
+        title: "Qty",
+        dataIndex: "qty",
+        render: (data) => {
+          return <span style={{ fontSize: "10px" }}>{data}</span>
+        },
+      },
+      {
+        title: "Price",
+        dataIndex: ProductsClass.PRICE,
+        align: "right",
+        render: (data) => {
+          return (
+            <span style={{ fontSize: "10px" }}>
+              {thousandsSeparators(Number(data).toFixed(2))}
+            </span>
+          )
+        },
+      },
+      {
+        title: "Total",
+        dataIndex: "total",
+        align: "right",
+        render: (data) => {
+          return (
+            <span style={{ fontSize: "10px" }}>
+              {thousandsSeparators(Number(data || 0).toFixed(2))}
+            </span>
+          )
+        },
+      },
+    ]
     return (
       <>
         <Space direction="vertical" style={{ width: "100%" }}>
           <Table
-            columns={[
-              {
-                title: "Code",
-                dataIndex: ProductsClass.CODE,
-                render: (data) => {
-                  return <span style={{ fontSize: "10px" }}>{data}</span>
-                },
-              },
-              {
-                title: "Products",
-                dataIndex: ProductsClass.DESCRIPTION,
-                render: (data) => {
-                  return <span style={{ fontSize: "10px" }}>{data}</span>
-                },
-              },
-              {
-                title: "Qty",
-                dataIndex: "qty",
-                render: (data) => {
-                  return <span style={{ fontSize: "10px" }}>{data}</span>
-                },
-              },
-              {
-                title: "Price",
-                dataIndex: ProductsClass.PRICE,
-                align: "right",
-                render: (data) => {
-                  return (
-                    <span style={{ fontSize: "10px" }}>
-                      {thousandsSeparators(Number(data).toFixed(2))}
-                    </span>
-                  )
-                },
-              },
-              {
-                title: "Total",
-                dataIndex: "total",
-                align: "right",
-                render: (data) => {
-                  return (
-                    <span style={{ fontSize: "10px" }}>
-                      {thousandsSeparators(Number(data || 0).toFixed(2))}
-                    </span>
-                  )
-                },
-              },
-            ]}
+            columns={_columns}
             dataSource={productOrders}
             size="small"
             pagination={false}
@@ -254,6 +261,34 @@ function Scheduler({ handleNavigate, navigate }) {
             <span>Total</span>
             <span>{thousandsSeparators(Number(subTotal).toFixed(2))}</span>
           </Space>
+          <div style={{ display: "flex", justifyContent: "right" }}>
+            <Print
+              component={
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Table
+                    size="small"
+                    pagination={false}
+                    columns={_columns}
+                    dataSource={productOrders}
+                  />
+                  <Space
+                    style={{
+                      justifyContent: "space-between",
+                      width: "100%",
+                      padding: "0rem .5rem",
+                      color: "red",
+                    }}
+                  >
+                    <span>Total</span>
+                    <span>
+                      {thousandsSeparators(Number(subTotal).toFixed(2))}
+                    </span>
+                  </Space>
+                </Space>
+              }
+              button={<PrinterFilled fontSize="2.5rem" />}
+            />
+          </div>
         </Space>
       </>
     )
@@ -310,6 +345,11 @@ function Scheduler({ handleNavigate, navigate }) {
         </ViewsDirective>
         <Inject services={[Day, Week, Month, Agenda]} />
       </ScheduleComponent>
+      <div style={{ position: "fixed", bottom: 0, right: 0, padding: "1rem" }}>
+        <CustomDrawer Icon={<FilterFilled />} shape="circle" title="Schedules">
+          <FilteringPanel />
+        </CustomDrawer>
+      </div>
     </>
   )
 }
