@@ -1,6 +1,7 @@
 import ProductsClass from "Services/Classes/ProductsClass"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import { formatDateFromDatabase } from "./dateFormat"
+import thousandsSeparators from "./formatNumber"
 import sumArray, { sumNumbers } from "./sumArray"
 
 export const producedProductListOfAllCodes = (data) => {
@@ -159,8 +160,8 @@ export const calculateBalanceScheduler = (record) => {
     balanceDue = balanceDue - discAndOthers
   }
 
-  const fixedDeduction =
-    record[SchedulersClass.FIXED_DEDUCTION]?.totalAmountDeducted || 0
+  const fixedDeduction = 0
+  // record[SchedulersClass.FIXED_DEDUCTION]?.totalAmountDeducted || 0
   return balanceDue - fixedDeduction
 }
 // this is for scheduler only
@@ -178,13 +179,14 @@ export const calculateTotalDueMinusDiscount = (record) => {
 // this is for scheduler only
 export const calculateDiscountScheduler = (record) => {
   if (typeof record[SchedulersClass.OTHERS] === "undefined") return 0
-  const fixedDeduction =
-    record[SchedulersClass.FIXED_DEDUCTION]?.totalAmountDeducted || 0
+  const fixedDeduction = 0
+  // record[SchedulersClass.FIXED_DEDUCTION]?.totalAmountDeducted || 0
   let discAndOthers = 0
   for (const key in record[SchedulersClass.OTHERS]) {
     discAndOthers = Number(record[SchedulersClass.OTHERS][key])
   }
-  return discAndOthers + fixedDeduction
+  const discWithFixedDeduction = Number(discAndOthers) + Number(fixedDeduction)
+  return thousandsSeparators(discWithFixedDeduction.toFixed(2))
 }
 
 // this is for scheduler only
