@@ -6,7 +6,8 @@ import sumArray from "Helpers/sumArray"
 import useGetDocuments from "Hooks/useGetDocuments"
 import React, { useEffect, useState } from "react"
 import ProductsClass from "Services/Classes/ProductsClass"
-export default function useProductPurchased(orderData) {
+import productStaticPrices from "./productStaticPrices"
+export default function useProductPurchased(orderData, orderVia = "") {
   const [data] = useGetDocuments(ProductsClass)
   const [editableId, setEditableId] = useState(null)
   const [codeObjList, setCodeObjList] = useState([])
@@ -15,8 +16,8 @@ export default function useProductPurchased(orderData) {
   const [dataSource, setDataSource] = useState([])
   const [totalDue, setTotalDue] = useState(0)
   const [isTouched, setIsTouched] = useState(false)
-
   // this is for active product button selected load when modified
+
   useEffect(() => {
     if (orderData) {
       const productList = producedProductListOfAllCodes(data)
@@ -41,12 +42,18 @@ export default function useProductPurchased(orderData) {
       const _codeObjList = []
       for (const { productList = [] } of data) {
         for (const obj of productList) {
-          _codeObjList.push({ ...obj })
+          const productObj = { ...obj }
+          productObj.price = productStaticPrices(
+            orderVia,
+            obj?.code,
+            obj?.price
+          )
+          _codeObjList.push(productObj)
         }
       }
       setCodeObjList(_codeObjList)
     }
-  }, [data])
+  }, [data, orderVia])
 
   useEffect(() => {
     if (codeObjList) {

@@ -47,6 +47,7 @@ import {
 } from "Helpers/dateFormat"
 import thousandsSeparators from "Helpers/formatNumber"
 import TransactionGroupPayment from "../TransactionGroupPayments"
+import { produceSalesSummary } from "./produceSalesSummary"
 const produceAmount = (value) => {
   return thousandsSeparators(Number(value).toFixed(2))
 }
@@ -106,7 +107,10 @@ function TableHandler(props) {
             dataSource={isFiltered ? [...filteredData] : [...data]}
             size="small"
             scroll={{ x: "calc(375px + 50%)", y: "90vh" }}
-            rowClassName={() => {
+            rowClassName={(data) => {
+              if (data?.status === "CANCELLED") {
+                return classes[`DEFAULT-${data?.status}`]
+              }
               return classes["DEFAULT"]
             }}
             onRow={(record) => {
@@ -272,9 +276,9 @@ const ActionButtons = (props) => {
     )
 
     const [ppGF, ppGFTotal] = await schedulerExcel(
-      _schedules.filter((obj) => displayOrderVia(obj) === "GF"),
+      _schedules.filter((obj) => displayOrderVia(obj) === "GBF"),
       productData,
-      "PP GF",
+      "PP GBF",
       branch
     )
     const [ppMMF, ppMMFTotal] = await schedulerExcel(
@@ -356,7 +360,7 @@ const ActionButtons = (props) => {
       if (sumRCSheet[sheetName].length === 7) {
         if (ppGFSummary) {
           sumRCSheet[sheetName].push([
-            "PP GF",
+            "PP GBF",
             "PARTNER MERCHANT",
             produceAmount(ppGFSummary?.totalDue),
             produceAmount(ppGFSummary?.collectibles),
@@ -468,6 +472,8 @@ const ActionButtons = (props) => {
       }
     }
 
+    const salesSummary = await produceSalesSummary(_schedules, branch)
+
     ExportService.exportExcelReports({
       ...defaultSheet,
       ...cashSheet,
@@ -481,6 +487,7 @@ const ActionButtons = (props) => {
       ...ddSheet,
       ...wbSheet,
       ...sumRCSheet,
+      ...salesSummary,
     })
   }
 

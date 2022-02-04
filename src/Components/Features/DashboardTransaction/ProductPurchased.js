@@ -9,7 +9,11 @@ import CustomInput from "Components/Commons/CustomInput"
 import thousandsSeparators from "Helpers/formatNumber"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 
-function ProductPurchased({ modifiedData = () => {}, orderData }) {
+function ProductPurchased({
+  modifiedData = () => {},
+  orderData,
+  orderVia = "",
+}) {
   const {
     products,
     addProduct,
@@ -21,7 +25,7 @@ function ProductPurchased({ modifiedData = () => {}, orderData }) {
     handleEditPrice,
     totalDue,
     isTouched,
-  } = useProductPurchased(orderData)
+  } = useProductPurchased(orderData, orderVia)
   useEffect(() => {
     const modifiedObj = {}
     for (const key in products) {
@@ -46,7 +50,11 @@ function ProductPurchased({ modifiedData = () => {}, orderData }) {
         modifiedData(modifiedObj)
       }
     }
-  }, [dataSource, isTouched])
+    if (orderVia) {
+      modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
+      modifiedData(modifiedObj)
+    }
+  }, [dataSource, isTouched, totalDue, orderVia])
 
   const sortedProductList = productList.sort(
     (a, b) => a[ProductsClass.NO] - b[ProductsClass.NO]

@@ -39,7 +39,7 @@ import {
   calculateTotalPayments,
   producedPaymentList,
 } from "Helpers/collectionData"
-import { formatDateDash } from "Helpers/dateFormat"
+import { formatDateDash, formatDateFromDatabase } from "Helpers/dateFormat"
 import PaymentForm from "./PaymentForm"
 import DropdownsClass from "Services/Classes/DropdownsClass"
 import useGetDocuments from "Hooks/useGetDocuments"
@@ -94,18 +94,19 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
     const _balanceDue = calculateBalanceScheduler({
       ...sched,
       [SchedulersClass.PARTIALS]: paymentList,
-      ...fixedDeduction,
+      // ...fixedDeduction,
     })
     const _totalPayments = calculateTotalPayments({
       ...sched,
       [SchedulersClass.PARTIALS]: paymentList,
     })
     const _discounts = calculateDiscountScheduler({ ...sched })
+    console.log("_discounts", _discounts)
     setTotalDue(_totalDue)
     setBalanceDue(_balanceDue)
     setTotalPayments(_totalPayments)
     setDiscounts(_discounts)
-  }, [paymentList, sched, fixedDeduction])
+  }, [paymentList, sched /*fixedDeduction*/])
 
   useEffect(() => {
     if (
@@ -125,13 +126,13 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         const percentage = 0.95
         const amountDeduction = 10
         const _totalAmount = sched?.totalDue * percentage - amountDeduction
-        setFixedDeduction({
-          [SchedulersClass.FIXED_DEDUCTION]: {
-            percentage,
-            amountDeduction,
-            totalAmountDeducted: sched?.totalDue - _totalAmount,
-          },
-        })
+        // setFixedDeduction({
+        //   [SchedulersClass.FIXED_DEDUCTION]: {
+        //     percentage,
+        //     amountDeduction,
+        //     totalAmountDeducted: sched?.totalDue - _totalAmount,
+        //   },
+        // })
         if (sched[SchedulersClass.TOTAL_DUE] === 0) {
           setFixedDeduction({})
         }
@@ -170,6 +171,7 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         [SchedulersClass.ORDER_VIA_WEBSITE]:
           orderData[SchedulersClass.ORDER_VIA_WEBSITE],
         [SchedulersClass._ID]: id,
+        [SchedulersClass.FIXED_DEDUCTION]: {}, // replace fixed deduction without data
       }
 
       setSched(_sched)
@@ -208,7 +210,7 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
     if (channelOption === "direct") setChannel(SchedulersClass.ORDER_VIA)
   }, [channelOption])
 
-  console.log("fixedDedyctuib", fixedDeduction)
+  console.log("fixedDedyctuib", sched)
   const handleSave = async () => {
     if (formType === "modified") {
       const data = {
@@ -221,7 +223,13 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         console.log("date payment", paymentList[0].date)
         data[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
       }
-      console.log("id", data)
+      if (data[SchedulersClass.PARTIALS]?.length > 0) {
+        const _partialDates = []
+        data[SchedulersClass.PARTIALS].forEach((pObj) => {
+          _partialDates.push(formatDateDash(pObj?.date || new Date()))
+        })
+        data[SchedulersClass.PARTIAL_DATES_STRING] = _partialDates
+      }
       const result = await SchedulersClass.updateDataById(id, data)
       modifiedData(data)
       setLoadingButton(true)
@@ -240,6 +248,15 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
           [SchedulersClass.BRANCH]: user.branchSelected,
           ...fixedDeduction,
         }
+        // this is for added partial dates string
+        if (newSched[SchedulersClass.PARTIALS]?.length > 0) {
+          const _partialDates = []
+          newSched[SchedulersClass.PARTIALS].forEach((pObj) => {
+            _partialDates.push(formatDateDash(pObj?.date || new Date()))
+          })
+          newSched[SchedulersClass.PARTIAL_DATES_STRING] = _partialDates
+        }
+
         try {
           console.log("newSched", { ...newSched })
           if (paymentList.length > 0) {
@@ -339,9 +356,11 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
           <Col xs={24} sm={24} md={24} lg={12} xl={6}>
             <ProductPurchased
               modifiedData={(products) => {
+                console.log("sdfsdprod", products)
                 setSched({ ...sched, ...products, _id: id })
               }}
               orderData={orderData}
+              orderVia={sched[SchedulersClass.ORDER_VIA_PARTNER]}
             />
             <br />
             <Card
@@ -398,7 +417,7 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
                     "[ ZAP ] ZAP" &&
                     totalDue > 0) ? (
                     <Space direction="vertical">
-                      <CustomTitle
+                      {/* <CustomTitle
                         typographyType="text"
                         label="ZAP 5% + Fixed Fee 10"
                         type="secondary"
@@ -409,7 +428,7 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
                           fixedDeduction[SchedulersClass.FIXED_DEDUCTION]
                             ?.totalAmountDeducted
                         }
-                      />
+                      /> */}
                     </Space>
                   ) : (
                     <></>
@@ -613,12 +632,15 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
                   {
                     description: "Total Due",
                     amount: thousandsSeparators(
-                      (Number(totalDue) + Number(discounts)).toFixed(2)
+                      (Number(sched?.totalDue) || 0).toFixed(2)
                     ),
+                    // amount: thousandsSeparators(
+                    //   (Number(totalDue) + Number(discounts)).toFixed(2)
+                    // ),
                   },
                   {
                     description: "Discount / Others",
-                    amount: thousandsSeparators(Number(discounts).toFixed(2)),
+                    amount: discounts, //thousandsSeparators(Number(discounts).toFixed(2)),
                   },
                   {
                     description: "ZAP 5% + Fixed Fee 10",
@@ -725,7 +747,7 @@ export const StyledContainer = styled.div`
   height: 85vh;
   width: 100%;
   z-index: 1000;
-  background-color: #eee;
+  background-color: transparent;
 `
 
 const StyledHeader = styled(Space)`

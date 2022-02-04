@@ -39,6 +39,26 @@ export default class SchedulersClass {
     return Base.getDataByDate(this.COLLECTION_NAME, dates, fieldname, branch)
   }
 
+  static async getDataByPartialDate(date, branchSelected = "") {
+    const q = query(
+      collection(db, this.COLLECTION_NAME),
+      where(this.PARTIAL_DATES_STRING, "array-contains", date),
+      where(this.BRANCH, "==", branchSelected)
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+
+    console.log("data list", data)
+    return data
+  }
+
   static getDataByDatePanel(dates, fieldname, branch) {
     return Base.getDataByDatePanel(
       this.COLLECTION_NAME,
@@ -249,6 +269,7 @@ export default class SchedulersClass {
   static PAYMENT_NOTES = "paymentNotes"
 
   static PARTIALS = "partials"
+  static PARTIAL_DATES_STRING = "partialDates"
 
   // this is not included in the database post of data, this is only for viewing in print document particular field
   static TIME_SLOT = "timeSlot"

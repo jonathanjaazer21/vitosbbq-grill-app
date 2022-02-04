@@ -1,3 +1,4 @@
+import productStaticPrices from "Components/Features/DashboardTransaction/productStaticPrices"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import {
   calculateBalanceScheduler,
@@ -14,6 +15,7 @@ import {
   formatTime,
 } from "./dateFormat"
 import thousandsSeparators from "./formatNumber"
+import sorting, { sortByNumber } from "./sorting"
 import sumArray, { sumArrayDatas, sumArrayOfObjectsGrouping } from "./sumArray"
 
 const dateSheetName = (string) => {
@@ -74,7 +76,8 @@ const produceExcelHeaders = () => {
 const handlePayments = (key, partials) => {
   if (typeof partials !== "undefined") {
     if (partials.length === 0) return null
-    const lastPayment = partials[partials.length - 1]
+    // const lastPayment = partials[partials.length - 1]
+    const lastPayment = partials[0]
     if (key === SchedulersClass.DATE_PAYMENT) {
       if (Object.keys(lastPayment?.date || {}).length > 0) {
         const formatDate = formatDateFromDatabase(lastPayment[key])
@@ -89,7 +92,7 @@ const handlePayments = (key, partials) => {
   }
 }
 
-const paymentDetails = (key, data) => {
+export const paymentDetails = (key, data) => {
   if (typeof data[SchedulersClass.PARTIALS] === "undefined") return ""
   const payments = handlePayments(key, data[SchedulersClass.PARTIALS])
   if (payments) {
@@ -181,13 +184,17 @@ const revenueChan = (data) => {
 }
 
 const balanceDue = (data, count, numCount) => {
+  const renewedData = {
+    ...data,
+    [SchedulersClass.TOTAL_DUE]: data[SchedulersClass.TOTAL],
+  }
   if (numCount) return ""
   if (count > 0) return ""
-  let _balanceDue = calculateBalanceScheduler(data)
+  let _balanceDue = calculateBalanceScheduler(renewedData)
   return produceAmount(_balanceDue) || 0
 }
 
-const amountPaid = (data, count, numCount) => {
+export const amountPaid = (data, count, numCount) => {
   if (numCount) return ""
   if (count > 0) return ""
 
@@ -212,7 +219,8 @@ const producePurchasedProducts = (
   properties,
   count,
   numCount /*schedules length by row*/,
-  hiddenRevenueChannelData = false
+  hiddenRevenueChannelData = false,
+  numberOfPurchased = 0
 ) => {
   const row = []
   for (const key of properties) {
@@ -248,7 +256,7 @@ const producePurchasedProducts = (
         row.push(paymentDetails(SchedulersClass.ACCOUNT_NUMBER, data))
         break
       case SchedulersClass.OR_NO:
-        if (count > 0 || hiddenRevenueChannelData) {
+        if (count > 0 && hiddenRevenueChannelData) {
           row.push("")
         } else {
           row.push(paymentDetails(SchedulersClass.OR_NO, data))
@@ -272,11 +280,21 @@ const producePurchasedProducts = (
         }
         break
       case SchedulersClass.AMOUNT_PAID:
-        row.push(amountPaid(data, count, numCount))
-        break
+        if (numberOfPurchased === 1) {
+          row.push(amountPaid(data, 0, ""))
+          break
+        } else {
+          row.push(amountPaid(data, count, numCount))
+          break
+        }
       case SchedulersClass.BALANCE_DUE:
-        row.push(balanceDue(data, count, numCount))
-        break
+        if (numberOfPurchased === 1) {
+          row.push(balanceDue(data, 0, ""))
+          break
+        } else {
+          row.push(balanceDue(data, count, numCount))
+          break
+        }
       case SchedulersClass.TOTAL_DUE:
         row.push(totalDue(data, count))
         break
@@ -302,13 +320,20 @@ const producePurchasedProducts = (
         }
       case SchedulersClass.OTHERS:
         if (typeof data[SchedulersClass.OTHERS] !== "undefined") {
-          // let otherAmount = 0
-          // for (const key in data[SchedulersClass.OTHERS] || {}) {
-          //   const amount = Number(data[SchedulersClass.OTHERS][key]).toFixed(2)
-          //   otherAmount = amount
-          // }
-          row.push(produceAmount(calculateDiscountScheduler(data)))
-          break
+          if (numberOfPurchased === 0) {
+            // row.push(produceAmount(calculateDiscountScheduler(data)))
+            row.push(calculateDiscountScheduler(data))
+            break
+          } else {
+            if (numberOfPurchased === 1) {
+              // row.push(produceAmount(calculateDiscountScheduler(data)))
+              row.push(calculateDiscountScheduler(data))
+              break
+            } else {
+              row.push("")
+              break
+            }
+          }
         } else {
           row.push("")
           break
@@ -333,6 +358,9 @@ const producePurchasedProducts = (
           row.push("")
           break
         }
+      case SchedulersClass.TOTAL:
+        row.push(data[key])
+        break
       default:
         if (typeof data[key] !== "undefined") {
           if (count > 0 && hiddenRevenueChannelData) {
@@ -360,12 +388,14 @@ export default async function (
   const productListWithAmounts =
     producedProductListWithGroupAndAmounts(productData)
 
-  const reversedSchedules = [...schedules]
+  const reversedSchedules = [
+    ...schedules.filter((obj) => obj[SchedulersClass.STATUS] !== "CANCELLED"),
+  ]
 
   // creation of sheets and its data rows happened here
   const sheets = {}
   let numCount = 0
-  for (const data of reversedSchedules) {
+  for (const data of sortByNumber(reversedSchedules, SchedulersClass.UTAK_NO)) {
     numCount = numCount + 1
     const startTime = data[SchedulersClass.DATE_START]
     if (typeof startTime !== "undefined") {
@@ -400,12 +430,20 @@ export default async function (
             const prodDetails = productListWithAmounts.find((obj) => {
               return obj?.code === code
             })
-            totalProductPrice = productPrice[code] =
-              Number(prodDetails?.price) + totalProductPrice
+            const defaultPrice = productStaticPrices(
+              data[SchedulersClass.ORDER_VIA_PARTNER],
+              code,
+              prodDetails?.price
+            )
+            console.log(`default price ${code}`, defaultPrice)
+            // totalProductPrice =
+            // productPrice[code] = Number(defaultPrice) + totalProductPrice
             productPrice[code] =
-              prodDetails?.price || data[`customPrice${code}`]
+              Number(defaultPrice) || data[`customPrice${code}`]
+            // productPrice[code] =
+            //   Number(prodDetails?.price) || data[`customPrice${code}`]
             totalPrice[code] =
-              qty * prodDetails?.price || data[`customPrice${code}`]
+              qty * Number(defaultPrice) || data[`customPrice${code}`]
           }
         }
       }
@@ -415,12 +453,14 @@ export default async function (
       for (const code of productList) {
         if (typeof data[code] !== "undefined") {
           const qty = Number(data[code])
+          let propertyHeaders = [...headers.properties]
           if (qty > 0) {
             let renewedData = {
               ...data,
               productCode: code,
               qty,
               price: produceAmount(productPrice[code]),
+              [SchedulersClass.TOTAL]: data[SchedulersClass.TOTAL_DUE], // the original value of totalDue is transferred to total since it is already been setup to logic (prevent logical errors)
               [SchedulersClass.TOTAL_DUE]: totalPrice[code],
               timeSlot: true,
             }
@@ -435,20 +475,22 @@ export default async function (
               // delete renewedData[SchedulersClass.ORDER_VIA_WEBSITE]
               // delete renewedData[SchedulersClass.PARTNER_MERCHANT_ORDER_NO]
               // delete renewedData[SchedulersClass.PARTIALS]
-              delete renewedData[SchedulersClass.OTHERS]
+              // delete renewedData[SchedulersClass.OTHERS]
               // delete renewedData[SchedulersClass.DATE_START]
               delete renewedData[SchedulersClass.BALANCE_DUE]
               delete renewedData[SchedulersClass.AMOUNT_PAID]
               // delete renewedData?.timeSlot
             }
-            // if (count === 0) {
-            //   delete renewedData[SchedulersClass.OTHERS]
-            // }
+            if (count === 0) {
+              // delete renewedData[SchedulersClass.OTHERS]
+            }
             const _producedPurchasedProducts = producePurchasedProducts(
               renewedData,
-              headers.properties,
+              propertyHeaders,
               count,
-              numCount
+              numCount,
+              false, // view data of revenueChannel cell
+              numberOfPurchased
             )
             count = count + 1
 
@@ -460,19 +502,26 @@ export default async function (
                 productCode: code,
                 qty,
                 price: produceAmount(productPrice[code]),
+                [SchedulersClass.UTAK_NO]: "",
+                [SchedulersClass.TOTAL]: data[SchedulersClass.TOTAL_DUE], // the original value of totalDue is transferred to total since it is already been setup to logic (prevent logical errors)
                 [SchedulersClass.TOTAL_DUE]: totalPrice[code],
                 timeSlot: true,
               }
-              sheets[sheetName].push(
-                producePurchasedProducts(
-                  {
-                    ..._totalRow,
-                  },
-                  headers.properties,
-                  0, // important do not remove,
-                  ""
+              if (numberOfPurchased === 1) {
+                sheets[sheetName].push(_producedPurchasedProducts)
+              } else {
+                sheets[sheetName].push(
+                  producePurchasedProducts(
+                    {
+                      ..._totalRow,
+                    },
+                    propertyHeaders,
+                    0, // important do not remove,
+                    "",
+                    false // view data of revenueChannel cell
+                  )
                 )
-              )
+              }
               numberOfPurchased = 0
             }
             // if (numberOfPurchased === count) {
@@ -527,7 +576,7 @@ export default async function (
         const salesType = list[19] // S/T column
         const source = list[15] // Source column
         console.log("others", others)
-        if (revenueChannel === "" && price === "__") {
+        if (revenueChannel) {
           if (revenueChannel === "R/C") return
           // if (typeof subTotals[revenueChannel] === "undefined") {
           //   subTotals[revenueChannel] = []
@@ -569,8 +618,7 @@ export default async function (
         }
       }
     })
-    console.log("subTotals", subTotals)
-    console.log("cashSource", sources)
+
     const others = sumArray(subTotals, "others")
     const totalDue = sumArray(subTotals, "totalDue")
     const collectibles = sumArray(subTotals, "collectibles")

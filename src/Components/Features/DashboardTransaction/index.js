@@ -187,6 +187,13 @@ function DashboardTransaction({ exposeData = () => {}, modifiedData = {} }) {
               const totalQty = producedTotalQtyOfProduct(products, record)
               return <span>{totalQty}</span>
             },
+            [SchedulersClass.TOTAL_DUE]: (data, record) => {
+              if (typeof data === "undefined") {
+                return "0.00"
+              } else {
+                return thousandsSeparators(Number(data).toFixed(2))
+              }
+            },
             [SchedulersClass.AMOUNT_PAID]: (data, record) => {
               const paymentList = producedPaymentList(record)
               const amountPaid =

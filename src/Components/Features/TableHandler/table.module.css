@@ -47,7 +47,11 @@
   font-weight: bold;
   cursor: pointer;
 } */
-
+.DEFAULT-CANCELLED {
+  cursor: pointer;
+  font-weight: bold;
+  opacity: 0.2;
+}
 .DEFAULT:hover {
   cursor: pointer;
   font-weight: bold;
