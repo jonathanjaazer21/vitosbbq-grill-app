@@ -97,7 +97,6 @@ function PaymentForm({
 
     // if update payment is triggered
     if (dataIndex >= 0) {
-      console.log("amountUpdated", totalDue)
       let newBalance =
         totalDue -
         Number(

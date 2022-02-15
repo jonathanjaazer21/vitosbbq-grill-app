@@ -4,10 +4,15 @@ import {
   formatDateFromDatabase,
   formatDateLong,
 } from "Helpers/dateFormat"
-import thousandsSeparators from "Helpers/formatNumber"
+import thousandsSeparators, {
+  replaceThousandsSeparator,
+} from "Helpers/formatNumber"
 import { amountPaid, balanceDue, paymentDetails } from "Helpers/schedulerExcel"
 import sorting from "Helpers/sorting"
-import sumArray, { sumNumbers } from "Helpers/sumArray"
+import sumArray, {
+  sumNumbers,
+  sumArrayOfObjectsGrouping,
+} from "Helpers/sumArray"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 
 const dateSheetName = (string) => {
@@ -54,7 +59,7 @@ export const produceSalesSummary = async (schedules, branch) => {
     [],
   ]
 
-  const fullfilledSched = dateServedSched.filter((obj) => {
+  const fulfilledSched = dateServedSched.filter((obj) => {
     const balance = calculateBalanceScheduler(obj)
     return (
       obj[SchedulersClass.STATUS] === "FULFILLED" &&
@@ -62,8 +67,9 @@ export const produceSalesSummary = async (schedules, branch) => {
       paymentDetails(SchedulersClass.MODE_PAYMENT, obj) === "OFT"
     )
   })
+
   const [A_TRANS, A_TOTAL] = produceTRANS(
-    fullfilledSched,
+    fulfilledSched,
     formattedDate,
     "[A] TRANSACTIONS OF ORDERS PLACED - PAID - FULFILLED"
   )
@@ -123,7 +129,8 @@ export const produceSalesSummary = async (schedules, branch) => {
     B_TOTAL,
     C_TOTAL,
     D_TOTAL,
-    E_COLLECTIBLES
+    E_COLLECTIBLES,
+    A_TRANS
   )
   sheet[`${dateSheetName(formattedDate)} SALES SUMMARY`] = [
     ...sheet[`${dateSheetName(formattedDate)} SALES SUMMARY`],
@@ -191,11 +198,15 @@ const produceTRANS = (schedules, formattedDate, title = "") => {
     const datePlacedDateFormat = formatDateDash(dateFromDatabase)
     const dateServeDateFormat = formatDateDash(dateFromDatabaseDateStart)
     const utakNo = obj[SchedulersClass.UTAK_NO]
-    const ppNo = obj[SchedulersClass.PARTNER_MERCHANT_ORDER_NO]
+    const ppNo = obj[SchedulersClass.ORDER_VIA_WEBSITE]
+      ? obj[SchedulersClass.ZAP_NUMBER]
+      : ""
 
-    const datePayment = formatDateDash(
-      formatDateFromDatabase(obj[SchedulersClass.PARTIALS][0]?.date)
-    ) // paymentDetails(SchedulersClass.DATE_PAYMENT, obj)
+    const date = obj[SchedulersClass.PARTIALS][0]?.date
+    const datePayment =
+      typeof date !== "undefined"
+        ? formatDateDash(formatDateFromDatabase(date))
+        : "" // paymentDetails(SchedulersClass.DATE_PAYMENT, obj)
     const modePayment = paymentDetails(SchedulersClass.MODE_PAYMENT, obj)
     const source = paymentDetails(SchedulersClass.SOURCE, obj)
     const refNo = paymentDetails(SchedulersClass.REF_NO, obj)
@@ -241,7 +252,14 @@ const produceTRANS = (schedules, formattedDate, title = "") => {
   return [TRANS, total, totalCollectibles]
 }
 
-const produceSummary = (A_TOTAL, B_TOTAL, C_TOTAL, D_TOTAL, E_COLLECTIBLES) => {
+const produceSummary = (
+  A_TOTAL,
+  B_TOTAL,
+  C_TOTAL,
+  D_TOTAL,
+  E_COLLECTIBLES,
+  A_TRANS
+) => {
   const aTotal = A_TOTAL.replace(/,/g, "")
   const bTotal = B_TOTAL.replace(/,/g, "")
   const cTotal = C_TOTAL.replace(/,/g, "")
@@ -249,13 +267,63 @@ const produceSummary = (A_TOTAL, B_TOTAL, C_TOTAL, D_TOTAL, E_COLLECTIBLES) => {
   const eCollectibles = E_COLLECTIBLES.replace(/,/g, "")
   const paymentReceivedTotal = Number(aTotal) + Number(bTotal) + Number(cTotal)
   const collectiblesTotal = Number(dTotal) + Number(eCollectibles)
+  const summaryA = produceReportASummary(A_TRANS)
   const SUMMARY = [
     [],
     ["", "", "", "", "", "", "", "", "", "SUMMARY"],
-    ["", "", "", "", "", "", "", "", "", "PAYMENT RECEIVED"],
-    ["", "", "", "", "", "", "", "", "", "A", thousandsSeparators(A_TOTAL)],
-    ["", "", "", "", "", "", "", "", "", "B", thousandsSeparators(B_TOTAL)],
-    ["", "", "", "", "", "", "", "", "", "C", thousandsSeparators(C_TOTAL)],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "SUMMARY OF REPORT A",
+      "",
+      "",
+      "PAYMENT RECEIVED",
+      "",
+      "",
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "BDO / 981",
+      summaryA[0],
+      "",
+      "A",
+      thousandsSeparators(A_TOTAL),
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "KP GCash",
+      summaryA[1],
+      "",
+      "B",
+      thousandsSeparators(B_TOTAL),
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "TOTAL",
+      summaryA[2],
+      "",
+      "C",
+      thousandsSeparators(C_TOTAL),
+    ],
     [
       "",
       "",
@@ -301,4 +369,33 @@ const produceSummary = (A_TOTAL, B_TOTAL, C_TOTAL, D_TOTAL, E_COLLECTIBLES) => {
     [],
   ]
   return SUMMARY
+}
+
+const produceReportASummary = (A_TRANS) => {
+  const orderList = {
+    BDO: [],
+    KP_GCASH: [],
+  }
+  A_TRANS.forEach((arrayData, index) => {
+    if (index > 3) {
+      if (index !== A_TRANS.length - 1) {
+        if (arrayData[8] === "BDO / 981") {
+          orderList["BDO"].push(Number(replaceThousandsSeparator(arrayData[9])))
+        }
+        if (arrayData[8] === "KP GCash") {
+          orderList["KP_GCASH"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
+      }
+    }
+  })
+  const sumOfBDO = sumNumbers(orderList["BDO"])
+  const sumOfKP_GCASH = sumNumbers(orderList["KP_GCASH"])
+  const sumOfTotal = sumOfBDO + sumOfKP_GCASH
+  return [
+    thousandsSeparators(sumOfBDO.toFixed(2)),
+    thousandsSeparators(sumOfKP_GCASH.toFixed(2)),
+    thousandsSeparators(sumOfTotal.toFixed(2)),
+  ]
 }

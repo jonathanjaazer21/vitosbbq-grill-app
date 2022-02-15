@@ -10,5 +10,6 @@ export default function () {
       menuList.push(subObj.title)
     }
   }
+  console.log("menuList", menuList)
   return menuList
 }
