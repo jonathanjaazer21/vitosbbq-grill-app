@@ -253,6 +253,14 @@ function DashboardTransaction({ exposeData = () => {}, modifiedData = {} }) {
                 SchedulersClass.SOA_NUMBER
               )
             },
+            [SchedulersClass.DATE_PAYMENT]: (data, record) => {
+              const date = displayPaymentProp(data, record, "date")
+              if (date) {
+                const dateFromD = formatDateFromDatabase(date)
+                return formatDateDash(dateFromD)
+              }
+              return ""
+            },
             [SchedulersClass.MODE_PAYMENT]: (data, record) => {
               return displayPaymentProp(
                 data,

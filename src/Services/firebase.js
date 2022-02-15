@@ -18,6 +18,8 @@ import {
   startAt,
   endAt,
   Timestamp,
+  runTransaction,
+  writeBatch,
 } from "firebase/firestore"
 import {
   getAuth,
@@ -88,5 +90,7 @@ export {
   deleteObject,
   getDownloadURL,
   uploadBytes,
+  runTransaction,
+  writeBatch,
 }
 export default db

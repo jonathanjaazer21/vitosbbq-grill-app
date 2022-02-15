@@ -51,6 +51,9 @@ export default function (orderVia, code, defaultPrice) {
         case "DCO LARGE":
           productObj.price = 155
           break
+        case "CH8-PS":
+          productObj.price = 55
+          break
         default:
           productObj.price = defaultPrice
       }

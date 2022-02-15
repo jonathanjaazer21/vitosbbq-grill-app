@@ -205,6 +205,8 @@ export const displayPaymentProp = (data, record, fieldName) => {
         ...record[SchedulersClass.PARTIALS][0], //record[SchedulersClass.PARTIALS].length - 1
       }
       return obj[fieldName]
+    } else {
+      return ""
     }
   }
   return data

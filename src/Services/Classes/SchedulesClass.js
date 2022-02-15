@@ -270,6 +270,7 @@ export default class SchedulersClass {
 
   static PARTIALS = "partials"
   static PARTIAL_DATES_STRING = "partialDates"
+  static CASH_FOR_DEPOSIT = "cashForDeposit"
 
   // this is not included in the database post of data, this is only for viewing in print document particular field
   static TIME_SLOT = "timeSlot"

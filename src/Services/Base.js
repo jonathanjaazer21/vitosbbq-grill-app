@@ -174,6 +174,7 @@ export default class Base {
   }
 
   static async addData(collectionName, data) {
+    console.log(collectionName, data)
     try {
       const docRef = await addDoc(collection(db, collectionName), { ...data })
       if (docRef?.id) {

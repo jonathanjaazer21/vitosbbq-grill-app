@@ -1,0 +1,8 @@
+.green {
+  color: red;
+  font-weight: bolder;
+}
+
+.notHighlighted {
+  background-color: transparent;
+}

@@ -4,6 +4,7 @@ import {
   DAILY_REPORTS,
   DASHBOARD,
   DROPDOWN_MASTERFILE,
+  FOR_DEPOSITS,
   GRILL_RESERVATION,
   INCIDENT_REPORTS,
   INVENTORY,
@@ -34,6 +35,7 @@ import SettingsBranchMasterfile from "Components/Features/SettingsBranchMasterfi
 import AnalyticsIncidents from "Components/Features/AnalyticsIncidents"
 import AnalyticsCustomer from "Components/Features/AnalyticsCustomer"
 import AnalyticsDailyReport from "Components/Features/AnalyticsDailyReport"
+import DashboardForDeposits from "Components/Features/DashboardForDeposits"
 
 const iconSize = {
   fontSize: "15rem",
@@ -57,7 +59,7 @@ export default {
   ),
   [GRILL_RESERVATION]: <DashboardGrillingPage />,
   [PAYMENT_TRANSACTION]: <DashboardTransactionPage />,
-  [INVENTORY]: <DashboardStoreInventory />,
+  [FOR_DEPOSITS]: <DashboardForDeposits />,
   [USER_MASTERFILE]: <SettingsUserMasterfilePage />,
   [PRODUCTS_MASTERFILE]: <SettingsProductMasterfile />,
   [ROLES_MASTERFILE]: <SettingsRoleMasterfile />,

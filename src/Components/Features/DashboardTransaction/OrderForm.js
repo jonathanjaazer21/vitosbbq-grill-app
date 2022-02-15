@@ -220,15 +220,29 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         ...fixedDeduction,
       }
       if (paymentList.length > 0) {
-        console.log("date payment", paymentList[0].date)
         data[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
       }
       if (data[SchedulersClass.PARTIALS]?.length > 0) {
         const _partialDates = []
+        let cashForDeposit = false
         data[SchedulersClass.PARTIALS].forEach((pObj) => {
           _partialDates.push(formatDateDash(pObj?.date || new Date()))
+          if (
+            pObj[SchedulersClass.ACCOUNT_NUMBER] === "Cash" &&
+            pObj[SchedulersClass.MODE_PAYMENT] === "Cash"
+          ) {
+            cashForDeposit = true
+          }
+
+          if (
+            pObj[SchedulersClass.ACCOUNT_NUMBER] === "Cash" &&
+            pObj[SchedulersClass.MODE_PAYMENT] === "BDO / 981"
+          ) {
+            cashForDeposit = false
+          }
         })
         data[SchedulersClass.PARTIAL_DATES_STRING] = _partialDates
+        data[SchedulersClass.CASH_FOR_DEPOSIT] = cashForDeposit
       }
       const result = await SchedulersClass.updateDataById(id, data)
       modifiedData(data)
@@ -251,10 +265,25 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         // this is for added partial dates string
         if (newSched[SchedulersClass.PARTIALS]?.length > 0) {
           const _partialDates = []
+          let cashForDeposit = false
           newSched[SchedulersClass.PARTIALS].forEach((pObj) => {
+            if (
+              pObj[SchedulersClass.ACCOUNT_NUMBER] === "Cash" &&
+              pObj[SchedulersClass.MODE_PAYMENT] === "Cash"
+            ) {
+              cashForDeposit = true
+            }
+
+            if (
+              pObj[SchedulersClass.ACCOUNT_NUMBER] === "Cash" &&
+              pObj[SchedulersClass.MODE_PAYMENT] === "BDO / 981"
+            ) {
+              cashForDeposit = false
+            }
             _partialDates.push(formatDateDash(pObj?.date || new Date()))
           })
           newSched[SchedulersClass.PARTIAL_DATES_STRING] = _partialDates
+          newSched[SchedulersClass.CASH_FOR_DEPOSIT] = cashForDeposit
         }
 
         try {
@@ -283,6 +312,14 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
   const handleRemovePayment = (_index) => {
     const _paymentList = paymentList.filter((obj, index) => index !== _index)
     setPaymentList(_paymentList)
+  }
+
+  const handleForDeposit = (_index) => {
+    const paymentListCopy = [...paymentList]
+    const paymentData = paymentList.find((obj, index) => index === _index)
+    paymentData.cashForDeposit = true
+    paymentListCopy[_index] = paymentData
+    setPaymentList(paymentListCopy)
   }
 
   if (formType === "modified" && Object.keys(orderData).length === 0) {
@@ -610,6 +647,21 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
                             danger
                             onClick={() => handleRemovePayment(index)}
                           />
+                          {/* {record[SchedulersClass.MODE_PAYMENT] === "Cash" && (
+                            <MainButton
+                              type={record?.cashForDeposit ? "text" : "primary"}
+                              label={
+                                record?.cashForDeposit ? "Pending" : "Unpaid"
+                              }
+                              onClick={() => {
+                                if (record?.cashForDeposit) {
+                                } else {
+                                  handleForDeposit(index)
+                                }
+                              }}
+                              size="small"
+                            />
+                          )} */}
                         </Space>
                       )
                     },

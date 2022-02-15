@@ -48,6 +48,12 @@ import {
 import thousandsSeparators from "Helpers/formatNumber"
 import TransactionGroupPayment from "../TransactionGroupPayments"
 import { produceSalesSummary } from "./produceSalesSummary"
+import segregateAdvanceOrders, {
+  advanceOrders,
+  notAdvanceOrders,
+} from "./segregateAdvanceOrders"
+import { produceSalesSummary1 } from "./produceSalesSummary1"
+import { produceSalesSummary2 } from "./produceSalesSummary2"
 const produceAmount = (value) => {
   return thousandsSeparators(Number(value).toFixed(2))
 }
@@ -215,10 +221,9 @@ const ActionButtons = (props) => {
   }, [filterValue, selectedFilter])
 
   const handleExportExcel = async (_schedules, branch) => {
-    const defaultSheet = await schedulerExcel(
+    const defaultSheet = await segregateAdvanceOrders(
       _schedules,
       productData,
-      "",
       branch
     )
     const [cashSheet, cashTotal] = await schedulerExcel(
@@ -472,7 +477,8 @@ const ActionButtons = (props) => {
       }
     }
 
-    const salesSummary = await produceSalesSummary(_schedules, branch)
+    const salesSummary = await produceSalesSummary1(_schedules, branch)
+    const salesSummary2 = await produceSalesSummary2(_schedules, branch)
 
     ExportService.exportExcelReports({
       ...defaultSheet,
@@ -488,6 +494,7 @@ const ActionButtons = (props) => {
       ...wbSheet,
       ...sumRCSheet,
       ...salesSummary,
+      ...salesSummary2,
     })
   }
 

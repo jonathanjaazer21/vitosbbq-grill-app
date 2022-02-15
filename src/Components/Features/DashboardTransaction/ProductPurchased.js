@@ -31,6 +31,7 @@ function ProductPurchased({
     for (const key in products) {
       modifiedObj[key] = 0
     }
+    console.log("toucheding", isTouched)
     if (isTouched) {
       if (dataSource.length > 0) {
         // set default list of products
@@ -51,8 +52,28 @@ function ProductPurchased({
       }
     }
     if (orderVia) {
-      modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
-      modifiedData(modifiedObj)
+      // modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
+      // console.log("modifiedObj", modifiedObj)
+      // console.log("dataSource", dataSource)
+      // modifiedData(modifiedObj)
+      if (dataSource.length > 0) {
+        // set default list of products
+        for (const obj of dataSource) {
+          modifiedObj[obj?.code] = obj?.qty
+          const customPrice = `customPrice${obj?.code}`
+          if (typeof obj[customPrice] !== "undefined") {
+            modifiedObj[customPrice] = obj[customPrice]
+          }
+        }
+        modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
+        modifiedData(modifiedObj)
+      } else {
+        modifiedObj[SchedulersClass.TOTAL_DUE] = 0
+        if (isTouched) {
+          modifiedObj[SchedulersClass.OTHERS] = {}
+        }
+        modifiedData(modifiedObj)
+      }
     }
   }, [dataSource, isTouched, totalDue, orderVia])
 

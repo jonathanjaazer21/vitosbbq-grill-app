@@ -80,7 +80,7 @@ const handlePayments = (key, partials) => {
     const lastPayment = partials[0]
     if (key === SchedulersClass.DATE_PAYMENT) {
       if (Object.keys(lastPayment?.date || {}).length > 0) {
-        const formatDate = formatDateFromDatabase(lastPayment[key])
+        const formatDate = formatDateFromDatabase(lastPayment?.date)
         const datePaid = formatDateDash(formatDate)
         return datePaid || null
       }
@@ -265,6 +265,15 @@ const producePurchasedProducts = (
       case SchedulersClass.SALES_TYPE:
         row.push(displaySalesType(data))
         break
+      case SchedulersClass.PARTNER_MERCHANT_ORDER_NO:
+        if (data[SchedulersClass.ORDER_VIA_WEBSITE]) {
+          row.push(data[SchedulersClass.ZAP_NUMBER])
+          break
+        } else {
+          row.push("")
+          break
+        }
+
       case SchedulersClass.TIME_SLOT:
         if (data?.timeSlot) {
           row.push(timeSlot(data))
@@ -522,8 +531,8 @@ export default async function (
                   )
                 )
               }
-              numberOfPurchased = 0
             }
+            // numberOfPurchased = 0
             // if (numberOfPurchased === count) {
             // let _totalRow = {
             //   ...data,
