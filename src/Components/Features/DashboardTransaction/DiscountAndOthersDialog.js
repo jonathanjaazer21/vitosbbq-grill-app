@@ -6,7 +6,7 @@ const { TextArea } = Input
 
 const SENIOR = "Senior Citizen"
 const PWD = "PWD"
-const AUTOMATIC = "Automatic 50 percent off"
+const AUTOMATIC = "Automatic 20 percent off"
 const PROMO = "Promo"
 const SPECIAL = "Special"
 const INCIDENTS = "Incidents"
@@ -103,7 +103,7 @@ function DiscountAndOthersDialog(props) {
       ...additionalDetails,
       [AUTOMATIC]: {
         remarks: automatic?.remarks,
-        amount: props.totalDue * 0.5,
+        amount: props.totalDue * 0.2,
       },
       [INCIDENTS]: { ...incidents, orderNo: props?.orderNo || "" },
     })
@@ -155,7 +155,7 @@ function DiscountAndOthersDialog(props) {
             <Space direction="horizontal">
               <Radio value={SENIOR}>SENIOR CITIZEN</Radio>
               <Radio value={PWD}>PWD</Radio>
-              <Radio value={AUTOMATIC}>AUTOMATIC 50% OFF</Radio>
+              <Radio value={AUTOMATIC}>AUTOMATIC 20% OFF</Radio>
               <Radio value={PROMO}>PROMO</Radio>
               <Radio value={SPECIAL}>SPECIAL</Radio>
               <Radio value={INCIDENTS}>INCIDENTS</Radio>

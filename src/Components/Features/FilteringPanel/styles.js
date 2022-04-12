@@ -4,8 +4,8 @@ export const FloatContainer = styled.div`
   position: fixed;
   padding-top: 3rem;
   bottom: -3rem;
-  left: 0;
-  z-index: 1000;
+  right: 0;
+  z-index: 3000;
   background-color: transparent;
   width: 375px;
   display: flex;

@@ -1,6 +1,7 @@
-import sort from "Restructured/Utilities/sorting"
-import { CODE, DESCRIPTION, QUANTITY } from "Restructured/Constants/products"
-import { BRANCH, DATE_END, DATE_START } from "Restructured/Constants/schedules"
+// import sort from "Restructured/Utilities/sorting"
+import SchedulersClass from "Services/Classes/SchedulesClass"
+// import { CODE, DESCRIPTION, QUANTITY } from "Restructured/Constants/products"
+// import { BRANCH, DATE_END, DATE_START } from "Restructured/Constants/schedules"
 
 export default class PrintMethods {
   //produce filtering panels array of data
@@ -13,16 +14,16 @@ export default class PrintMethods {
     const _data = []
 
     for (const obj of orders) {
-      if (obj[BRANCH] === branch) {
+      if (obj[SchedulersClass.BRANCH] === branch) {
         for (const key in obj) {
           if (products.includes(key)) {
             _data.push({
               date: obj?.date,
-              [DATE_START]: obj[DATE_START],
-              [DATE_END]: obj[DATE_END],
-              [DESCRIPTION]: productLabels[key],
-              [CODE]: key,
-              [QUANTITY]: obj[key],
+              [SchedulersClass.DATE_START]: obj[SchedulersClass.DATE_START],
+              [SchedulersClass.DATE_END]: obj[SchedulersClass.DATE_END],
+              description: productLabels[key],
+              code: key,
+              quantity: obj[key],
             })
           }
         }
@@ -34,7 +35,7 @@ export default class PrintMethods {
   static producePrintSummaryPerProduct = (dataList) => {
     const _newData = []
     const conditions = (_obj, obj) => {
-      return _obj[CODE] === obj[CODE]
+      return _obj["code"] === obj["code"]
     }
 
     for (const obj of dataList) {
@@ -45,7 +46,7 @@ export default class PrintMethods {
         const _data = _newData.find((_obj) => conditions(_obj, obj))
         const _dataIndex = _newData.findIndex((_obj) => conditions(_obj, obj))
         let _modifiedData = { ..._data }
-        _modifiedData[QUANTITY] = _data[QUANTITY] + obj[QUANTITY]
+        _modifiedData["quantity"] = _data["quantity"] + obj["quantity"]
         _newData.splice(_dataIndex, 1, _modifiedData)
       }
     }

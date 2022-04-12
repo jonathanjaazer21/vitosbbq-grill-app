@@ -16,12 +16,14 @@ export const DAILY_REPORTS = "dailyReports"
 export const CUSTOMER_REPORTS = "customerReports"
 export const DISCOUNT_OTHERS = "analyticsDiscounts"
 export const FOR_DEPOSITS = "forDeposits"
+export const MONTHLY_SALES_SUMMARY = "monthlySalesSummary"
 
 export const ADD = "add"
 export const MODIFIED = "modified"
 
 export const LABEL = {
   [DASHBOARD]: "Dashboard",
+  [MONTHLY_SALES_SUMMARY]: "Mothly Sales",
   [FOR_DEPOSITS]: "For Deposit (D)",
   [REPORTS]: "Analytics",
   [MASTER_DATA]: "Settings",

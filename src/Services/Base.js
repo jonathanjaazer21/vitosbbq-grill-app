@@ -111,10 +111,34 @@ export default class Base {
     return data
   }
 
-  static async getDataByFieldname(collectionName, fieldname, value) {
+  static async getDataByFieldname(collectionName, fieldname, value, branch) {
     const q = query(
       collection(db, collectionName),
       where(fieldname, "==", value)
+      // orderBy(orderedBy[0], orderedBy[1])
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error(UNAVAILABLE)
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+    return data
+  }
+
+  static async getDataByFieldnameWithBranch(
+    collectionName,
+    fieldname,
+    value,
+    branch
+  ) {
+    const q = query(
+      collection(db, collectionName),
+      where(fieldname, "==", value),
+      where("branch", "==", branch)
       // orderBy(orderedBy[0], orderedBy[1])
     )
     const querySnapshot = await getDocs(q)
@@ -201,11 +225,27 @@ export default class Base {
   }
 
   static async updateDataById(collectionName, id, data) {
+    console.log("data to be updated", data)
     try {
       const docRef = doc(db, collectionName, id)
       updateDoc(docRef, {
         ...data,
       })
+    } catch (err) {
+      throw new Error(err.code)
+    }
+  }
+
+  static async setDataById(collectionName, id, data) {
+    try {
+      const docRef = doc(db, collectionName, id)
+      setDoc(
+        docRef,
+        {
+          ...data,
+        },
+        { merge: true }
+      )
     } catch (err) {
       throw new Error(err.code)
     }

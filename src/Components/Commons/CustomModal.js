@@ -41,6 +41,7 @@ function CustomModal({
         onOk={handleConfirm}
         onCancel={handleCancel}
         footer={rest.footer}
+        {...rest}
       >
         {rest.children}
       </Modal>

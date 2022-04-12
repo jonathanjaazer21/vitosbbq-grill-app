@@ -8,11 +8,13 @@ import ProductsClass from "Services/Classes/ProductsClass"
 import CustomInput from "Components/Commons/CustomInput"
 import thousandsSeparators from "Helpers/formatNumber"
 import SchedulersClass from "Services/Classes/SchedulesClass"
+import CustomDrawer from "Components/Commons/CustomDrawer"
 
 function ProductPurchased({
   modifiedData = () => {},
   orderData,
   orderVia = "",
+  formType,
 }) {
   const {
     products,
@@ -25,13 +27,12 @@ function ProductPurchased({
     handleEditPrice,
     totalDue,
     isTouched,
-  } = useProductPurchased(orderData, orderVia)
+  } = useProductPurchased(orderData, orderVia, formType)
   useEffect(() => {
     const modifiedObj = {}
     for (const key in products) {
       modifiedObj[key] = 0
     }
-    console.log("toucheding", isTouched)
     if (isTouched) {
       if (dataSource.length > 0) {
         // set default list of products
@@ -44,7 +45,7 @@ function ProductPurchased({
         }
         modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
         modifiedObj[SchedulersClass.OTHERS] = {}
-        modifiedData(modifiedObj)
+        modifiedData(modifiedObj, products)
       } else {
         modifiedObj[SchedulersClass.TOTAL_DUE] = 0
         modifiedObj[SchedulersClass.OTHERS] = {}
@@ -80,6 +81,7 @@ function ProductPurchased({
   const sortedProductList = productList.sort(
     (a, b) => a[ProductsClass.NO] - b[ProductsClass.NO]
   )
+
   return (
     <Card
       title="Product Purchased"
@@ -132,7 +134,7 @@ function ProductPurchased({
               const isCustomPrice =
                 typeof record[`customPrice${record?.code}`] !== "undefined"
               const customPrice = record[`customPrice${record?.code}`] || value
-              return editableId === record?.code && isCustomPrice ? (
+              return editableId === record?.code && record?.editable ? (
                 <CustomInput
                   value={customPrice}
                   onChange={handleEditPrice}
@@ -235,11 +237,17 @@ const ActionButton = ({
         position: "relative",
       }}
     >
-      <CustomModal
+      {/* <CustomModal
         title="Product list"
         buttonLabel="Add Product"
         buttonType="default"
         footer={false}
+      > */}
+      <CustomDrawer
+        buttonLabel="Add Product"
+        size="medium"
+        title="Products"
+        width="375px"
       >
         <Space
           direction="vertical"
@@ -357,7 +365,8 @@ const ActionButton = ({
             )
           })}
         </Space>
-      </CustomModal>
+      </CustomDrawer>
+      {/* </CustomModal> */}
     </div>
   )
 }

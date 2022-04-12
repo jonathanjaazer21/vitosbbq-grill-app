@@ -224,7 +224,10 @@ export const displaySalesType = (record) => {
   if (record[SchedulersClass.ORDER_VIA]) {
     if (typeof record[SchedulersClass.OTHERS] !== "undefined") {
       for (const key in record[SchedulersClass.OTHERS]) {
-        if (key === "Automatic 50 percent off") {
+        if (
+          key === "Automatic 50 percent off" ||
+          key === "Automatic 20 percent off"
+        ) {
           return "D/O"
         }
         if (key === "Incidents") {
@@ -235,6 +238,7 @@ export const displaySalesType = (record) => {
         }
       }
     }
+
     return "R"
   }
   if (record[SchedulersClass.ORDER_VIA_PARTNER]) {
