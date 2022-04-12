@@ -11,12 +11,14 @@ import { AiFillPrinter } from "react-icons/ai"
 // import { STATUS } from "components/SchedulerComponent/orderSlip/types"
 import SchedulesClass from "Services/Classes/SchedulesClass"
 import ProductClass from "Services/Classes/ProductsClass"
-import { Card } from "antd"
+import Print from "../Print"
+import FilteringPanelDocs from "../Print/Documents/filteringPanelDocs"
+import { Button, Card } from "antd"
 
 const DATE = "date"
 const DATE_START = SchedulesClass.DATE_START
 const DATE_END = SchedulesClass.DATE_END
-function FilteringPanel({ isToggled }) {
+function FilteringPanel({ isToggled = false }) {
   const [
     dataFetched,
     dataFiltered,
@@ -85,7 +87,7 @@ function FilteringPanel({ isToggled }) {
         })}
       </Grid>
       <FloatContainer display={isToggled}>
-        {/* {dataFetched.length > 0 && branch && (
+        {dataFetched.length > 0 && (
           <Print
             component={
               <FilteringPanelDocs
@@ -99,7 +101,7 @@ function FilteringPanel({ isToggled }) {
             }
             button={<AiFillPrinter fontSize="1.5rem" />}
           />
-        )} */}
+        )}
       </FloatContainer>
     </Grid>
   )

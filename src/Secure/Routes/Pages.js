@@ -9,6 +9,7 @@ import {
   INCIDENT_REPORTS,
   INVENTORY,
   MASTER_DATA,
+  MONTHLY_SALES_SUMMARY,
   PAYMENT_TRANSACTION,
   PRODUCTS_MASTERFILE,
   REPORTS,
@@ -36,6 +37,8 @@ import AnalyticsIncidents from "Components/Features/AnalyticsIncidents"
 import AnalyticsCustomer from "Components/Features/AnalyticsCustomer"
 import AnalyticsDailyReport from "Components/Features/AnalyticsDailyReport"
 import DashboardForDeposits from "Components/Features/DashboardForDeposits"
+import MonthlySalesPage from "Pages/MonthlySalesPage"
+import AnalyticsMonthlySales from "Components/Features/AnalyticsMonthlySales"
 
 const iconSize = {
   fontSize: "15rem",
@@ -68,6 +71,7 @@ export default {
   [INCIDENT_REPORTS]: <AnalyticsIncidents />,
   [CUSTOMER_REPORTS]: <AnalyticsCustomer />,
   [DAILY_REPORTS]: <AnalyticsDailyReport />,
+  [MONTHLY_SALES_SUMMARY]: <MonthlySalesPage />,
 }
 
 // const Pages = (props) => {

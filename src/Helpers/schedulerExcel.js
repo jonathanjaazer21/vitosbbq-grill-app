@@ -191,7 +191,24 @@ const balanceDue = (data, count, numCount) => {
   if (numCount) return ""
   if (count > 0) return ""
   let _balanceDue = calculateBalanceScheduler(renewedData)
+  if (_balanceDue < 0) {
+    return 0
+  }
   return produceAmount(_balanceDue) || 0
+}
+
+const excessPayment = (data, count, numCount) => {
+  const renewedData = {
+    ...data,
+    [SchedulersClass.TOTAL_DUE]: data[SchedulersClass.TOTAL],
+  }
+  if (numCount) return ""
+  if (count > 0) return ""
+  let _balanceDue = calculateBalanceScheduler(renewedData)
+  if (_balanceDue < 0) {
+    return produceAmount(_balanceDue * -1) || 0
+  }
+  return 0
 }
 
 export const amountPaid = (data, count, numCount) => {
@@ -302,6 +319,14 @@ const producePurchasedProducts = (
           break
         } else {
           row.push(balanceDue(data, count, numCount))
+          break
+        }
+      case SchedulersClass.EXCESS_PAYMENT:
+        if (numberOfPurchased === 1) {
+          row.push(excessPayment(data, 0, ""))
+          break
+        } else {
+          row.push(excessPayment(data, count, numCount))
           break
         }
       case SchedulersClass.TOTAL_DUE:
@@ -439,20 +464,24 @@ export default async function (
             const prodDetails = productListWithAmounts.find((obj) => {
               return obj?.code === code
             })
-            const defaultPrice = productStaticPrices(
-              data[SchedulersClass.ORDER_VIA_PARTNER],
-              code,
-              prodDetails?.price
-            )
-            console.log(`default price ${code}`, defaultPrice)
+            // const defaultPrice = productStaticPrices(
+            //   data[SchedulersClass.ORDER_VIA_PARTNER],
+            //   code,
+            //   prodDetails?.price
+            // )
+
+            let defaultPrice = data?.withFlexiblePrices
+              ? data[`customPrice${code}`]
+              : prodDetails?.price
             // totalProductPrice =
             // productPrice[code] = Number(defaultPrice) + totalProductPrice
-            productPrice[code] =
-              Number(defaultPrice) || data[`customPrice${code}`]
+
+            const price = Number(defaultPrice) || data[`customPrice${code}`]
+            productPrice[code] = price
+
             // productPrice[code] =
             //   Number(prodDetails?.price) || data[`customPrice${code}`]
-            totalPrice[code] =
-              qty * Number(defaultPrice) || data[`customPrice${code}`]
+            totalPrice[code] = qty * price
           }
         }
       }
@@ -574,17 +603,16 @@ export default async function (
     const summaries = {}
     sheets[key].forEach((list) => {
       if (list.length > 0) {
-        console.log("list", list)
-        const amountPaid = list[list.length - 1] || "0" // amountPaid column
-        const collectibles = list[list.length - 2] || "0" // collectibles column
-        const totalDue = list[list.length - 3] || "0" // total Column
-        const others = list[list.length - 4] || "0" // others Column
+        const excessPayment = list[list.length - 1] || "0"
+        const amountPaid = list[list.length - 2] || "0" // amountPaid column
+        const collectibles = list[list.length - 3] || "0" // collectibles column
+        const totalDue = list[list.length - 4] || "0" // total Column
+        const others = list[list.length - 5] || "0" // others Column
         const totalQty = isNaN(Number(list[11])) ? "0" : Number(list[11]) // qty column
         const revenueChannel = list[4] // R/C column
         const price = list[12] // PRICE column
         const salesType = list[19] // S/T column
         const source = list[15] // Source column
-        console.log("others", others)
         if (revenueChannel) {
           if (revenueChannel === "R/C") return
           // if (typeof subTotals[revenueChannel] === "undefined") {
@@ -595,6 +623,7 @@ export default async function (
             totalDue: Number(totalDue.replace(/,/g, "")),
             collectibles: Number(collectibles.replace(/,/g, "")),
             amountPaid: Number(amountPaid.replace(/,/g, "")),
+            excessPayment: Number(excessPayment.replace(/,/g, "")),
             totalQty: totalQty,
           })
         }
@@ -610,6 +639,7 @@ export default async function (
             totalDue: Number(totalDue.replace(/,/g, "")),
             collectibles: Number(collectibles.replace(/,/g, "")),
             amountPaid: Number(amountPaid.replace(/,/g, "")),
+            excessPayment: Number(excessPayment.replace(/,/g, "")),
           })
         }
 
@@ -623,6 +653,7 @@ export default async function (
             totalDue: Number(totalDue.replace(/,/g, "")),
             collectibles: Number(collectibles.replace(/,/g, "")),
             amountPaid: Number(amountPaid.replace(/,/g, "")),
+            excessPayment: Number(excessPayment.replace(/,/g, "")),
           })
         }
       }
@@ -632,6 +663,7 @@ export default async function (
     const totalDue = sumArray(subTotals, "totalDue")
     const collectibles = sumArray(subTotals, "collectibles")
     const amountPaid = sumArray(subTotals, "amountPaid")
+    const totalExcess = sumArray(subTotals, "excessPayment")
     const totalQty = sumArray(subTotals, "totalQty")
     const blankColumns = [...new Array(19)].map((d, i) => {
       return i === 11 ? "" /*totalQty*/ : ""
@@ -644,6 +676,7 @@ export default async function (
       produceAmount(totalDue),
       produceAmount(collectibles),
       produceAmount(amountPaid),
+      produceAmount(totalExcess),
     ])
 
     if (additionalSheetInfo) {
@@ -655,6 +688,7 @@ export default async function (
         totalDue,
         collectibles,
         amountPaid,
+        totalExcess,
       })
     }
 
@@ -685,20 +719,27 @@ export default async function (
             forRecapLabel(subKey),
             "",
             "",
+            "",
             produceAmount(amountPaid + collectibles),
           ])
         } else {
           if (subKey === "--") {
-            finalSummary.push([subKey, "", "", produceAmount(firstPartTotal)])
+            finalSummary.push([
+              subKey,
+              "",
+              "",
+              "",
+              produceAmount(firstPartTotal),
+            ])
           } else if (subKey === "CASH RECEIVED") {
             const cashList = sources["Cash"] || []
             const cash = sumArray(cashList, "amountPaid")
-            finalSummary.push([subKey, "", "", produceAmount(cash)])
+            finalSummary.push([subKey, "", "", "", produceAmount(cash)])
           } else if (subKey === "") {
             finalSummary.push([])
             finalSummary.push([])
           } else {
-            finalSummary.push([subKey, "", "", produceAmount(0)])
+            finalSummary.push([subKey, "", "", "", produceAmount(0)])
           }
         }
       }

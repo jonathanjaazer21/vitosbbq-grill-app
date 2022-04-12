@@ -9,6 +9,11 @@ import { formatDateFromDatabase } from "Helpers/dateFormat"
 
 export default class DepositsClass {
   static COLLECTION_NAME = "deposits"
+
+  static getDataByDate(dates, fieldname, branch) {
+    return Base.getDataByDate(this.COLLECTION_NAME, dates, fieldname, branch)
+  }
+
   static getData() {
     return Base.getData(this.COLLECTION_NAME)
   }
@@ -29,6 +34,15 @@ export default class DepositsClass {
 
   static getDataByFieldName(fieldname, value) {
     return Base.getDataByFieldname(this.COLLECTION_NAME, fieldname, value)
+  }
+
+  static getDataByFieldNameWithBranch(fieldname, value, branch) {
+    return Base.getDataByFieldnameWithBranch(
+      this.COLLECTION_NAME,
+      fieldname,
+      value,
+      branch
+    )
   }
 
   static addData(data) {
@@ -60,7 +74,7 @@ export default class DepositsClass {
       ]
       console.log("objbatch", { partials: [..._data] })
 
-      batch.update(document, { partials: [..._data] })
+      batch.update(document, { partials: [..._data], cashForDeposit: false })
     })
 
     // Commit the batch
@@ -99,6 +113,7 @@ export default class DepositsClass {
   static SOURCE = "source"
   static ACCOUNT_NUMBER = "accountNumber"
   static PAYMENT_LIST = "paymentList"
+  static BRANCH = "branch"
 
   static PROPERTIES = [
     this._ID,
@@ -108,6 +123,7 @@ export default class DepositsClass {
     this.ACCOUNT_NUMBER,
     this.TOTAL_DEPOSIT,
     this.PAYMENT_LIST,
+    this.BRANCH,
   ]
 
   static LABELS = {
@@ -117,6 +133,7 @@ export default class DepositsClass {
     [this.SOURCE]: "Source",
     [this.ACCOUNT_NUMBER]: "Acct No",
     [this.PAYMENT_LIST]: "Payment List",
+    [this.BRANCH]: "Branch",
   }
   static TYPES = {
     [this.DATE_DEPOSIT]: STRING_TYPE,
@@ -125,5 +142,6 @@ export default class DepositsClass {
     [this.SOURCE]: STRING_TYPE,
     [this.ACCOUNT_NUMBER]: STRING_TYPE,
     [this.PAYMENT_LIST]: ARRAY_OF_OBJECT_TYPE,
+    [this.BRANCH]: STRING_TYPE,
   }
 }

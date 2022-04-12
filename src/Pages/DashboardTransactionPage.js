@@ -23,25 +23,35 @@ function DashboardTransactionPage() {
   const history = useHistory()
   const [dataLoaded, setDataLoaded] = useState(null)
   const [modifiedData, setModifiedData] = useState({})
+  const [advancefilterButton, setAdvanceFilterButton] = useState("flex")
   return (
     <div style={{ position: "relative" }}>
       <DashboardTransaction
         // exposeData={(data) => setDataLoaded(data)}
         modifiedData={modifiedData}
+        advanceButtonDisplay={advancefilterButton}
       />
       <Switch>
         <Route exact path={path}></Route>
         <Route exact path={`${path}/add`}>
           <OrderForm
-            back={() => history.push(path)}
+            back={() => {
+              history.push(path)
+              setAdvanceFilterButton("flex")
+            }}
             formType="add"
+            setAdvanceFilterButton={setAdvanceFilterButton}
             modifiedData={(data) => setModifiedData(data)}
           />
         </Route>
         <Route exact path={`${path}/modified`}>
           <OrderForm
-            back={() => history.push(path)}
+            back={() => {
+              history.push(path)
+              setAdvanceFilterButton("flex")
+            }}
             formType="modified"
+            setAdvanceFilterButton={setAdvanceFilterButton}
             modifiedData={(data) => setModifiedData(data)}
           />
         </Route>

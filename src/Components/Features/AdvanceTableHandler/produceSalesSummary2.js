@@ -68,9 +68,11 @@ export const produceSalesSummary2 = async (schedules, branch) => {
     formattedDate,
     branch
   )
+  console.log("summary2", depositList)
   const additionalCTrans = []
   if (depositList.length > 0) {
     const details = { ...depositList[0] }
+    console.log("details", details)
     const _data = {
       [SchedulersClass.DATE_ORDER_PLACED]: "",
       [SchedulersClass.DATE_START]: "",
@@ -157,6 +159,10 @@ const produceTRANS = (schedules, formattedDate, title = "") => {
       dateServeDateFormat === datePayment &&
       datePlacedDateFormat === datePayment
 
+    console.log(
+      `[A] TRANSACTIONS OF DATE PAYMENT - PAID - FULFILLED ${obj?.amountPaid}`,
+      dateEquality
+    )
     switch (title) {
       case "[A] TRANSACTIONS OF DATE PAYMENT - PAID - FULFILLED":
         if (
@@ -351,6 +357,7 @@ const produceReportASummary = (A_TRANS, B_TRANS, C_TRANS) => {
     BDO: [],
     KP_GCASH: [],
   }
+  console.log("A_TRANS", A_TRANS)
   A_TRANS.forEach((arrayData, index) => {
     if (index > 3) {
       if (index !== A_TRANS.length - 1) {
@@ -366,6 +373,7 @@ const produceReportASummary = (A_TRANS, B_TRANS, C_TRANS) => {
     }
   })
 
+  console.log("B_TRANS", B_TRANS)
   B_TRANS.forEach((arrayData, index) => {
     if (index > 3) {
       if (index !== B_TRANS.length - 1) {

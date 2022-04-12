@@ -4,22 +4,25 @@ import MainButton from "Components/Commons/MainButton"
 import { formatDateDash, formatDateFromDatabase } from "Helpers/dateFormat"
 import thousandsSeparators from "Helpers/formatNumber"
 import sumArray from "Helpers/sumArray"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import DepositsClass from "Services/Classes/DepositsClass"
 import transformedSched from "../TableHandler/transformedSched"
+import { UnauthorizedContext } from "Error/Unauthorized"
 import classes from "./deposit.module.css"
 
 function DashboardForDeposits() {
+  const { user } = useContext(UnauthorizedContext)
   const [dataSource, setDataSource] = useState([])
   const [date, setDate] = useState(new Date())
   const [dateDeposit, setDateDeposit] = useState(new Date())
   const [isLoading, setIsLoading] = useState(false)
   const [amount, setAmount] = useState(0)
-
   useEffect(() => {
-    getPayments()
-  }, [])
+    if (user?.branchSelected) {
+      getPayments()
+    }
+  }, [user])
 
   useEffect(() => {
     handleDate(new Date())
@@ -63,8 +66,14 @@ function DashboardForDeposits() {
     },
     {
       title: "PP #",
-      dataIndex: SchedulersClass.UTAK_NO,
-      key: SchedulersClass.UTAK_NO,
+      dataIndex: SchedulersClass.PARTNER_MERCHANT_ORDER_NO,
+      key: SchedulersClass.PARTNER_MERCHANT_ORDER_NO,
+      render: (data, record) => {
+        if (record[SchedulersClass.ZAP_NUMBER]) {
+          return record[SchedulersClass.ZAP_NUMBER]
+        }
+        return data
+      },
     },
     {
       title: "MODE OF PAYMENT",
@@ -112,31 +121,37 @@ function DashboardForDeposits() {
   }
 
   const getPayments = async () => {
-    const data = await SchedulersClass.getDataByFieldname(
+    const data = await SchedulersClass.getDataByFieldnameWithBranch(
       SchedulersClass.CASH_FOR_DEPOSIT,
-      true
+      true,
+      user?.branchSelected
     )
 
     // const deposits = await DepositsClass.getDataByFieldName(DepositsClass.DATE_PAID_STRING, )
     const payments = await transformedSched(data)
-    payments.sort(function (a, b) {
-      const dateFromA = formatDateFromDatabase(
-        a[SchedulersClass.DATE_PAYMENT]
-      )?.getTime()
-      const dateFromB = formatDateFromDatabase(
-        b[SchedulersClass.DATE_PAYMENT]
-      )?.getTime()
+    if (payments) {
+      payments.sort(function (a, b) {
+        const dateFromA = new Date(
+          formatDateFromDatabase(a[SchedulersClass.DATE_PAYMENT])
+        )
+        const dateFromB = new Date(
+          formatDateFromDatabase(b[SchedulersClass.DATE_PAYMENT])
+        )
 
-      return dateFromB - dateFromA
-    })
+        return dateFromB.getTime() - dateFromA.getTime()
+      })
 
-    const pendingPayments = payments.filter((obj) => {
-      return obj[SchedulersClass.CASH_FOR_DEPOSIT] === "Pending"
-    })
-    setDataSource(pendingPayments)
+      const pendingPayments = payments.filter((obj) => {
+        return obj[SchedulersClass.CASH_FOR_DEPOSIT] === "Pending"
+      })
+      setDataSource(pendingPayments)
+    }
   }
 
   const confirm = async () => {
+    if (!user?.branchSelected) {
+      message.error("Failed to deposit")
+    }
     if (amount > 0) {
       try {
         setIsLoading(true)
@@ -160,6 +175,7 @@ function DashboardForDeposits() {
           [DepositsClass.ACCOUNT_NUMBER]: "BDO / 981",
           [DepositsClass.PAYMENT_LIST]: [...paymentList],
           [DepositsClass.TOTAL_DEPOSIT]: amount,
+          [DepositsClass.BRANCH]: user?.branchSelected,
         })
 
         setAmount(0)
@@ -248,6 +264,7 @@ function DashboardForDeposits() {
             }
             return classes["notHighlighted"]
           }}
+          pagination={{ pageSize: 15 }}
         />
       </Space>
     </>

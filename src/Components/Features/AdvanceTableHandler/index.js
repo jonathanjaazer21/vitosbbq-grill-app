@@ -1,4 +1,4 @@
-import { Space } from "antd"
+import { Input, Space, Spin } from "antd"
 import CustomTable from "Components/Commons/CustomTable"
 import MainButton from "Components/Commons/MainButton"
 import React, { useContext, useEffect, useState } from "react"
@@ -58,7 +58,7 @@ const produceAmount = (value) => {
   return thousandsSeparators(Number(value).toFixed(2))
 }
 
-function TableHandler(props) {
+function AdvanceTableHandler(props) {
   const {
     ServiceClass,
     columns,
@@ -80,7 +80,7 @@ function TableHandler(props) {
   const { path } = useRouteMatch()
   const history = useHistory()
   const location = useLocation()
-  const [isFiltered, setIsFiltered] = useState(false)
+  const [isFiltered, setIsFiltered] = useState(true)
   const [filteredData, setFilteredData] = useState([])
 
   return (
@@ -158,7 +158,6 @@ function TableHandler(props) {
                 handleModified(data)
               }}
               hideColumns={hideColumns}
-              productData={props.productData}
             />
           </Route>
         )}
@@ -174,7 +173,7 @@ function TableHandler(props) {
   )
 }
 
-export default TableHandler
+export default AdvanceTableHandler
 
 const ActionButtons = (props) => {
   const { user } = useContext(UnauthorizedContext)
@@ -201,37 +200,71 @@ const ActionButtons = (props) => {
     useGetDocumentsByKeyword(ServiceClass)
   const [selectedFilter, setSelectedFilter] = useState("")
 
-  const [filterValue, setFilterValue] = useState("")
+  const [filterValue, setFilterValue] = useState("PP #")
+  const [ppZapNumber, setPpZapNumber] = useState("")
+  const [isLoading, setLoading] = useState(false)
+
+  // useEffect(() => {
+  //   setFilteredData(rangeData)
+  // }, [rangeData])
+
+  // useEffect(() => {
+  //   setFilteredData(documentData)
+  // }, [documentData])
+  // useEffect(() => {
+  //   clearRangeData()
+  //   clearDocumentData()
+  // }, [selectedFilter])
 
   useEffect(() => {
-    setFilteredData(rangeData)
-  }, [rangeData])
-
-  useEffect(() => {
-    setFilteredData(documentData)
-  }, [documentData])
-  useEffect(() => {
-    clearRangeData()
-    clearDocumentData()
-  }, [selectedFilter])
-
-  useEffect(() => {
-    if (selectedFilter !== "NONE" && filterValue !== "") {
-      loadDocumentData(selectedFilter, filterValue)
+    if (filterValue === "PP #") {
+      handlePp(ppZapNumber)
     }
-  }, [filterValue, selectedFilter])
+    if (filterValue === "ZAP #") {
+      handleZap(ppZapNumber)
+    }
+  }, [filterValue, ppZapNumber])
 
-  const sorted = (_data = []) => {
-    return _data.sort((a, b) => {
-      const dateA = a[SchedulersClass.DATE_START]
-      const dateB = b[SchedulersClass.DATE_START]
-      const formatA = new Date(formatDateFromDatabase(dateA))
-      const formatB = new Date(formatDateFromDatabase(dateB))
-      return formatB.getTime() - formatA.getTime()
-    })
+  let delayTimer
+  const handleZap = (_ppZapNumber) => {
+    clearTimeout(delayTimer)
+    if (_ppZapNumber === "") {
+      setFilteredData([])
+      return
+    }
+    setLoading(true)
+    delayTimer = setTimeout(async function () {
+      // Do the ajax stuff
+      const data = await SchedulersClass.getDataByKeyword(
+        SchedulersClass.ZAP_NUMBER,
+        _ppZapNumber,
+        user?.branchSelected
+      )
+      setFilteredData(data)
+      setLoading(false)
+    }, 1000) // Will do the ajax stuff after 1000 ms, or 1 s
   }
-  const handleExportExcel = async (sched, branch) => {
-    const _schedules = sorted(sched)
+
+  const handlePp = (_ppZapNumber) => {
+    clearTimeout(delayTimer)
+    if (_ppZapNumber === "") {
+      setFilteredData([])
+      return
+    }
+    setLoading(true)
+    delayTimer = setTimeout(async function () {
+      // Do the ajax stuff
+      const data = await SchedulersClass.getDataByKeyword(
+        SchedulersClass.PARTNER_MERCHANT_ORDER_NO,
+        _ppZapNumber,
+        user?.branchSelected
+      )
+      setFilteredData(data)
+      setLoading(false)
+    }, 1000) // Will do the ajax stuff after 1000 ms, or 1 s
+  }
+
+  const handleExportExcel = async (_schedules, branch) => {
     const defaultSheet = await segregateAdvanceOrders(
       _schedules,
       productData,
@@ -512,112 +545,29 @@ const ActionButtons = (props) => {
   return (
     <StyledContainer enableFilter={enableFilter} wrap>
       <StyledLeftContent enableFilter={enableFilter}>
-        <FilterOptions
-          ServiceClass={ServiceClass}
-          isFiltered={isFiltered}
-          setIsFiltered={setIsFiltered}
-          hideColumns={hideColumns}
-          valueSelected={(data) => {
-            setFilterValue("")
-            setSelectedFilter(data)
-          }}
-        />
-        {selectedFilter !== "NONE" && (
-          <Space>
-            <CustomTitle
-              typographyType="text"
-              type="secondary"
-              label={`${ServiceClass.LABELS[selectedFilter]} :`}
-            />
-            {types[selectedFilter] === DATE_TYPE && (
-              <CustomRangePicker
-                format="MM/DD/YYYY"
-                onChange={(dates) => {
-                  if (dates) {
-                    loadRangeData(dates, selectedFilter)
-                  } else {
-                    clearRangeData()
-                  }
-                }}
-              />
-            )}
-
-            {selectedFilter === SchedulersClass.SALES_TYPE && (
-              <AutoSelect
-                value={filterValue}
-                options={["R", "D/O", "D/PM", "D/IR", "D/S", , "SPWD"]}
-                onChange={(value) => {
-                  setFilterValue(value)
-                }}
-              />
-            )}
-
-            {selectedFilter === SchedulersClass.REVENUE_CHANNEL && (
-              <AutoSelect
-                value={filterValue}
-                options={["DR", "PP", "WB"]}
-                onChange={(value) => {
-                  setFilterValue(value)
-                }}
-              />
-            )}
-            {selectedFilter === SchedulersClass.UTAK_NO && (
-              <CustomInput
-                onChange={(e) => {
-                  if (e.target.value) {
-                    loadDocumentData(SchedulersClass.UTAK_NO, e.target.value)
-                  } else {
-                    clearDocumentData()
-                  }
-                }}
-              />
-            )}
-
-            {selectedFilter === SchedulersClass.PARTNER_MERCHANT_ORDER_NO && (
-              <CustomInput
-                onChange={(e) => {
-                  if (e.target.value) {
-                    loadDocumentData(
-                      SchedulersClass.PARTNER_MERCHANT_ORDER_NO,
-                      e.target.value
-                    )
-                  } else {
-                    clearDocumentData()
-                  }
-                }}
-              />
-            )}
-
-            {selectedFilter === SchedulersClass.CUSTOMER && (
-              <CustomInput
-                onChange={(e) => {
-                  if (e.target.value) {
-                    loadDocumentData(SchedulersClass.CUSTOMER, e.target.value)
-                  } else {
-                    clearDocumentData()
-                  }
-                }}
-              />
-            )}
-
-            {selectedFilter === SchedulersClass.MODE_PAYMENT && (
-              <CustomInput
-                onChange={(e) => {
-                  if (e.target.value) {
-                    loadDocumentData(
-                      SchedulersClass.MODE_PAYMENT,
-                      e.target.value
-                    )
-                  } else {
-                    clearDocumentData()
-                  }
-                }}
-              />
-            )}
-          </Space>
-        )}
         <Space>
-          <MainButton
+          <AutoSelect
+            options={["PP #", "ZAP #"]}
+            value={filterValue}
+            onChange={(value) => setFilterValue(value)}
+            width={150}
+          />
+          {filterValue === "PP #" || filterValue === "ZAP #" ? (
+            <Input
+              onChange={(e) => {
+                setPpZapNumber(e.target.value)
+              }}
+              value={ppZapNumber}
+              placeholder="Input number here..."
+            />
+          ) : (
+            <></>
+          )}
+          {isLoading && <Spin size="small" />}
+          {/* <CustomRangePicker /> */}
+        </Space>
+        <Space>
+          {/* <MainButton
             label=""
             type="default"
             shape="circle"
@@ -643,7 +593,7 @@ const ActionButtons = (props) => {
                 handleExportExcel(data, user?.branchSelected)
               }
             }}
-          />
+          /> */}
         </Space>
       </StyledLeftContent>
       <StyledRightContent enableAdd={enableAdd}>

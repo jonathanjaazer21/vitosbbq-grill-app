@@ -70,12 +70,12 @@ function PaymentForm({
       if (isNaN(numberValue)) return
 
       const newBalance = Number(balanceDue) - numberValue
-      if (dataIndex === null) {
-        if (newBalance < 0) {
-          message.warning("Amount must not exceed Balance Due")
-          return
-        }
-      }
+      // if (dataIndex === null) {
+      //   if (newBalance < 0) {
+      //     message.warning("Amount must not exceed Balance Due")
+      //     return
+      //   }
+      // }
       setData({ ...data, [fieldName]: numberValue })
       return
     }
@@ -110,8 +110,8 @@ function PaymentForm({
       newBalance = newBalance - fixedDeduction
       console.log("newBalance", newBalance)
       if (Number(updatedData?.amount) > newBalance) {
-        updatedData.amount = newBalance
-        message.info(`Resetted Payment to Remaining balance: ${newBalance}`)
+        // updatedData.amount = newBalance
+        // message.info(`Resetted Payment to Remaining balance: ${newBalance}`)
       }
       updatedData.date = updatedData?.date || new Date()
       _paymentList[dataIndex] = updatedData
@@ -120,6 +120,7 @@ function PaymentForm({
       return
     }
   }
+
   return (
     <div
       style={{

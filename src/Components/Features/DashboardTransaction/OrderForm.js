@@ -38,6 +38,7 @@ import {
   calculateTotalDueMinusDiscount,
   calculateTotalPayments,
   producedPaymentList,
+  producedProductListOfAllCodes,
 } from "Helpers/collectionData"
 import { formatDateDash, formatDateFromDatabase } from "Helpers/dateFormat"
 import PaymentForm from "./PaymentForm"
@@ -47,9 +48,17 @@ import { UnauthorizedContext } from "Error/Unauthorized"
 import useOrderNoCounter from "Hooks/hookOrderNoCounter"
 import UploadFiles from "../Upload"
 import { useGetUploads } from "../Upload/useGetUploads"
-function OrderForm({ back, formType, modifiedData = () => {} }) {
+import ProductsClass from "Services/Classes/ProductsClass"
+function OrderForm({
+  back,
+  formType,
+  modifiedData = () => {},
+  setAdvanceFilterButton = () => {},
+}) {
+  const [productData] = useGetDocuments(ProductsClass)
   const { user } = useContext(UnauthorizedContext)
   const { handleRemove, handleUpload } = useGetUploads()
+  const [productPurchased, setProductPurchased] = useState({})
   const [generateNewOrder] = useOrderNoCounter()
   const [dropdownCollections] = useGetDocuments(DropdownsClass)
   const [orderData, loadOrderData] = useGetDocumentById(SchedulersClass)
@@ -81,6 +90,11 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
   console.log("paymentList", paymentList)
   console.log("removedPaths", uploads?.removedPaths)
   console.log("fileList", uploads?.fileList)
+  console.log("product purch", productPurchased)
+  console.log("formType", formType)
+  useEffect(() => {
+    setAdvanceFilterButton("none")
+  }, [])
 
   const handleTab = (value) => {
     setChannel(value)
@@ -188,6 +202,14 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         return b.date - a.date
       })
       setPaymentList(sortedPayments)
+      if (productData.length > 0) {
+        const listOfCodes = producedProductListOfAllCodes(productData)
+        const codesObj = {}
+        for (const code of listOfCodes) {
+          codesObj[code] = _sched[code]
+        }
+        setProductPurchased(codesObj)
+      }
     } else {
       const _sched = { ...sched }
       if (formType === "add") {
@@ -195,10 +217,11 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         _sched[SchedulersClass.DATE_START] = new Date() // this is for default data of dates
         _sched[SchedulersClass.DATE_END] = new Date() //  this is for default data of dates
         _sched[SchedulersClass.BRANCH] = user.branchSelected
+        _sched[SchedulersClass.WITH_FLEXIBLE_PRICES] = true
       }
       setSched(_sched)
     }
-  }, [orderData, user])
+  }, [orderData, user, productData])
 
   useEffect(() => {
     if (channelOption === "partnerMerchant")
@@ -219,6 +242,30 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         [SchedulersClass.SUBJECT]: sched[SchedulersClass.CUSTOMER],
         ...fixedDeduction,
       }
+
+      // remove all product purchased aside from "others" and "totalDue" to be resetted in the next line of this loop
+      for (const key in productPurchased) {
+        if (key === "others" || key === "totalDue") {
+        } else {
+          delete data[key]
+        }
+      }
+
+      // to set the product that contains values greater than 0
+      for (const key in productPurchased) {
+        if (Number(productPurchased[key]) > 0) {
+          data[key] = Number(productPurchased[key])
+        } else {
+          if (typeof orderData[key] !== "undefined") {
+            if (Number(orderData[key]) > 0) {
+              if (typeof productPurchased[key] !== "undefined") {
+                data[key] = productPurchased[key]
+              }
+            }
+          }
+        }
+      }
+
       if (paymentList.length > 0) {
         data[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
       }
@@ -254,13 +301,13 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
     } else {
       if (user.branchSelected) {
         const newOrderNo = await generateNewOrder(user.branchSelected)
-        console.log("generatedOrderNo", newOrderNo)
         const newSched = {
           ...sched,
           [SchedulersClass.PARTIALS]: paymentList,
           [SchedulersClass.ORDER_NO]: newOrderNo,
           [SchedulersClass.BRANCH]: user.branchSelected,
           ...fixedDeduction,
+          withFlexiblePrices: true,
         }
         // this is for added partial dates string
         if (newSched[SchedulersClass.PARTIALS]?.length > 0) {
@@ -392,12 +439,24 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
 
           <Col xs={24} sm={24} md={24} lg={12} xl={6}>
             <ProductPurchased
-              modifiedData={(products) => {
-                console.log("sdfsdprod", products)
-                setSched({ ...sched, ...products, _id: id })
+              modifiedData={(products, productCodes = []) => {
+                const schedCopy = { ...sched }
+                for (const key in productCodes) {
+                  if (productCodes[key] === false) {
+                    if (typeof schedCopy[`customPrice${key}`] !== "undefined") {
+                      schedCopy[`customPrice${key}`] = 0
+                    }
+                  }
+                }
+                setProductPurchased({ ...products })
+                setSched({ ...schedCopy, ...products, _id: id })
               }}
               orderData={orderData}
-              orderVia={sched[SchedulersClass.ORDER_VIA_PARTNER]}
+              orderVia={
+                sched[SchedulersClass.ORDER_VIA_PARTNER] ||
+                sched[SchedulersClass.ORDER_VIA_WEBSITE]
+              }
+              formType={formType}
             />
             <br />
             <Card
@@ -796,10 +855,9 @@ export const StyledContainer = styled.div`
   justify-content: flex-start;
   position: absolute;
   top: 0;
-  height: 85vh;
+  height: 100vh;
   width: 100%;
   z-index: 1000;
-  background-color: transparent;
 `
 
 const StyledHeader = styled(Space)`
