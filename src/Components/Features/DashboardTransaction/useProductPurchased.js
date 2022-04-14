@@ -173,11 +173,11 @@ export default function useProductPurchased(
           }
         }
       }
-      console.log("_dataSource", _dataSource)
       setDataSource(_dataSource)
       handleTotalDue(_dataSource)
     }
   }, [products])
+  console.log("dataSource", dataSource)
 
   const handleTotalDue = (_dataSource) => {
     //this is for total due

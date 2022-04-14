@@ -1,4 +1,13 @@
-import { Card, Space, Table, Tag } from "antd"
+import {
+  Card,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Popconfirm,
+  Button,
+  Radio,
+} from "antd"
 import MainButton from "Components/Commons/MainButton"
 import React, { useEffect, useState } from "react"
 import CustomModal from "Components/Commons/CustomModal"
@@ -102,6 +111,37 @@ function ProductPurchased({
         dataSource={[...dataSource]}
         columns={[
           {
+            title: "",
+            key: "action",
+            dataIndex: "action",
+            render: (value, record) => {
+              const customPrice =
+                record[`customPrice${record?.code}`] || record.price
+              const newProd = dataSource.find(
+                (product) => product?.code === record?.code
+              )
+              return (
+                <Popconfirm
+                  placement="right"
+                  title={
+                    <Radio.Group
+                      value={customPrice}
+                      onChange={(e) => {
+                        setEditableId(record.code)
+                        handleEditPrice(e)
+                      }}
+                    >
+                      <Radio value={newProd.price}>{newProd.price}</Radio>
+                      <Radio value={2}>2</Radio>
+                    </Radio.Group>
+                  }
+                >
+                  <Button shape="circle">o</Button>
+                </Popconfirm>
+              )
+            },
+          },
+          {
             title: "Code",
             dataIndex: "code",
             key: "code",
@@ -131,8 +171,8 @@ function ProductPurchased({
               }
             },
             render: (value, record) => {
-              const isCustomPrice =
-                typeof record[`customPrice${record?.code}`] !== "undefined"
+              // const isCustomPrice =
+              //   typeof record[`customPrice${record?.code}`] !== "undefined"
               const customPrice = record[`customPrice${record?.code}`] || value
               return editableId === record?.code && record?.editable ? (
                 <CustomInput
@@ -220,6 +260,7 @@ const Due = (props) => {
   )
 }
 
+// this is the drawer popup
 const ActionButton = ({
   productList = [],
   addProduct = () => {},
