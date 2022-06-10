@@ -416,9 +416,11 @@ export default async function (
   schedules = [],
   productData = [],
   additionalSheetInfo = "",
-  branch = ""
+  branch = "",
+  newProductData = []
 ) {
   const productList = producedProductListOfAllCodes(productData)
+  const newProductList = producedProductListOfAllCodes(newProductData)
   const productListWithAmounts =
     producedProductListWithGroupAndAmounts(productData)
 
@@ -455,7 +457,10 @@ export default async function (
       let totalProductPrice = 0
       const totalPrice = {}
       const productPrice = {}
-      for (const code of productList) {
+      const _productList = data?.withFlexiblePrices
+        ? newProductList
+        : productList
+      for (const code of _productList) {
         if (typeof data[code] !== "undefined") {
           const qty = Number(data[code])
           if (qty > 0) {
@@ -488,7 +493,7 @@ export default async function (
 
       // producing row details of schedules by looping each product purchased that is not equal to zero
       let count = 0
-      for (const code of productList) {
+      for (const code of _productList) {
         if (typeof data[code] !== "undefined") {
           const qty = Number(data[code])
           let propertyHeaders = [...headers.properties]

@@ -24,6 +24,8 @@ import {
   EditFilled,
   DeleteFilled,
   ReloadOutlined,
+  UnorderedListOutlined,
+  PlusCircleOutlined,
 } from "@ant-design/icons"
 import { Flex } from "../Styles"
 import OrderDetails from "./OrderDetails"
@@ -49,6 +51,11 @@ import useOrderNoCounter from "Hooks/hookOrderNoCounter"
 import UploadFiles from "../Upload"
 import { useGetUploads } from "../Upload/useGetUploads"
 import ProductsClass from "Services/Classes/ProductsClass"
+import LogsClass from "Services/Classes/LogsClass"
+import CustomModal from "Components/Commons/CustomModal"
+import sumArray from "Helpers/sumArray"
+import ExcessPaymentsClass from "Services/Classes/ExcessPaymentsClass"
+
 function OrderForm({
   back,
   formType,
@@ -86,15 +93,30 @@ function OrderForm({
 
   const [fixedDeduction, setFixedDeduction] = useState({})
 
+  const [userLogs, setUserLogs] = useState([])
+  console.log("user", user)
+  console.log("logs user", userLogs)
   console.log("sched", sched)
   console.log("paymentList", paymentList)
   console.log("removedPaths", uploads?.removedPaths)
   console.log("fileList", uploads?.fileList)
   console.log("product purch", productPurchased)
   console.log("formType", formType)
+
   useEffect(() => {
     setAdvanceFilterButton("none")
   }, [])
+
+  useEffect(() => {
+    loadLogs()
+  }, [id])
+
+  const loadLogs = async () => {
+    if (id) {
+      const _data = await LogsClass.getDataByFieldName("_id", id)
+      setUserLogs(_data)
+    }
+  }
 
   const handleTab = (value) => {
     setChannel(value)
@@ -233,7 +255,6 @@ function OrderForm({
     if (channelOption === "direct") setChannel(SchedulersClass.ORDER_VIA)
   }, [channelOption])
 
-  console.log("fixedDedyctuib", sched)
   const handleSave = async () => {
     if (formType === "modified") {
       const data = {
@@ -241,6 +262,36 @@ function OrderForm({
         [SchedulersClass.PARTIALS]: paymentList,
         [SchedulersClass.SUBJECT]: sched[SchedulersClass.CUSTOMER],
         ...fixedDeduction,
+      }
+
+      // this is a resolution for the field naming error in firebase since previous data contains this field
+      // field that contains "/" is not allowed in firebase
+      if (typeof data["CLONG - P/S - 1 PC"] !== "undefined") {
+        delete data["CLONG - P/S - 1 PC"]
+        if (typeof data["customPriceCLONG - P/S - 1 PC"] !== "undefined") {
+          delete data["customPriceCLONG - P/S - 1 PC"]
+        }
+      }
+      if (typeof data["SPORK W/ KNIFE"] !== "undefined") {
+        delete data["SPORK W/ KNIFE"]
+        if (typeof data["customPriceSPORK W/ KNIFE"] !== "undefined") {
+          delete data["customPriceSPORK W/ KNIFE"]
+        }
+      }
+      //////
+
+      if (typeof sched[SchedulersClass.ORDER_VIA] === "undefined") {
+        data[SchedulersClass.ORDER_VIA] = null
+      }
+
+      if (typeof sched.Subject === "undefined") {
+        data.Subject = null
+        data[SchedulersClass.CUSTOMER] = ""
+      }
+
+      if (sched[SchedulersClass.CUSTOMER]) {
+        data.Subject = sched[SchedulersClass.CUSTOMER]
+        data[SchedulersClass.CUSTOMER] = sched[SchedulersClass.CUSTOMER]
       }
 
       // remove all product purchased aside from "others" and "totalDue" to be resetted in the next line of this loop
@@ -296,6 +347,39 @@ function OrderForm({
       setLoadingButton(true)
       handleRemove(uploads?.removedPaths)
       await handleUpload(uploads?.fileList, id)
+      // save to logs
+      await LogsClass.addData({
+        [LogsClass._ID]: id,
+        [LogsClass.ACTION]: "Modified",
+        [LogsClass.DATE]: new Date(),
+        [LogsClass.DISPLAY_NAME]: user?.name,
+        [LogsClass.EMAIL]: user?._id,
+      })
+      // calculate excess payments
+      const amountPaid =
+        paymentList.length > 0 ? sumArray(paymentList, "amount") : 0
+      const excessPayment = totalDue - amountPaid
+      if (excessPayment < 0) {
+        const isExcessPaymentExist =
+          await ExcessPaymentsClass.getDataByFieldName("_id", id)
+        const convertExcessPaymentToPositive = excessPayment * -1
+        if (isExcessPaymentExist.length === 0) {
+          await ExcessPaymentsClass.addData({
+            [ExcessPaymentsClass._ID]: id,
+            [ExcessPaymentsClass.AMOUNT]: convertExcessPaymentToPositive,
+            [ExcessPaymentsClass.DATE]: new Date(),
+            [ExcessPaymentsClass.NAME]: data?.customer,
+          })
+        } else {
+          const _id = isExcessPaymentExist[0]._id
+          await ExcessPaymentsClass.setData(_id, {
+            [ExcessPaymentsClass.AMOUNT]: convertExcessPaymentToPositive,
+            [ExcessPaymentsClass.DATE]: new Date(),
+            [ExcessPaymentsClass.NAME]: data?.customer,
+          })
+        }
+      }
+
       setLoadingButton(false)
       back()
     } else {
@@ -336,17 +420,25 @@ function OrderForm({
         try {
           console.log("newSched", { ...newSched })
           if (paymentList.length > 0) {
-            console.log("date payment", paymentList[0].date)
             newSched[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
           }
+
+          // result contains a collection of data saved
           const result = await SchedulersClass.addData(newSched)
+          console.log("result", result)
           modifiedData(result)
           setLoadingButton(true)
           handleRemove(uploads?.removedPaths)
           await handleUpload(uploads?.fileList, result?._id)
+          // save to logs
+          await LogsClass.addData({
+            [LogsClass._ID]: result._id,
+            [LogsClass.ACTION]: "Created",
+            [LogsClass.DATE]: new Date(),
+            [LogsClass.DISPLAY_NAME]: user?.name,
+            [LogsClass.EMAIL]: user?._id,
+          })
           setLoadingButton(false)
-          back()
-          console.log("new ID", result)
           back()
         } catch (error) {
           console.log("error", error)
@@ -461,7 +553,7 @@ function OrderForm({
             <br />
             <Card
               title="Discounts and Others"
-              extra={
+              extra={[
                 Object.keys(sched[SchedulersClass.OTHERS] || {}).length > 0 ? (
                   <MainButton
                     shape="circle"
@@ -475,8 +567,8 @@ function OrderForm({
                   />
                 ) : (
                   <></>
-                )
-              }
+                ),
+              ]}
             >
               <Space
                 style={{
@@ -789,6 +881,44 @@ function OrderForm({
         >
           {Object.keys(sched).length > 0 && (
             <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+              <CustomModal
+                ButtonIcon={<UnorderedListOutlined />}
+                buttonShape="circle"
+                buttonType="text"
+              >
+                <Table
+                  columns={[
+                    {
+                      title: LogsClass.LABELS[LogsClass.EMAIL],
+                      dataIndex: LogsClass.EMAIL,
+                      key: LogsClass.EMAIL,
+                    },
+                    {
+                      title: LogsClass.LABELS[LogsClass.DISPLAY_NAME],
+                      dataIndex: LogsClass.DISPLAY_NAME,
+                      key: LogsClass.DISPLAY_NAME,
+                    },
+                    {
+                      title: LogsClass.LABELS[LogsClass.ACTION],
+                      dataIndex: LogsClass.ACTION,
+                      key: LogsClass.ACTION,
+                    },
+                    {
+                      title: LogsClass.LABELS[LogsClass.DATE],
+                      dataIndex: LogsClass.DATE,
+                      key: LogsClass.DATE,
+                      render: (data) => {
+                        const formatFromDatabase = formatDateFromDatabase(data)
+                        const formatDate = formatDateDash(formatFromDatabase)
+                        return formatDate
+                      },
+                    },
+                  ]}
+                  dataSource={[...userLogs]}
+                  pagination={false}
+                  size="small"
+                />
+              </CustomModal>
               {loadingButton ? (
                 <MainButton
                   size="large"

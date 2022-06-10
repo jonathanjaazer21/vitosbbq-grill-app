@@ -18,6 +18,7 @@ import CustomInput from "Components/Commons/CustomInput"
 import thousandsSeparators from "Helpers/formatNumber"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import CustomDrawer from "Components/Commons/CustomDrawer"
+import { InfoCircleOutlined } from "@ant-design/icons"
 
 function ProductPurchased({
   modifiedData = () => {},
@@ -36,11 +37,26 @@ function ProductPurchased({
     handleEditPrice,
     totalDue,
     isTouched,
+    priceOptionsData,
+    priceOptionsNewProductData,
+    codeObjList,
   } = useProductPurchased(orderData, orderVia, formType)
+
+  console.log("orderData", orderData[SchedulersClass.ORDER_VIA])
+  console.log("codeObjList", codeObjList)
   useEffect(() => {
     const modifiedObj = {}
     for (const key in products) {
-      modifiedObj[key] = 0
+      // this a resolution for the field naming error in firebase since previous data contains this field
+      // field that contains "/" is not allowed in firebase
+      if (
+        key.includes("CLONG - P/S - 1 PC") ||
+        key.includes("SPORK W/ KNIFE")
+      ) {
+        // wiil not set a key to the product list
+      } else {
+        modifiedObj[key] = 0
+      }
     }
     if (isTouched) {
       if (dataSource.length > 0) {
@@ -70,7 +86,7 @@ function ProductPurchased({
         // set default list of products
         for (const obj of dataSource) {
           modifiedObj[obj?.code] = obj?.qty
-          const customPrice = `customPrice${obj?.code}`
+          let customPrice = `customPrice${obj?.code}`
           if (typeof obj[customPrice] !== "undefined") {
             modifiedObj[customPrice] = obj[customPrice]
           }
@@ -117,26 +133,46 @@ function ProductPurchased({
             render: (value, record) => {
               const customPrice =
                 record[`customPrice${record?.code}`] || record.price
-              const newProd = dataSource.find(
+              const oldProd = priceOptionsData.find(
                 (product) => product?.code === record?.code
               )
-              return (
+              const newProd = priceOptionsNewProductData.find(
+                (product) => product?.code === record?.code
+              )
+
+              return record?.editable ? (
+                <></>
+              ) : (orderVia || "").includes("FP") ||
+                (orderVia || "").includes("DN") ||
+                (orderVia || "").includes("DD") ||
+                (orderVia || "").includes("GBF") ||
+                (orderVia || "").includes("MMF") ||
+                (orderVia || "").includes("ZAP") ? (
+                <></>
+              ) : (
                 <Popconfirm
                   placement="right"
                   title={
                     <Radio.Group
                       value={customPrice}
                       onChange={(e) => {
-                        setEditableId(record.code)
-                        handleEditPrice(e)
+                        handleEditPrice(e, record.code)
                       }}
                     >
-                      <Radio value={newProd.price}>{newProd.price}</Radio>
-                      <Radio value={2}>2</Radio>
+                      <Radio value={newProd?.price || 0}>
+                        {newProd?.price || 0}
+                      </Radio>
+                      <Radio value={oldProd?.price || 0}>
+                        {oldProd?.price || 0}
+                      </Radio>
                     </Radio.Group>
                   }
                 >
-                  <Button shape="circle">o</Button>
+                  <Button
+                    shape="circle"
+                    type="text"
+                    icon={<InfoCircleOutlined />}
+                  />
                 </Popconfirm>
               )
             },
@@ -173,7 +209,26 @@ function ProductPurchased({
             render: (value, record) => {
               // const isCustomPrice =
               //   typeof record[`customPrice${record?.code}`] !== "undefined"
-              const customPrice = record[`customPrice${record?.code}`] || value
+              let customPrice = record[`customPrice${record?.code}`] || value
+              if (
+                (orderVia || "").includes("FP") ||
+                (orderVia || "").includes("DN") ||
+                (orderVia || "").includes("DD") ||
+                (orderVia || "").includes("GBF") ||
+                (orderVia || "").includes("MMF")
+              ) {
+                customPrice = value
+                if (orderData[SchedulersClass.ORDER_VIA_PARTNER]) {
+                  customPrice = record[`customPrice${record?.code}`] || value
+                }
+              }
+
+              if ((orderVia || "").includes("ZAP")) {
+                customPrice = value
+                if (orderData[SchedulersClass.ORDER_VIA_PARTNER]) {
+                  customPrice = record[`customPrice${record?.code}`] || value
+                }
+              }
               return editableId === record?.code && record?.editable ? (
                 <CustomInput
                   value={customPrice}

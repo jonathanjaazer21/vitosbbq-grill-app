@@ -225,6 +225,7 @@ export default class Base {
   }
 
   static async updateDataById(collectionName, id, data) {
+    console.log("id", id)
     console.log("data to be updated", data)
     try {
       const docRef = doc(db, collectionName, id)
@@ -232,6 +233,7 @@ export default class Base {
         ...data,
       })
     } catch (err) {
+      console.log("error during update", err)
       throw new Error(err.code)
     }
   }

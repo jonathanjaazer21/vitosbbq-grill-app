@@ -273,6 +273,9 @@ const produceSummary = (
   const cTotal = C_TOTAL.replace(/,/g, "")
   const paymentReceivedTotal = Number(aTotal) + Number(bTotal) + Number(cTotal)
   const summaryA = produceReportASummary(A_TRANS, B_TRANS, C_TRANS)
+  console.log("A_TRANS", A_TRANS)
+  console.log("B_TRANS", B_TRANS)
+  console.log("C_TRANS", C_TRANS)
   const SUMMARY = [
     [],
     ["", "", "", "", "", "", "", "", "SUMMARY", ""],
@@ -309,10 +312,23 @@ const produceSummary = (
       "",
       "",
       "",
+      "BDO / 609",
+      summaryA[2],
+      "",
+      "B",
+      thousandsSeparators(A_TOTAL),
+      "",
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
       "KP GCash",
       summaryA[1],
       "",
-      "B",
+      "C",
       thousandsSeparators(B_TOTAL),
       "",
     ],
@@ -322,13 +338,15 @@ const produceSummary = (
       "",
       "",
       "",
-      "TOTAL",
-      summaryA[2],
+      "MBTC-895",
+      summaryA[3],
       "",
-      "C",
-      thousandsSeparators(C_TOTAL),
+      "TOTAL",
+      thousandsSeparators(paymentReceivedTotal.toFixed(2)),
       "",
     ],
+    ["", "", "", "", "", "MBTC-909", summaryA[4], , "", "", "", ""],
+    ["", "", "", "", "", "TOTAL", summaryA[5], "", "", "", ""],
     [
       "",
       "",
@@ -338,8 +356,8 @@ const produceSummary = (
       "",
       "",
       "",
-      "TOTAL",
-      thousandsSeparators(paymentReceivedTotal.toFixed(2)),
+      // "TOTAL",
+      // thousandsSeparators(paymentReceivedTotal.toFixed(2)),
       "",
     ],
   ]
@@ -350,6 +368,9 @@ const produceReportASummary = (A_TRANS, B_TRANS, C_TRANS) => {
   const orderList = {
     BDO: [],
     KP_GCASH: [],
+    BDO609: [],
+    MBTC895: [],
+    MBTC909: [],
   }
   A_TRANS.forEach((arrayData, index) => {
     if (index > 3) {
@@ -359,6 +380,21 @@ const produceReportASummary = (A_TRANS, B_TRANS, C_TRANS) => {
         }
         if (arrayData[8] === "KP GCash") {
           orderList["KP_GCASH"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
+        if (arrayData[8] === "BDO / 609") {
+          orderList["BDO609"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
+        if (arrayData[8] === "MBTC-895") {
+          orderList["MBTC895"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
+        if (arrayData[8] === "MBTC-909") {
+          orderList["MBTC909"].push(
             Number(replaceThousandsSeparator(arrayData[9]))
           )
         }
@@ -377,6 +413,21 @@ const produceReportASummary = (A_TRANS, B_TRANS, C_TRANS) => {
             Number(replaceThousandsSeparator(arrayData[9]))
           )
         }
+        if (arrayData[8] === "BDO / 609") {
+          orderList["BDO609"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
+        if (arrayData[8] === "MBTC-895") {
+          orderList["MBTC895"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
+        if (arrayData[8] === "MBTC-909") {
+          orderList["MBTC909"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
       }
     }
   })
@@ -392,15 +443,37 @@ const produceReportASummary = (A_TRANS, B_TRANS, C_TRANS) => {
             Number(replaceThousandsSeparator(arrayData[9]))
           )
         }
+        if (arrayData[8] === "BDO / 609") {
+          orderList["BDO609"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
+        if (arrayData[8] === "MBTC-895") {
+          orderList["MBTC895"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
+        if (arrayData[8] === "MBTC-909") {
+          orderList["MBTC909"].push(
+            Number(replaceThousandsSeparator(arrayData[9]))
+          )
+        }
       }
     }
   })
   const sumOfBDO = sumNumbers(orderList["BDO"])
   const sumOfKP_GCASH = sumNumbers(orderList["KP_GCASH"])
-  const sumOfTotal = sumOfBDO + sumOfKP_GCASH
+  const sumOfBDO609 = sumNumbers(orderList["BDO609"])
+  const sumOfMBTC895 = sumNumbers(orderList["MBTC895"])
+  const sumOfMBTC909 = sumNumbers(orderList["MBTC909"])
+  const sumOfTotal =
+    sumOfBDO + sumOfKP_GCASH + sumOfBDO609 + sumOfMBTC895 + sumOfMBTC909
   return [
     thousandsSeparators(sumOfBDO.toFixed(2)),
     thousandsSeparators(sumOfKP_GCASH.toFixed(2)),
+    thousandsSeparators(sumOfBDO609.toFixed(2)),
+    thousandsSeparators(sumOfMBTC895.toFixed(2)),
+    thousandsSeparators(sumOfMBTC909.toFixed(2)),
     thousandsSeparators(sumOfTotal.toFixed(2)),
   ]
 }
