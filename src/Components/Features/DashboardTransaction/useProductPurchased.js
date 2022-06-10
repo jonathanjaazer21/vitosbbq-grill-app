@@ -25,7 +25,20 @@ export default function useProductPurchased(
   const [totalDue, setTotalDue] = useState(0)
   const [isTouched, setIsTouched] = useState(false)
   const [specificPrices, setSpecificPrices] = useState([])
-
+  const [priceOptionsData, setPricesOptionsData] = useState([])
+  const [priceOptionsNewProductData, setPricesOptionsNewProductData] = useState(
+    []
+  )
+  console.log("orderData", orderData)
+  useEffect(() => {
+    if (data.length > 0 || newProductData.length > 0) {
+      const _data = producedProductListWithGroupAndAmounts(data)
+      const _newProductData =
+        producedProductListWithGroupAndAmounts(newProductData)
+      setPricesOptionsData(_data)
+      setPricesOptionsNewProductData(_newProductData)
+    }
+  }, [data, newProductData])
   useEffect(() => {
     loadSpecificPrices()
   }, [])
@@ -38,7 +51,10 @@ export default function useProductPurchased(
   // this is for active product button selected load when modified
   useEffect(() => {
     if (orderData) {
-      const productList = producedProductListOfAllCodes(data)
+      const sourceProductData = orderData.withFlexiblePrices
+        ? newProductData
+        : data
+      const productList = producedProductListOfAllCodes(sourceProductData)
       const checkedProductCodes = []
       for (const key of productList) {
         if (typeof orderData[key] !== "undefined") {
@@ -47,7 +63,7 @@ export default function useProductPurchased(
           }
         }
       }
-      loadProductStates(data, checkedProductCodes)
+      loadProductStates(sourceProductData, checkedProductCodes)
     }
   }, [orderData, codeObjList])
 
@@ -84,6 +100,45 @@ export default function useProductPurchased(
               productObj[`customPrice${obj?.code}`] =
                 _orderData[`customPrice${obj?.code}`]
             }
+
+            // for custom price change from ORDER_VIA to ORDER_VIA_PARTNER or ORDER_VIA_WEBSITE
+            if (
+              (orderVia || "").includes("DN") ||
+              (orderVia || "").includes("DD") ||
+              (orderVia || "").includes("FP") ||
+              (orderVia || "").includes("ZAP") ||
+              (orderVia || "").includes("GBF") ||
+              (orderVia || "").includes("MMF")
+            ) {
+              if (orderData[SchedulersClass.ORDER_VIA]) {
+                productObj.price = price
+                productObj[`customPrice${obj?.code}`] = price
+              } else {
+                if (orderData[SchedulersClass.ORDER_VIA_PARTNER]) {
+                  productObj.price = _orderData[`customPrice${obj?.code}`]
+                  productObj[`customPrice${obj?.code}`] =
+                    _orderData[`customPrice${obj?.code}`]
+                  if ((orderVia || "").includes("ZAP")) {
+                    productObj.price = price
+                    productObj[`customPrice${obj?.code}`] = price
+                  }
+                  if (orderVia === 0) {
+                    productObj.price = 0
+                    productObj[`customPrice${obj?.code}`] = 0
+                  }
+                }
+                if (orderData[SchedulersClass.ORDER_VIA_WEBSITE]) {
+                  productObj.price = _orderData[`customPrice${obj?.code}`]
+                  productObj[`customPrice${obj?.code}`] =
+                    _orderData[`customPrice${obj?.code}`]
+                  if (!(orderVia || "").includes("ZAP")) {
+                    productObj.price = price
+                    productObj[`customPrice${obj?.code}`] = price
+                  }
+                }
+              }
+            }
+
             _codeObjList.push({ ...productObj })
           }
         }
@@ -177,7 +232,6 @@ export default function useProductPurchased(
       handleTotalDue(_dataSource)
     }
   }, [products])
-  console.log("dataSource", dataSource)
 
   const handleTotalDue = (_dataSource) => {
     //this is for total due
@@ -224,14 +278,15 @@ export default function useProductPurchased(
     setIsTouched(true)
   }
 
-  const handleEditPrice = (e) => {
+  const handleEditPrice = (e, optionalId = null) => {
     const value = e.target.value
+    const code = optionalId ? optionalId : editableId
     if (isNaN(value)) return
     if (Number(value) < 0) return
     const _dataSource = [...dataSource]
-    const dataIndex = dataSource.findIndex((obj) => obj?.code === editableId)
+    const dataIndex = dataSource.findIndex((obj) => obj?.code === code)
     const dataSourceObj = { ..._dataSource[dataIndex] }
-    dataSourceObj[`customPrice${editableId}`] = Number(value)
+    dataSourceObj[`customPrice${code}`] = Number(value)
     dataSourceObj.price = Number(value)
     _dataSource[dataIndex] = dataSourceObj
     setDataSource(_dataSource)
@@ -251,5 +306,7 @@ export default function useProductPurchased(
     setEditableId,
     totalDue,
     isTouched,
+    priceOptionsData,
+    priceOptionsNewProductData,
   }
 }

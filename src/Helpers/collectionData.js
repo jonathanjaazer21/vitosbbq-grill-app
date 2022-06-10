@@ -183,7 +183,7 @@ export const calculateDiscountScheduler = (record) => {
   // record[SchedulersClass.FIXED_DEDUCTION]?.totalAmountDeducted || 0
   let discAndOthers = 0
   for (const key in record[SchedulersClass.OTHERS]) {
-    discAndOthers = Number(record[SchedulersClass.OTHERS][key])
+    discAndOthers = discAndOthers + Number(record[SchedulersClass.OTHERS][key])
   }
   const discWithFixedDeduction = Number(discAndOthers) + Number(fixedDeduction)
   return thousandsSeparators(discWithFixedDeduction.toFixed(2))

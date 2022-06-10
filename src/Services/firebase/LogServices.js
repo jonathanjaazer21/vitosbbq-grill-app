@@ -1,7 +1,7 @@
 import Commands from "./base"
 import db from "services/firebase"
 const collectionName = "logs"
-export default class ScheduleServicess extends Commands {
+export default class LogServicess extends Commands {
   #fieldName
   #fieldValue
   constructor(args) {

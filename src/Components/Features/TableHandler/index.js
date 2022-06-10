@@ -54,6 +54,7 @@ import segregateAdvanceOrders, {
 } from "./segregateAdvanceOrders"
 import { produceSalesSummary1 } from "./produceSalesSummary1"
 import { produceSalesSummary2 } from "./produceSalesSummary2"
+import NewProductsClass from "Services/Classes/NewProductsClass"
 const produceAmount = (value) => {
   return thousandsSeparators(Number(value).toFixed(2))
 }
@@ -83,9 +84,11 @@ function TableHandler(props) {
   const [isFiltered, setIsFiltered] = useState(false)
   const [filteredData, setFilteredData] = useState([])
 
+  console.log("productData test", props.productData)
+
   return (
     <div style={{ position: "relative" }}>
-      {data.length > 0 && isLoading === false && (
+      {isLoading === false && (
         <div
           style={
             location.pathname === path
@@ -230,13 +233,18 @@ const ActionButtons = (props) => {
       return formatB.getTime() - formatA.getTime()
     })
   }
+
   const handleExportExcel = async (sched, branch) => {
     const _schedules = sorted(sched)
+    const newProductData = await NewProductsClass.getData()
     const defaultSheet = await segregateAdvanceOrders(
       _schedules,
       productData,
-      branch
+      branch,
+      newProductData
     )
+
+    console.log("default", defaultSheet)
     const [cashSheet, cashTotal] = await schedulerExcel(
       _schedules.filter((obj) => {
         const source = displayPaymentProp(
@@ -248,80 +256,92 @@ const ActionButtons = (props) => {
       }),
       productData,
       "CASH",
-      branch
+      branch,
+      newProductData
     )
 
     const [rSheet, rTotal] = await schedulerExcel(
       _schedules.filter((obj) => displaySalesType(obj) === "R"),
       productData,
       "R",
-      branch
+      branch,
+      newProductData
     )
 
     const [spwdSheet, spwdTotal] = await schedulerExcel(
       _schedules.filter((obj) => displaySalesType(obj) === "SPWD"),
       productData,
       "SPWD",
-      branch
+      branch,
+      newProductData
     )
 
     const [ddSheet, ddTotal] = await schedulerExcel(
       _schedules.filter((obj) => displaySalesType(obj) === "D/O"),
       productData,
       "DO",
-      branch
+      branch,
+      newProductData
     )
     const [wbSheet, wbTotal] = await schedulerExcel(
       _schedules.filter((obj) => obj[SchedulersClass.ORDER_VIA_WEBSITE]),
       productData,
       "WB",
-      branch
+      branch,
+      newProductData
     )
     const [ppSheet, ppTotal] = await schedulerExcel(
       _schedules.filter((obj) => displaySalesType(obj) === "PP"),
       productData,
       "PP",
-      branch
+      branch,
+      newProductData
     )
 
     const [orderVia, orderViaTotal] = await schedulerExcel(
       _schedules.filter((obj) => obj[SchedulersClass.ORDER_VIA]),
       productData,
       "DIRECT",
-      branch
+      branch,
+      newProductData
     )
 
     const [ppGF, ppGFTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "GBF"),
       productData,
       "PP GBF",
-      branch
+      branch,
+      newProductData
     )
     const [ppMMF, ppMMFTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "MMF"),
       productData,
       "PP MMF",
-      branch
+      branch,
+      newProductData
     )
 
     const [ppDN, ppDNTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "DN"),
       productData,
       "PP DN",
-      branch
+      branch,
+      newProductData
     )
 
     const [ppFP, ppFPTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "FP"),
       productData,
       "PP FP",
-      branch
+      branch,
+      newProductData
     )
     const [ppZAP, ppZAPTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "ZAP"),
       productData,
       "PP ZAP",
-      branch
+      branch,
+      newProductData
     )
 
     const [orderViaWB, orderViaWBTotal] = await schedulerExcel(

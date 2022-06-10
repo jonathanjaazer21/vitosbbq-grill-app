@@ -1,8 +1,8 @@
-import { ARRAY_OF_STRING_TYPE, STRING_TYPE } from "Constants/types"
+import { ARRAY_OF_STRING_TYPE, NUMBER_TYPE, STRING_TYPE } from "Constants/types"
 import Base from "Services/Base"
 
-export default class BranchClass {
-  static COLLECTION_NAME = "branches"
+export default class ExcessPaymentsClass {
+  static COLLECTION_NAME = "excessPayments"
   static getData() {
     return Base.getData(this.COLLECTION_NAME)
   }
@@ -33,16 +33,20 @@ export default class BranchClass {
     return Base.setData(this.COLLECTION_NAME, id, data)
   }
   static _ID = "_id"
-  static BRANCH_ADDRESS = "branchAddress"
-  static BRANCH_NAME = "branchName"
-  static PROPERTIES = [this._ID, this.BRANCH_NAME, this.BRANCH_ADDRESS]
+  static AMOUNT = "amount"
+  static DATE = "date"
+  static NAME = "name"
+
+  static PROPERTIES = [this._ID, this.AMOUNT, this.DATE, this.NAME]
 
   static LABELS = {
-    [this.BRANCH_ADDRESS]: "Address",
-    [this.BRANCH_NAME]: "Branch",
+    [this._ID]: "Id",
+    [this.AMOUNT]: "Amount",
+    [this.DATE]: "Date",
+    [this.NAME]: "Name",
   }
   static TYPES = {
-    [this.BRANCH_ADDRESS]: STRING_TYPE,
-    [this.BRANCH_NAME]: STRING_TYPE,
+    [this._ID]: STRING_TYPE,
+    [this.AMOUNT]: NUMBER_TYPE,
   }
 }

@@ -21,6 +21,7 @@ import usePaginate from "Hooks/usePaginate"
 import React, { useEffect, useState } from "react"
 import { useHistory, useRouteMatch } from "react-router"
 import ProductsClass from "Services/Classes/ProductsClass"
+import NewProductClass from "Services/Classes/NewProductsClass"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import TableHandler from "../TableHandler"
 import AdvanceTableHandler from "../AdvanceTableHandler"
@@ -34,6 +35,7 @@ function DashboardTransaction({
   const history = useHistory()
   const { url } = useRouteMatch()
   const [productData] = useGetDocuments(ProductsClass) // this is to determine the product list
+  const [newProductData] = useGetDocuments(NewProductClass) // this is to determine the new product list
   const [advanceFilter, setAdvanceFilter] = useState(false)
   const [advanceButton, setAdvanceButton] = useState("flex")
 
@@ -41,6 +43,7 @@ function DashboardTransaction({
     setAdvanceButton(advanceButtonDisplay)
   }, [advanceButtonDisplay])
   useEffect(() => {}, [modifiedData])
+
   return (
     <>
       <Space
@@ -213,7 +216,10 @@ function DashboardTransaction({
                   return data
                 },
                 [SchedulersClass.QTY]: (data, record) => {
-                  const products = producedProductListOfAllCodes(productData)
+                  const _productData = record?.withFlexiblePrices
+                    ? newProductData
+                    : productData
+                  const products = producedProductListOfAllCodes(_productData)
                   const totalQty = producedTotalQtyOfProduct(products, record)
                   return <span>{totalQty}</span>
                 },
@@ -494,7 +500,10 @@ function DashboardTransaction({
                   return data
                 },
                 [SchedulersClass.QTY]: (data, record) => {
-                  const products = producedProductListOfAllCodes(productData)
+                  const _productData = record?.withFlexiblePrices
+                    ? newProductData
+                    : productData
+                  const products = producedProductListOfAllCodes(_productData)
                   const totalQty = producedTotalQtyOfProduct(products, record)
                   return <span>{totalQty}</span>
                 },

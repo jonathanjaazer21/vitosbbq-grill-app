@@ -1,4 +1,14 @@
-import { Button, Input, message, Popconfirm, Space, Spin, Table } from "antd"
+import {
+  Button,
+  Input,
+  message,
+  Popconfirm,
+  Select,
+  Space,
+  Spin,
+  Table,
+} from "antd"
+import { FilterOutlined } from "@ant-design/icons"
 import CustomDate from "Components/Commons/CustomDate"
 import MainButton from "Components/Commons/MainButton"
 import { formatDateDash, formatDateFromDatabase } from "Helpers/dateFormat"
@@ -8,14 +18,17 @@ import React, { useEffect, useState, useContext } from "react"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import DepositsClass from "Services/Classes/DepositsClass"
 import transformedSched from "../TableHandler/transformedSched"
+import sorting from "Helpers/sorting"
 import { UnauthorizedContext } from "Error/Unauthorized"
 import classes from "./deposit.module.css"
+const { Option } = Select
 
 function DashboardForDeposits() {
   const { user } = useContext(UnauthorizedContext)
   const [dataSource, setDataSource] = useState([])
   const [date, setDate] = useState(new Date())
   const [dateDeposit, setDateDeposit] = useState(new Date())
+  const [accountDestination, setAccountDestination] = useState("BDO / 981")
   const [isLoading, setIsLoading] = useState(false)
   const [amount, setAmount] = useState(0)
   useEffect(() => {
@@ -130,18 +143,20 @@ function DashboardForDeposits() {
     // const deposits = await DepositsClass.getDataByFieldName(DepositsClass.DATE_PAID_STRING, )
     const payments = await transformedSched(data)
     if (payments) {
-      payments.sort(function (a, b) {
-        const dateFromA = new Date(
-          formatDateFromDatabase(a[SchedulersClass.DATE_PAYMENT])
-        )
-        const dateFromB = new Date(
-          formatDateFromDatabase(b[SchedulersClass.DATE_PAYMENT])
-        )
+      // payments.sort(function (a, b) {
+      //   const dateFromA = new Date(
+      //     formatDateFromDatabase(a[SchedulersClass.DATE_PAYMENT])
+      //   )
+      //   const dateFromB = new Date(
+      //     formatDateFromDatabase(b[SchedulersClass.DATE_PAYMENT])
+      //   )
 
-        return dateFromB.getTime() - dateFromA.getTime()
-      })
+      //   return dateFromB.getTime() - dateFromA.getTime()
+      // })
+      const sortedPayment = sorting(payments, SchedulersClass.DATE_PAYMENT)
+      sortedPayment.reverse()
 
-      const pendingPayments = payments.filter((obj) => {
+      const pendingPayments = sortedPayment.filter((obj) => {
         return obj[SchedulersClass.CASH_FOR_DEPOSIT] === "Pending"
       })
       setDataSource(pendingPayments)
@@ -167,12 +182,13 @@ function DashboardForDeposits() {
         await DepositsClass.handleTransaction(paymentList)
         const result = await DepositsClass.addData({
           [DepositsClass.DATE_PAID_STRING]: formatDateDash(dateDeposit),
+          [DepositsClass.DATE_PAYMENT]: date,
           [SchedulersClass.DATE_START]: new Date(dateDeposit),
           [SchedulersClass.DATE_ORDER_PLACED]: new Date(dateDeposit),
           [DepositsClass.DATE_DEPOSIT]: new Date(dateDeposit),
           [DepositsClass.MODE_PAYMENT]: "Cash",
           [DepositsClass.SOURCE]: "Cash",
-          [DepositsClass.ACCOUNT_NUMBER]: "BDO / 981",
+          [DepositsClass.ACCOUNT_NUMBER]: accountDestination,
           [DepositsClass.PAYMENT_LIST]: [...paymentList],
           [DepositsClass.TOTAL_DEPOSIT]: amount,
           [DepositsClass.BRANCH]: user?.branchSelected,
@@ -204,49 +220,76 @@ function DashboardForDeposits() {
   return (
     <>
       <Space direction="vertical" style={{ width: "100%" }}>
-        <Space style={{ display: "flex", justifyContent: "right" }}>
+        <Space style={{ justifyContent: "space-between", width: "100%" }}>
           <Space>
-            Date Paid:
-            <CustomDate
-              format="MM-DD-YYYY"
-              showTime={false}
-              onChange={(_d) => {
-                handleDate(new Date(_d))
-              }}
-              value={date}
-            />
+            <Space>
+              <FilterOutlined />
+            </Space>
+            <Space>
+              Date Paid:
+              <CustomDate
+                format="MM-DD-YYYY"
+                showTime={false}
+                onChange={(_d) => {
+                  handleDate(new Date(_d))
+                }}
+                value={date}
+              />
+            </Space>
+            <Space>
+              Amount:
+              <Input
+                value={thousandsSeparators(amount.toFixed(2))}
+                type="text"
+              />
+            </Space>
           </Space>
           <Space>
-            Date Deposit:
-            <CustomDate
-              format="MM-DD-YYYY"
-              showTime={false}
-              onChange={(_d) => {
-                setDateDeposit(new Date(_d))
-              }}
-              value={dateDeposit}
-            />
-          </Space>
-          <Space>
-            Amount:
-            <Input value={thousandsSeparators(amount.toFixed(2))} type="text" />
-          </Space>
-          <Space>
-            {isLoading ? (
-              <Button shape="round" size="medium">
-                <Spin />
-              </Button>
-            ) : (
-              <Popconfirm
-                placement="bottomRight"
-                title="Are you sure you want to deposit this payments?"
-                onConfirm={confirm}
-                okText="Yes"
-                cancelText="No"
+            <Space>
+              Date Deposit:
+              <CustomDate
+                format="MM-DD-YYYY"
+                showTime={false}
+                onChange={(_d) => {
+                  setDateDeposit(new Date(_d))
+                }}
+                value={dateDeposit}
+              />
+            </Space>
+            <Space>
+              Actual Deposit:
+              <Select
+                style={{ width: "150px" }}
+                value={accountDestination}
+                onChange={(value) => {
+                  if (value) {
+                    setAccountDestination(value)
+                  }
+                }}
               >
-                <MainButton label="Deposit" disabled={amount === 0} />
-              </Popconfirm>
-            )}
+                <Option value="BDO / 981">BDO / 981</Option>
+                <Option value="BDO / 609">BDO / 609</Option>
+                <Option value="MBTC 909">MBTC 909</Option>
+                <Option value="MBTC 895">MBTC 895</Option>
+              </Select>
+            </Space>
+            <Space>
+              {isLoading ? (
+                <Button shape="round" size="medium">
+                  <Spin />
+                </Button>
+              ) : (
+                <Popconfirm
+                  placement="bottomRight"
+                  title="Are you sure you want to deposit this payments?"
+                  onConfirm={confirm}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <MainButton label="Deposit" disabled={amount === 0} />
+                </Popconfirm>
+              )}
+            </Space>
           </Space>
         </Space>
         <Table

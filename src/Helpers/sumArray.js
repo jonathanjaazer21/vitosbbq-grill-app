@@ -80,5 +80,9 @@ export const sumArrayOfObjectsGrouping = (data, field1, field2) => {
 }
 
 export const sumNumbers = (array) => {
-  return array.reduce((a, b) => Number(a) + Number(b), 0)
+  if (array.length > 0) {
+    return array.reduce((a, b) => Number(a) + Number(b), 0)
+  } else {
+    return 0
+  }
 }

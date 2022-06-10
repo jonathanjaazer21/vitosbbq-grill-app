@@ -161,6 +161,7 @@ function OrderDetails({
 
   const handleChanges = (fieldName, value) => {
     setIsTouched(true)
+    console.log("is this field", fieldName)
     const _dataValue = { ...dataValue }
     _dataValue[fieldName] = value
     setDataValue(_dataValue)
@@ -436,7 +437,7 @@ const TimeField = (props) => {
     "10:00 AM - 10:30 AM": "10:00:00",
     "10:30 AM - 11:00 AM": "10:30:00",
     "11:00 AM - 11:30 AM": "11:00:00",
-    "11:30 AM - 12:00 AM": "11:30:00",
+    "11:30 AM - 12:00 PM": "11:30:00",
     "12:00 AM - 12:30 PM": "12:00:00",
     "12:30 PM - 1:00 PM": "12:30:00",
     "1:00 PM - 1:30 PM": "13:00:00",

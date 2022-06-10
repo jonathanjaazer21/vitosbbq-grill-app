@@ -75,45 +75,44 @@ function AnalyticsMonthlySales({ user }) {
       const dateTo = _dates[1]._d
       const _deposits = await DepositsClass.getDataByDate(
         [dateFrom, dateTo],
-        DepositsClass.DATE_DEPOSIT,
+        DepositsClass.DATE_PAYMENT,
         user.branchSelected
       )
 
       let paymentListCopy = [...paymentList] // [...paymentList]
       let paymentListDepCopy = [] // list from deposited
+      console.log("_deposits", paymentList)
       if (_deposits.length > 0) {
         for (const deposit of _deposits) {
           const paymentListDeposits = [...deposit?.paymentList]
           for (const paymentObj of paymentListDeposits) {
-            if (
-              paymentList.some((_payment) => _payment._id !== paymentObj._id)
-            ) {
-              // const _paymentD = paymentList.find((d) => {
-              //   return d._id === paymentObj._id
-              // })
-              // paymentListCopy.push(_paymentD)
+            const indexPaymentListCopy = paymentList.findIndex(
+              (_payment) => _payment._id === paymentObj._id
+            )
+
+            if (indexPaymentListCopy >= 0) {
+              paymentListCopy[indexPaymentListCopy].status = "DEPOSITED"
+              paymentListCopy[indexPaymentListCopy][
+                DepositsClass.ACCOUNT_NUMBER
+              ] = deposit[DepositsClass.ACCOUNT_NUMBER]
             }
-            // const paymentListIndex = paymentListCopy.findIndex((p) => {
-            //   return p._id === payment._id
-            // })
-            // paymentListCopy.splice(paymentListIndex, 1)
           }
-          paymentListDepCopy.push({
-            [SchedulersClass._ID]: deposit[DepositsClass._ID],
-            [SchedulersClass.DATE_ORDER_PLACED]:
-              deposit[DepositsClass.DATE_DEPOSIT],
-            [SchedulersClass.DATE_START]: deposit[DepositsClass.DATE_DEPOSIT],
-            [SchedulersClass.DATE_PAYMENT]: deposit[DepositsClass.DATE_DEPOSIT],
-            [SchedulersClass.VIA]: "",
-            [SchedulersClass.MODE_PAYMENT]: deposit[DepositsClass.MODE_PAYMENT],
-            [SchedulersClass.SOURCE]: deposit[DepositsClass.SOURCE],
-            [SchedulersClass.ACCOUNT_NUMBER]:
-              deposit[DepositsClass.ACCOUNT_NUMBER],
-            [SchedulersClass.REF_NO]: "",
-            [SchedulersClass.AMOUNT_PAID]: deposit[DepositsClass.TOTAL_DEPOSIT],
-            [SchedulersClass.UTAK_NO]: "",
-            [SchedulersClass.STATUS]: "DEPOSITED",
-          })
+          // paymentListDepCopy.push({
+          //   [SchedulersClass._ID]: deposit[DepositsClass._ID],
+          //   [SchedulersClass.DATE_ORDER_PLACED]:
+          //     deposit[DepositsClass.DATE_DEPOSIT],
+          //   [SchedulersClass.DATE_START]: deposit[DepositsClass.DATE_DEPOSIT],
+          //   [SchedulersClass.DATE_PAYMENT]: deposit[DepositsClass.DATE_DEPOSIT],
+          //   [SchedulersClass.VIA]: "",
+          //   [SchedulersClass.MODE_PAYMENT]: deposit[DepositsClass.MODE_PAYMENT],
+          //   [SchedulersClass.SOURCE]: deposit[DepositsClass.SOURCE],
+          //   [SchedulersClass.ACCOUNT_NUMBER]:
+          //     deposit[DepositsClass.ACCOUNT_NUMBER],
+          //   [SchedulersClass.REF_NO]: "",
+          //   [SchedulersClass.AMOUNT_PAID]: deposit[DepositsClass.TOTAL_DEPOSIT],
+          //   [SchedulersClass.UTAK_NO]: "",
+          //   [SchedulersClass.STATUS]: "DEPOSITED",
+          // })
         }
       }
       return [...paymentListCopy, ...paymentListDepCopy]
@@ -190,6 +189,7 @@ function AnalyticsMonthlySales({ user }) {
         SchedulersClass.DATE_PAYMENT
       )
       const asPerServed = generateReport(days, data, SchedulersClass.DATE_START)
+      console.log("asPerDep", asPerDeposit)
       const monthNames = [
         "January",
         "February",
@@ -213,7 +213,17 @@ function AnalyticsMonthlySales({ user }) {
           [`${month.toUpperCase()} ${year}`],
           ["AS PER DEPOSITED"],
           [],
-          ["DATE", "BDO / 981", "GCASH", "CASH", "ZAP", "REMARKS"],
+          [
+            "DATE",
+            "BDO / 981",
+            "BDO / 609",
+            "GCASH",
+            "CASH",
+            "ZAP",
+            "MBTC 909",
+            "MBTC 895",
+            "REMARKS",
+          ],
           ...asPerDeposit,
         ],
         "AS PER SERVED": [
@@ -222,7 +232,17 @@ function AnalyticsMonthlySales({ user }) {
           [`${month.toUpperCase()} ${year}`],
           ["AS PER SERVED"],
           [],
-          ["DATE", "BDO / 981", "GCASH", "CASH", "ZAP", "REMARKS"],
+          [
+            "DATE",
+            "BDO / 981",
+            "BDO / 609",
+            "GCASH",
+            "CASH",
+            "ZAP",
+            "MBTC 909",
+            "MBTC 895",
+            "REMARKS",
+          ],
           ...asPerServed,
         ],
       })
@@ -265,14 +285,14 @@ function AnalyticsMonthlySales({ user }) {
               return { key: index, ...orders }
             })}
             size="small"
-            expandable={{
-              expandedRowRender: (record) => {
-                return expandedRowRender({
-                  record,
-                  deposits: deposits.find((d) => d._id === record._id),
-                })
-              },
-            }}
+            // expandable={{
+            //   expandedRowRender: (record) => {
+            //     return expandedRowRender({
+            //       record,
+            //       deposits: deposits.find((d) => d._id === record._id),
+            //     })
+            //   },
+            // }}
             pagination={{ pageSize: 15 }}
           />
         </TabPane>
@@ -282,14 +302,14 @@ function AnalyticsMonthlySales({ user }) {
             dataSource={servedData}
             size="small"
             pagination={{ pageSize: 15 }}
-            expandable={{
-              expandedRowRender: (record) => {
-                return expandedRowRender({
-                  record,
-                  deposits: deposits.find((d) => d._id === record._id),
-                })
-              },
-            }}
+            // expandable={{
+            //   expandedRowRender: (record) => {
+            //     return expandedRowRender({
+            //       record,
+            //       deposits: deposits.find((d) => d._id === record._id),
+            //     })
+            //   },
+            // }}
           />
         </TabPane>
       </Tabs>
@@ -454,6 +474,9 @@ const columns = [
     title: SchedulersClass.LABELS[SchedulersClass.ACCOUNT_NUMBER],
     key: SchedulersClass.ACCOUNT_NUMBER,
     dataIndex: SchedulersClass.ACCOUNT_NUMBER,
+    render: (data, record) => {
+      return data
+    },
   },
   {
     title: SchedulersClass.LABELS[SchedulersClass.REF_NO],

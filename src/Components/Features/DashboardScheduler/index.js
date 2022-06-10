@@ -4,7 +4,6 @@ import Scheduler from "./Scheduler"
 
 function DashboardScheduler() {
   const [navigate, handleNavigate] = useSchedulerHook()
-  console.log("navigate", navigate)
   return (
     <Scheduler
       setLoading={() => {}}

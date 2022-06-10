@@ -6,6 +6,7 @@ import {
 import db, { runTransaction, doc, writeBatch } from "../firebase"
 import Base from "Services/Base"
 import { formatDateFromDatabase } from "Helpers/dateFormat"
+import { collection, getDocs, orderBy, query, where } from "firebase/firestore"
 
 export default class DepositsClass {
   static COLLECTION_NAME = "deposits"
@@ -51,6 +52,25 @@ export default class DepositsClass {
 
   static setData(id, data) {
     return Base.setData(this.COLLECTION_NAME, id, data)
+  }
+
+  // this is a specialize function
+  static async getSpecificDate(branch) {
+    const q = query(
+      collection(db, this.COLLECTION_NAME),
+      where("paymentList.0.refNo", "==", "111"),
+      where("branch", "==", branch)
+    )
+    const querySnapshot = await getDocs(q)
+    // use .metadata.fromCache of firebase instead since try catch is not working here
+    if (querySnapshot.metadata.fromCache) {
+      throw new Error("UNAVAILABLE")
+    }
+    const data = []
+    querySnapshot.forEach((doc) => {
+      data.push({ ...doc.data(), _id: doc.id })
+    })
+    return data
   }
 
   static async handleTransaction(data = []) {
@@ -106,7 +126,8 @@ export default class DepositsClass {
     // }
   }
   static _ID = "_id"
-  static DATE_PAID_STRING = "datePaidString"
+  static DATE_PAID_STRING = "datePaidString" // this is a string string format date of dateDeposit
+  static DATE_PAYMENT = "datePayment"
   static DATE_DEPOSIT = "dateDeposit"
   static TOTAL_DEPOSIT = "totalDeposit"
   static MODE_PAYMENT = "modePayment"
@@ -118,6 +139,7 @@ export default class DepositsClass {
   static PROPERTIES = [
     this._ID,
     this.DATE_DEPOSIT,
+    this.DATE_PAYMENT,
     this.MODE_PAYMENT,
     this.SOURCE,
     this.ACCOUNT_NUMBER,

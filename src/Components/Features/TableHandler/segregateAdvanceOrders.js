@@ -3,7 +3,12 @@ import { formatDateDash, formatDateFromDatabase } from "Helpers/dateFormat"
 import schedulerExcel from "Helpers/schedulerExcel"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 
-export default async function (schedules, productData, branch) {
+export default async function (
+  schedules,
+  productData,
+  branch,
+  newProductData = []
+) {
   let dateTobeFilter = ""
   if (schedules.length > 0) {
     const dateFromDatabase = formatDateFromDatabase(
@@ -25,15 +30,23 @@ export default async function (schedules, productData, branch) {
     datePlacedSched,
     productData,
     "",
-    branch
+    branch,
+    newProductData
   )
   const notAdvanceSheet = await schedulerExcel(
     schedules,
     productData,
     "",
-    branch
+    branch,
+    newProductData
   )
-  const defaultSheet = await schedulerExcel(schedules, productData, "", branch)
+  const defaultSheet = await schedulerExcel(
+    schedules,
+    productData,
+    "",
+    branch,
+    newProductData
+  )
   let sheetName = ""
   const defaultHeaderAndData = []
   const defaultFooter = []
