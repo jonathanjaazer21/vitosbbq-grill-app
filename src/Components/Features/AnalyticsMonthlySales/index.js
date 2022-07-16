@@ -1,4 +1,4 @@
-import { Table, Space, DatePicker, Spin, Card, Tabs } from "antd"
+import { Table, Space, DatePicker, Spin, Card, Tabs, Button } from "antd"
 import React, { useState, useEffect, useContext } from "react"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import DepositsClass from "Services/Classes/DepositsClass"
@@ -11,6 +11,11 @@ import { AiFillFileExcel } from "react-icons/ai"
 import generateReport from "./generateReport"
 import ExportService from "Services/ExportService"
 import classes from "./row.module.css"
+import generateReportA from "./generateReportA"
+import generateReportB from "./generateReportB"
+import generatePercentage from "./generatePercentage"
+import { getAgingDateStartFrom } from "Helpers/dateAging"
+import generateReportCollectibles from "./generateReportCollectibles"
 const { RangePicker } = DatePicker
 const { TabPane } = Tabs
 
@@ -21,6 +26,7 @@ function AnalyticsMonthlySales({ user }) {
   const [dates, setDates] = useState([])
   const [deposits, setDeposits] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [forPercentageData, setForPercentageData] = useState([])
 
   useEffect(() => {
     if (user) {
@@ -81,7 +87,6 @@ function AnalyticsMonthlySales({ user }) {
 
       let paymentListCopy = [...paymentList] // [...paymentList]
       let paymentListDepCopy = [] // list from deposited
-      console.log("_deposits", paymentList)
       if (_deposits.length > 0) {
         for (const deposit of _deposits) {
           const paymentListDeposits = [...deposit?.paymentList]
@@ -97,22 +102,6 @@ function AnalyticsMonthlySales({ user }) {
               ] = deposit[DepositsClass.ACCOUNT_NUMBER]
             }
           }
-          // paymentListDepCopy.push({
-          //   [SchedulersClass._ID]: deposit[DepositsClass._ID],
-          //   [SchedulersClass.DATE_ORDER_PLACED]:
-          //     deposit[DepositsClass.DATE_DEPOSIT],
-          //   [SchedulersClass.DATE_START]: deposit[DepositsClass.DATE_DEPOSIT],
-          //   [SchedulersClass.DATE_PAYMENT]: deposit[DepositsClass.DATE_DEPOSIT],
-          //   [SchedulersClass.VIA]: "",
-          //   [SchedulersClass.MODE_PAYMENT]: deposit[DepositsClass.MODE_PAYMENT],
-          //   [SchedulersClass.SOURCE]: deposit[DepositsClass.SOURCE],
-          //   [SchedulersClass.ACCOUNT_NUMBER]:
-          //     deposit[DepositsClass.ACCOUNT_NUMBER],
-          //   [SchedulersClass.REF_NO]: "",
-          //   [SchedulersClass.AMOUNT_PAID]: deposit[DepositsClass.TOTAL_DEPOSIT],
-          //   [SchedulersClass.UTAK_NO]: "",
-          //   [SchedulersClass.STATUS]: "DEPOSITED",
-          // })
         }
       }
       return [...paymentListCopy, ...paymentListDepCopy]
@@ -128,6 +117,9 @@ function AnalyticsMonthlySales({ user }) {
         fieldName,
         user.branchSelected
       )
+      if (_data.length > 0) {
+        setForPercentageData(_data)
+      }
 
       const renewedData = []
       _data
@@ -150,8 +142,15 @@ function AnalyticsMonthlySales({ user }) {
                 [SchedulersClass.ACCOUNT_NUMBER]:
                   payment[SchedulersClass.ACCOUNT_NUMBER],
                 [SchedulersClass.REF_NO]: payment[SchedulersClass.REF_NO],
+                [SchedulersClass.TOTAL_DUE]: obj[SchedulersClass.TOTAL_DUE],
                 [SchedulersClass.AMOUNT_PAID]: payment["amount"],
                 [SchedulersClass.UTAK_NO]: obj[SchedulersClass.UTAK_NO],
+                [SchedulersClass.OTHERS]: obj[SchedulersClass.OTHERS],
+                [SchedulersClass.ORDER_VIA]: obj[SchedulersClass.ORDER_VIA],
+                [SchedulersClass.ORDER_VIA_WEBSITE]:
+                  obj[SchedulersClass.ORDER_VIA_WEBSITE],
+                [SchedulersClass.ORDER_VIA_PARTNER]:
+                  obj[SchedulersClass.ORDER_VIA_PARTNER],
                 [SchedulersClass.STATUS]: obj[SchedulersClass.STATUS],
               })
             })
@@ -165,7 +164,7 @@ function AnalyticsMonthlySales({ user }) {
     setDates(_dates)
   }
 
-  const handleExport = () => {
+  const handleExport = async () => {
     if (dates.length > 0) {
       const dateFrom = formatDateDash(dates[0]._d)
       const dateTo = formatDateDash(dates[1]._d)
@@ -189,7 +188,24 @@ function AnalyticsMonthlySales({ user }) {
         SchedulersClass.DATE_PAYMENT
       )
       const asPerServed = generateReport(days, data, SchedulersClass.DATE_START)
-      console.log("asPerDep", asPerDeposit)
+      const asPerServedA = generateReportA(
+        days,
+        data,
+        SchedulersClass.DATE_START
+      )
+      const asPerServedB = generateReportB(
+        days,
+        data,
+        SchedulersClass.DATE_START
+      )
+      const asPerServedPercentage = await generatePercentage(
+        forPercentageData,
+        data
+      )
+      const byCollectibles = await generateReportCollectibles(
+        user.branchSelected,
+        dates
+      )
       const monthNames = [
         "January",
         "February",
@@ -244,6 +260,67 @@ function AnalyticsMonthlySales({ user }) {
             "REMARKS",
           ],
           ...asPerServed,
+        ],
+        "AS PER SERVED (A)": [
+          [`VITO'S BBQ ${user.branchSelected.toUpperCase()}`],
+          ["MONTHLY SALES REPORT"],
+          [`${month.toUpperCase()} ${year}`],
+          ["AS PER SERVED"],
+          [],
+          [
+            "DATE",
+            "REGULAR",
+            "SPWD",
+            "ZAP",
+            "GF",
+            "FP",
+            "DISC / OWNER",
+            "PM / MKTG",
+            "IR",
+            "OTH",
+            "AMOUNT",
+            "REMARK",
+          ],
+          ...asPerServedA,
+        ],
+        "AS PER SERVED (B)": [
+          [`VITO'S BBQ ${user.branchSelected.toUpperCase()}`],
+          ["MONTHLY SALES REPORT"],
+          [`${month.toUpperCase()} ${year}`],
+          ["AS PER SERVED"],
+          [],
+          [
+            "DATE",
+            "CASH RECEIVED",
+            "BDO - 981",
+            "BDO - 609",
+            "GCASH",
+            "CC",
+            "ZAP",
+            "FF",
+            "FP",
+            "COLL",
+            "IR",
+            "AMOUNT",
+            "REMARKS",
+          ],
+          ...asPerServedB,
+        ],
+        "BY PERCENTAGE": [
+          [`VITO'S BBQ ${user.branchSelected.toUpperCase()}`],
+          [`${month.toUpperCase()} ${year}`],
+          ["MONTHLY SALES REPORT"],
+          [],
+          [],
+          ...asPerServedPercentage,
+        ],
+        "BY COLLECTIBLES": [
+          [`VITO'S BBQ ${user.branchSelected.toUpperCase()}`],
+          [`${month.toUpperCase()} ${year}`],
+          ["ACCOUNTS RECEIVABLE"],
+          [],
+          [],
+          ...byCollectibles,
         ],
       })
     }

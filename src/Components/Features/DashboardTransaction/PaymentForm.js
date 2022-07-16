@@ -66,17 +66,15 @@ function PaymentForm({
 
   const handleChange = (fieldName, value) => {
     if (fieldName === "amount") {
-      const numberValue = Number(value)
-      if (isNaN(numberValue)) return
-
-      const newBalance = Number(balanceDue) - numberValue
+      if (isNaN(value)) return
+      // const newBalance = Number(balanceDue) - numberValue
       // if (dataIndex === null) {
       //   if (newBalance < 0) {
       //     message.warning("Amount must not exceed Balance Due")
       //     return
       //   }
       // }
-      setData({ ...data, [fieldName]: numberValue })
+      setData({ ...data, [fieldName]: value })
       return
     }
     setData({ ...data, [fieldName]: value })

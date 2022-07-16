@@ -238,7 +238,6 @@ export const displaySalesType = (record) => {
         }
       }
     }
-
     return "R"
   }
   if (record[SchedulersClass.ORDER_VIA_PARTNER]) {
@@ -269,4 +268,17 @@ export const displayOrderVia = (record) => {
     return split2.filter(Boolean)[0]
   }
   return ""
+}
+
+export const getProductPurchases = (record, productCodeList) => {
+  const productCodeQtyList = {}
+  for (const code of productCodeList) {
+    const productCodeQty = record[code]
+    if (typeof productCodeQty !== "undefined") {
+      if (productCodeQty > 0) {
+        productCodeQtyList[code] = record[code]
+      }
+    }
+  }
+  return productCodeQtyList
 }
