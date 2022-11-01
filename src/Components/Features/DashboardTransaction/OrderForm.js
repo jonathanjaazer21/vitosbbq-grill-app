@@ -94,14 +94,6 @@ function OrderForm({
   const [fixedDeduction, setFixedDeduction] = useState({})
 
   const [userLogs, setUserLogs] = useState([])
-  console.log("user", user)
-  console.log("logs user", userLogs)
-  console.log("sched", sched)
-  console.log("paymentList", paymentList)
-  console.log("removedPaths", uploads?.removedPaths)
-  console.log("fileList", uploads?.fileList)
-  console.log("product purch", productPurchased)
-  console.log("formType", formType)
 
   useEffect(() => {
     setAdvanceFilterButton("none")
@@ -137,7 +129,6 @@ function OrderForm({
       [SchedulersClass.PARTIALS]: paymentList,
     })
     const _discounts = calculateDiscountScheduler({ ...sched })
-    console.log("_discounts", _discounts)
     setTotalDue(_totalDue)
     setBalanceDue(_balanceDue)
     setTotalPayments(_totalPayments)
@@ -418,14 +409,12 @@ function OrderForm({
         }
 
         try {
-          console.log("newSched", { ...newSched })
           if (paymentList.length > 0) {
             newSched[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
           }
 
           // result contains a collection of data saved
           const result = await SchedulersClass.addData(newSched)
-          console.log("result", result)
           modifiedData(result)
           setLoadingButton(true)
           handleRemove(uploads?.removedPaths)

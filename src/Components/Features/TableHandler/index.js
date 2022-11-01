@@ -55,6 +55,7 @@ import segregateAdvanceOrders, {
 import { produceSalesSummary1 } from "./produceSalesSummary1"
 import { produceSalesSummary2 } from "./produceSalesSummary2"
 import NewProductsClass from "Services/Classes/NewProductsClass"
+import { sortByNumber } from "Helpers/sorting"
 const produceAmount = (value) => {
   return thousandsSeparators(Number(value).toFixed(2))
 }
@@ -84,8 +85,7 @@ function TableHandler(props) {
   const [isFiltered, setIsFiltered] = useState(false)
   const [filteredData, setFilteredData] = useState([])
 
-  console.log("productData test", props.productData)
-
+  const sortedData = sortByNumber(data, SchedulersClass.UTAK_NO)
   return (
     <div style={{ position: "relative" }}>
       {isLoading === false && (
@@ -235,7 +235,8 @@ const ActionButtons = (props) => {
   }
 
   const handleExportExcel = async (sched, branch) => {
-    const _schedules = sorted(sched)
+    const _schedules = sortByNumber(sched, SchedulersClass.UTAK_NO)
+    console.log("_schedules", _schedules)
     const newProductData = await NewProductsClass.getData()
     const defaultSheet = await segregateAdvanceOrders(
       _schedules,
@@ -244,7 +245,6 @@ const ActionButtons = (props) => {
       newProductData
     )
 
-    console.log("default", defaultSheet)
     const [cashSheet, cashTotal] = await schedulerExcel(
       _schedules.filter((obj) => {
         const source = displayPaymentProp(
@@ -529,6 +529,7 @@ const ActionButtons = (props) => {
     })
   }
 
+  const [timer, setTimer] = useState() // Used in an onChange input field filter
   return (
     <StyledContainer enableFilter={enableFilter} wrap>
       <StyledLeftContent enableFilter={enableFilter}>
@@ -585,7 +586,15 @@ const ActionButtons = (props) => {
               <CustomInput
                 onChange={(e) => {
                   if (e.target.value) {
-                    loadDocumentData(SchedulersClass.UTAK_NO, e.target.value)
+                    const utakValue = e.target.value
+                    clearTimeout(timer)
+                    setTimer(
+                      setTimeout(
+                        () =>
+                          loadDocumentData(SchedulersClass.UTAK_NO, utakValue),
+                        1000
+                      )
+                    )
                   } else {
                     clearDocumentData()
                   }

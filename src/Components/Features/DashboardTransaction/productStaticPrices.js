@@ -9,6 +9,7 @@ export default function (orderVia, code, defaultPrice, specificPrices = []) {
       orderVia.includes("DD") ||
       orderVia.includes("DN") ||
       orderVia.includes("GBF") ||
+      orderVia.includes("GF") ||
       orderVia.includes("MMF") ||
       orderVia.includes("ZAP")
     ) {

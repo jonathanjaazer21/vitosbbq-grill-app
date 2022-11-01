@@ -15,7 +15,7 @@ export default class ProductsClass {
     return Base.getDataById(this.COLLECTION_NAME, id)
   }
 
-  static updateDataById(id, data) {
+  static async updateDataById(id, data) {
     return Base.updateDataById(this.COLLECTION_NAME, id, data)
   }
   static getDataBySort(customSort = []) {

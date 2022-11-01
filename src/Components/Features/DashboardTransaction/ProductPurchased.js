@@ -19,7 +19,11 @@ import thousandsSeparators from "Helpers/formatNumber"
 import SchedulersClass from "Services/Classes/SchedulesClass"
 import CustomDrawer from "Components/Commons/CustomDrawer"
 import { InfoCircleOutlined } from "@ant-design/icons"
+import useGetDocuments from "Hooks/useGetDocuments"
+import PriceHistoriesClass from "Services/Classes/priceHistoriesClass"
+import SpecificPriceHistoriesClass from "Services/Classes/specificPriceHistoriesClass"
 
+const { Option } = Select
 function ProductPurchased({
   modifiedData = () => {},
   orderData,
@@ -41,14 +45,29 @@ function ProductPurchased({
     priceOptionsNewProductData,
     codeObjList,
   } = useProductPurchased(orderData, orderVia, formType)
+  const [priceHistory, setPriceHistory] = useState([])
+  const [specificPriceHistory, setSpecificPriceHistory] = useState([])
+  useEffect(() => {
+    loadPriceHistory()
+    loadSpecificPriceHistory()
+  }, [])
+  console.log("priceHistory", priceHistory)
+  console.log("specific", specificPriceHistory)
+  const loadPriceHistory = async () => {
+    const data = await PriceHistoriesClass.getData()
+    setPriceHistory(data)
+  }
 
-  console.log("orderData", orderData[SchedulersClass.ORDER_VIA])
-  console.log("codeObjList", codeObjList)
+  const loadSpecificPriceHistory = async () => {
+    const data = await SpecificPriceHistoriesClass.getData()
+    setSpecificPriceHistory(data)
+  }
   useEffect(() => {
     const modifiedObj = {}
     for (const key in products) {
-      // this a resolution for the field naming error in firebase since previous data contains this field
+      // this is a resolution for the field naming error in firebase since previous data contains this field
       // field that contains "/" is not allowed in firebase
+      // programmatically set since there are too many documents that contains this kind of fields
       if (
         key.includes("CLONG - P/S - 1 PC") ||
         key.includes("SPORK W/ KNIFE")
@@ -133,23 +152,50 @@ function ProductPurchased({
             render: (value, record) => {
               const customPrice =
                 record[`customPrice${record?.code}`] || record.price
+
               const oldProd = priceOptionsData.find(
                 (product) => product?.code === record?.code
               )
+
               const newProd = priceOptionsNewProductData.find(
                 (product) => product?.code === record?.code
               )
 
-              return record?.editable ? (
-                <></>
-              ) : (orderVia || "").includes("FP") ||
+              let _priceHistoryList = []
+              if (
+                (orderVia || "").includes("FP") ||
                 (orderVia || "").includes("DN") ||
                 (orderVia || "").includes("DD") ||
                 (orderVia || "").includes("GBF") ||
+                (orderVia || "").includes("GF") ||
                 (orderVia || "").includes("MMF") ||
-                (orderVia || "").includes("ZAP") ? (
-                <></>
-              ) : (
+                (orderVia || "").includes("ZAP")
+              ) {
+                for (const obj of specificPriceHistory) {
+                  if (typeof obj[record?.code] !== "undefined") {
+                    if (obj.orderVia.trim() === orderVia.trim()) {
+                      _priceHistoryList = obj[record?.code]
+                    }
+                  }
+                }
+              } else {
+                for (const obj of priceHistory) {
+                  if (typeof obj[record?.code] !== "undefined") {
+                    _priceHistoryList = obj[record?.code]
+                  }
+                }
+              }
+              // return record?.editable ? (
+              //   <></>
+              // ) : (orderVia || "").includes("FP") ||
+              //   (orderVia || "").includes("DN") ||
+              //   (orderVia || "").includes("DD") ||
+              //   (orderVia || "").includes("GBF") ||
+              //   (orderVia || "").includes("MMF") ||
+              //   (orderVia || "").includes("ZAP") ? (
+              //   <></>
+              // ) : (
+              return (
                 <Popconfirm
                   placement="right"
                   title={
@@ -158,13 +204,26 @@ function ProductPurchased({
                       onChange={(e) => {
                         handleEditPrice(e, record.code)
                       }}
+                      style={{ display: "flex", flexDirection: "column" }}
                     >
-                      <Radio value={newProd?.price || 0}>
-                        {newProd?.price || 0}
-                      </Radio>
-                      <Radio value={oldProd?.price || 0}>
+                      {/* <Radio
+                        value={oldProd?.price || 0}
+                        disabled={(oldProd?.price || 0) === 0}
+                      >
                         {oldProd?.price || 0}
-                      </Radio>
+                      </Radio> */}
+                      {/* {_priceHistoryList.length === 0 && (
+                        <Radio value={newProd?.price || 0}>
+                          {newProd?.price || 0}
+                        </Radio>
+                      )} */}
+                      {_priceHistoryList.map((price) => {
+                        return (
+                          <Radio value={price || 0} disabled={price === 0}>
+                            {price || 0}
+                          </Radio>
+                        )
+                      })}
                     </Radio.Group>
                   }
                 >
@@ -175,6 +234,7 @@ function ProductPurchased({
                   />
                 </Popconfirm>
               )
+              // )
             },
           },
           {
@@ -324,6 +384,19 @@ const ActionButton = ({
   handleEditing,
   setEditableId,
 }) => {
+  const [prodList, setProdList] = useState([])
+  const [groupHeaderSelect, setGroupHeaderSelect] = useState("")
+  useEffect(() => {
+    if (groupHeaderSelect === "") {
+      setProdList(productList)
+    } else {
+      const productListFilter = productList.filter(
+        (data) => data[ProductsClass.GROUP_HEADER] === groupHeaderSelect
+      )
+      setProdList(productListFilter)
+    }
+  }, [productList, groupHeaderSelect])
+
   return (
     <div
       style={{
@@ -343,14 +416,39 @@ const ActionButton = ({
         buttonLabel="Add Product"
         size="medium"
         title="Products"
-        width="375px"
+        width={720}
       >
         <Space
           direction="vertical"
           wrap
           style={{ width: "100%", justifyContent: "center" }}
         >
-          {productList.map((obj, index) => {
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Select
+              value={groupHeaderSelect}
+              onChange={(value) => setGroupHeaderSelect(value)}
+              style={{ width: "200px", textAlign: "center" }}
+            >
+              <Option value="">All</Option>
+              {productList.map((data) => {
+                return (
+                  <Option
+                    key={data?.no}
+                    value={data[ProductsClass.GROUP_HEADER]}
+                  >
+                    {data[ProductsClass.GROUP_HEADER]}
+                  </Option>
+                )
+              })}
+            </Select>
+          </div>
+          {prodList.map((obj, index) => {
             const customCol = [
               {
                 title: "Code",
@@ -359,6 +457,17 @@ const ActionButton = ({
                   return <span style={{ fontSize: "10px" }}>{data}</span>
                 },
                 width: "12rem",
+                filters: [
+                  ...obj[ProductsClass.PRODUCT_LIST].map((_data) => {
+                    return {
+                      text: _data.code,
+                      value: _data.code,
+                    }
+                  }),
+                ],
+                onFilter: (value, record) => record.code.indexOf(value) === 0,
+                sorter: (a, b) => a.code.length - b.code.length,
+                sortDirections: ["descend"],
               },
               {
                 title: "Description",

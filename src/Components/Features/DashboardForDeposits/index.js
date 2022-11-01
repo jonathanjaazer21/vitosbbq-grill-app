@@ -21,6 +21,7 @@ import transformedSched from "../TableHandler/transformedSched"
 import sorting from "Helpers/sorting"
 import { UnauthorizedContext } from "Error/Unauthorized"
 import classes from "./deposit.module.css"
+import BranchClass from "Services/Classes/BranchClass"
 const { Option } = Select
 
 function DashboardForDeposits() {
@@ -31,15 +32,28 @@ function DashboardForDeposits() {
   const [accountDestination, setAccountDestination] = useState("BDO / 981")
   const [isLoading, setIsLoading] = useState(false)
   const [amount, setAmount] = useState(0)
+  const [depositAccounts, setDepositAccounts] = useState([])
   useEffect(() => {
     if (user?.branchSelected) {
       getPayments()
+      getDepositAccounts(user?.branchSelected)
     }
   }, [user])
 
   useEffect(() => {
     handleDate(new Date())
   }, [dataSource])
+
+  const getDepositAccounts = async (branch) => {
+    const data = await BranchClass.getDataByFieldName(
+      BranchClass.BRANCH_NAME,
+      branch
+    )
+    if (data.length > 0) {
+      const depositAccounts = data[0][BranchClass.DEPOSIT_ACCOUNTS]
+      setDepositAccounts(depositAccounts)
+    }
+  }
 
   const columns = [
     {
@@ -267,10 +281,9 @@ function DashboardForDeposits() {
                   }
                 }}
               >
-                <Option value="BDO / 981">BDO / 981</Option>
-                <Option value="BDO / 609">BDO / 609</Option>
-                <Option value="MBTC 909">MBTC 909</Option>
-                <Option value="MBTC 895">MBTC 895</Option>
+                {depositAccounts.map((account) => {
+                  return <Option value={account}>{account}</Option>
+                })}
               </Select>
             </Space>
             <Space>

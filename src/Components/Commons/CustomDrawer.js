@@ -9,7 +9,7 @@ function CustomDrawer({
   Icon = <></>,
   buttonLabel = "",
   size = "large",
-  width = "375px",
+  width = 375,
   Footer = <></>,
   placement = "right",
   bodyStyle = {},
