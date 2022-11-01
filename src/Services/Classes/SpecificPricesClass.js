@@ -5,6 +5,7 @@ import {
   STRING_TYPE,
 } from "Constants/types"
 import Base from "Services/Base"
+import { produceUpdatedPriceHistories } from "./NewProductsClass"
 
 export default class SpecificPricesClass {
   static COLLECTION_NAME = "specificPrices"
@@ -15,12 +16,33 @@ export default class SpecificPricesClass {
     return Base.getDataById(this.COLLECTION_NAME, id)
   }
 
-  static updateDataById(id, data) {
-    return Base.updateDataById(this.COLLECTION_NAME, id, data)
+  static async updateDataById(id, data) {
+    const result = await Base.updateDataById(this.COLLECTION_NAME, id, data)
+    return result
   }
 
-  static setDataById(id, data) {
-    return Base.setDataById(this.COLLECTION_NAME, id, data)
+  static async setDataById(id, data) {
+    const result = await Base.setDataById(this.COLLECTION_NAME, id, data)
+    const priceHistories = await Base.getData("specificPriceHistories")
+    console.log("result priceHistories", priceHistories)
+    console.log("result Specific", result)
+    const updatedPriceHistories = []
+    for (const key in result) {
+      if (key !== "_id") {
+        const updatedData = { code: key, price: result[key] }
+        const additionalFields = { orderVia: result?._id }
+        updatedPriceHistories.push(
+          await produceUpdatedPriceHistories(
+            updatedData,
+            priceHistories,
+            "specificPriceHistories",
+            additionalFields
+          )
+        )
+      }
+    }
+    console.log("updatedPriceHistories", updatedPriceHistories)
+    return result
   }
 
   static getDataBySort(customSort = []) {

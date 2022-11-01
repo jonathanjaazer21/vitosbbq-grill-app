@@ -161,7 +161,6 @@ function OrderDetails({
 
   const handleChanges = (fieldName, value) => {
     setIsTouched(true)
-    console.log("is this field", fieldName)
     const _dataValue = { ...dataValue }
     _dataValue[fieldName] = value
     setDataValue(_dataValue)

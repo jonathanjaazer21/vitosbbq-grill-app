@@ -29,7 +29,7 @@ export default function useProductPurchased(
   const [priceOptionsNewProductData, setPricesOptionsNewProductData] = useState(
     []
   )
-  console.log("orderData", orderData)
+
   useEffect(() => {
     if (data.length > 0 || newProductData.length > 0) {
       const _data = producedProductListWithGroupAndAmounts(data)
@@ -108,6 +108,7 @@ export default function useProductPurchased(
               (orderVia || "").includes("FP") ||
               (orderVia || "").includes("ZAP") ||
               (orderVia || "").includes("GBF") ||
+              (orderVia || "").includes("GF") ||
               (orderVia || "").includes("MMF")
             ) {
               if (orderData[SchedulersClass.ORDER_VIA]) {
@@ -138,7 +139,6 @@ export default function useProductPurchased(
                 }
               }
             }
-
             _codeObjList.push({ ...productObj })
           }
         }

@@ -229,9 +229,10 @@ export default class Base {
     console.log("data to be updated", data)
     try {
       const docRef = doc(db, collectionName, id)
-      updateDoc(docRef, {
+      await updateDoc(docRef, {
         ...data,
       })
+      return data
     } catch (err) {
       console.log("error during update", err)
       throw new Error(err.code)
@@ -248,6 +249,7 @@ export default class Base {
         },
         { merge: true }
       )
+      return { _id: id, ...data }
     } catch (err) {
       throw new Error(err.code)
     }

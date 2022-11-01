@@ -4,6 +4,7 @@ import {
   NUMBER_TYPE,
   STRING_TYPE,
 } from "Constants/types"
+import { sortArray } from "Helpers/sorting"
 import Base from "Services/Base"
 
 export default class NewProductsClass {
@@ -15,8 +16,17 @@ export default class NewProductsClass {
     return Base.getDataById(this.COLLECTION_NAME, id)
   }
 
-  static updateDataById(id, data) {
-    return Base.updateDataById(this.COLLECTION_NAME, id, data)
+  static async updateDataById(id, data) {
+    const result = await Base.updateDataById(this.COLLECTION_NAME, id, data)
+    const updatedPriceHistories = []
+    const priceHistories = await Base.getData("priceHistories")
+    for (const obj of result.productList) {
+      updatedPriceHistories.push(
+        await produceUpdatedPriceHistories(obj, priceHistories)
+      )
+    }
+    console.log("updatedPriceHistories", updatedPriceHistories)
+    return result
   }
   static getDataBySort(customSort = []) {
     return Base.getDataBySort(
@@ -69,5 +79,46 @@ export default class NewProductsClass {
         [this.DESCRIPTION]: STRING_TYPE,
       },
     },
+  }
+}
+
+export const produceUpdatedPriceHistories = async (
+  resultObj,
+  priceHistories,
+  collectionName = "priceHistories",
+  additionalFields = {}
+) => {
+  const priceHistory = priceHistories.find((_data) => _data[resultObj.code])
+  const currentPrice = resultObj?.price
+  let _id = ""
+  let currentPriceHistory = []
+  if (priceHistory) {
+    currentPriceHistory = priceHistory[resultObj.code]
+    _id = priceHistory._id
+    const removedDuplicatesArray = [...new Set(currentPriceHistory)]
+    const sortedCurrentPriceHistory = sortArray(removedDuplicatesArray)
+    if (sortedCurrentPriceHistory.length >= 3) {
+      sortedCurrentPriceHistory.shift()
+    }
+    if (!sortedCurrentPriceHistory.includes(currentPrice)) {
+      sortedCurrentPriceHistory.push(currentPrice)
+      await Base.updateDataById(collectionName, priceHistory._id, {
+        ...additionalFields,
+        [resultObj.code]: sortedCurrentPriceHistory,
+      })
+    }
+    return {
+      _id,
+      [resultObj.code]: sortedCurrentPriceHistory,
+    }
+  }
+  currentPriceHistory.push(currentPrice)
+  const result = await Base.addData(collectionName, {
+    ...additionalFields,
+    [resultObj.code]: currentPriceHistory,
+  })
+  return {
+    _id: result?._id,
+    [resultObj.code]: currentPriceHistory,
   }
 }
