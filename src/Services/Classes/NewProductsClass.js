@@ -9,8 +9,9 @@ import Base from "Services/Base"
 
 export default class NewProductsClass {
   static COLLECTION_NAME = "newProducts"
-  static getData() {
-    return Base.getData(this.COLLECTION_NAME)
+  static async getData() {
+    const result = await Base.getData(this.COLLECTION_NAME)
+    return result
   }
   static getDataById(id) {
     return Base.getDataById(this.COLLECTION_NAME, id)
@@ -25,7 +26,6 @@ export default class NewProductsClass {
         await produceUpdatedPriceHistories(obj, priceHistories)
       )
     }
-    console.log("updatedPriceHistories", updatedPriceHistories)
     return result
   }
   static getDataBySort(customSort = []) {
