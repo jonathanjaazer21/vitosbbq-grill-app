@@ -1,9 +1,16 @@
-import { Button } from "antd"
+import { Button, message } from "antd"
+import { sortArray } from "Helpers/sorting"
 import { forEach } from "lodash"
 import React, { useEffect, useState } from "react"
+import PriceHistoriesClass from "Services/Classes/priceHistoriesClass"
 import EditableTag from "./PriceHistoryEditableTag"
 
-function PriceHistory({ defaultTags = [], id }) {
+function PriceHistory({
+  defaultTags = [],
+  id,
+  productCode,
+  addHistory = () => {},
+}) {
   const [initializedTags, setInitializedTags] = useState([])
   const [tags, setTags] = useState([])
 
@@ -26,8 +33,26 @@ function PriceHistory({ defaultTags = [], id }) {
     return tagState
   }
 
-  const handleSave = () => {
-    setInitializedTags(tags)
+  const handleSave = async () => {
+    const convertPricesToNumber = tags.map((price) => Number(price))
+    if (productCode && id) {
+      PriceHistoriesClass.setDataById(id, {
+        [productCode]: sortArray(convertPricesToNumber),
+      })
+      message.success("Updated successfully")
+    } else {
+      const result = await PriceHistoriesClass.addData({
+        [productCode]: sortArray(convertPricesToNumber),
+      })
+      if (result._id) {
+        message.success("Updated successfully")
+        addHistory({
+          [productCode]: sortArray(convertPricesToNumber),
+          _id: result._id,
+        })
+      }
+    }
+    setInitializedTags(sortArray(tags))
   }
 
   const tagsUsed = initializedTags.length > 0 ? initializedTags : defaultTags
@@ -53,7 +78,7 @@ function PriceHistory({ defaultTags = [], id }) {
             size="small"
             onClick={() => {
               setInitializedTags([])
-              setInitializedTags([...defaultTags])
+              setInitializedTags([...tagsUsed])
             }}
           >
             Cancel

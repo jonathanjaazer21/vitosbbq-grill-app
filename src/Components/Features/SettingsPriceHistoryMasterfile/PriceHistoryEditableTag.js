@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react"
 import CustomInput from "Components/Commons/CustomInput"
 import styled from "styled-components"
 import AutoSelect from "Components/Commons/AutoSelect"
+import { sortArray, sortByNumber } from "Helpers/sorting"
 
 function PriceHistoryEditableTag({
   tags = [],
@@ -40,20 +41,22 @@ function PriceHistoryEditableTag({
 
   const mergeDuplicates = (arrayOfStrings) => {
     const newArrayOfStrings = []
-    let count = arrayOfStrings.length - 3
-    for (const value of arrayOfStrings) {
-      if (arrayOfStrings.length > 3) {
-        if (count > arrayOfStrings.length - 3) {
-          if (!newArrayOfStrings.includes(value)) {
-            newArrayOfStrings.push(value)
+    const removedDuplicates = [
+      ...new Set(arrayOfStrings.map((price) => Number(price))),
+    ]
+    let count = removedDuplicates.length - 3
+    for (const value of removedDuplicates) {
+      if (!newArrayOfStrings.includes(Number(value))) {
+        if (removedDuplicates.length > 3) {
+          if (count > removedDuplicates.length - 3) {
+            newArrayOfStrings.push(Number(value))
           }
-        }
-        count++
-      } else {
-        if (!newArrayOfStrings.includes(value)) {
-          newArrayOfStrings.push(value)
+          count++
+        } else {
+          newArrayOfStrings.push(Number(value))
         }
       }
+      console.log("loaded", newArrayOfStrings)
     }
     setNewTags(newArrayOfStrings)
   }

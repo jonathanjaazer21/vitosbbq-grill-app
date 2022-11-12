@@ -7,7 +7,8 @@ import PriceHistory from "./PriceHistory"
 
 function SettingsPriceHistoryMasterfile() {
   const [products] = useGetDocuments(ProductsClass)
-  const [priceHistories] = useGetDocuments(PriceHistoriesClass)
+  const [priceHistories, loadHistories, addPriceHistory] =
+    useGetDocuments(PriceHistoriesClass)
 
   const findHistoryCode = (code) => {
     for (const obj of priceHistories) {
@@ -47,8 +48,10 @@ function SettingsPriceHistoryMasterfile() {
                       if (record.price === 0) return <></>
                       return (
                         <PriceHistory
+                          productCode={value}
                           defaultTags={priceHistory?.list}
                           id={priceHistory.id}
+                          addHistory={(data) => addPriceHistory({ ...data })}
                         />
                       )
                     },
