@@ -269,7 +269,15 @@ function OrderForm({
           delete data["customPriceSPORK W/ KNIFE"]
         }
       }
+      // new integrated solution: for this => this is a resolution for the field naming error in firebase since previous data contains this field
+      for (const key in data) {
+        if (key.includes("/")) {
+          delete data[key]
+        }
+      }
       //////
+
+      console.log("data sb", data)
 
       if (typeof sched[SchedulersClass.ORDER_VIA] === "undefined") {
         data[SchedulersClass.ORDER_VIA] = null

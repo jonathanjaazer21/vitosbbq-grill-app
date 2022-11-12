@@ -1,8 +1,10 @@
-import React from "react"
+import { UnauthorizedContext } from "Error/Unauthorized"
+import React, { useContext } from "react"
 import UsersClass from "Services/Classes/UsersClass"
 import TableHandler from "../SettingsTableHandler"
 
 function SettingsUserMasterfile() {
+  const { user } = useContext(UnauthorizedContext)
   return (
     <>
       <TableHandler
@@ -12,6 +14,7 @@ function SettingsUserMasterfile() {
         onCell={() => {
           return { style: { verticalAlign: "top" } }
         }}
+        userId={user._id}
       />
     </>
   )
