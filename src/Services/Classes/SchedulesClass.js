@@ -22,8 +22,7 @@ import { startAt } from "@firebase/firestore"
 
 export default class SchedulersClass {
   static COLLECTION_NAME = "schedules"
-  static getData(userId) {
-    console.log("userId", userId)
+  static getData() {
     return Base.getData(this.COLLECTION_NAME)
   }
   static getDataBySort(customSort = []) {
