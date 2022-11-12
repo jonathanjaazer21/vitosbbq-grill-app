@@ -40,7 +40,9 @@ export default function useGetDocuments(ServiceClass, config) {
         setData(_data)
         setIsLoading(false)
       } else {
-        const _data = await ServiceClass.getData(user.branchSelected)
+        const _data = await ServiceClass.getData(
+          config.userId ? config.userId : user.branchSelected
+        )
         setData(_data)
         setIsLoading(false)
       }

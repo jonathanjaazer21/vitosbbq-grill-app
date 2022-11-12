@@ -5,7 +5,7 @@ import CustomInput from "Components/Commons/CustomInput"
 import styled from "styled-components"
 import AutoSelect from "Components/Commons/AutoSelect"
 
-function EditableTag({
+function PriceHistoryEditableTag({
   tags = [],
   exposeData = () => {},
   setIsTouched = () => {},
@@ -40,9 +40,19 @@ function EditableTag({
 
   const mergeDuplicates = (arrayOfStrings) => {
     const newArrayOfStrings = []
+    let count = arrayOfStrings.length - 3
     for (const value of arrayOfStrings) {
-      if (!newArrayOfStrings.includes(value)) {
-        newArrayOfStrings.push(value)
+      if (arrayOfStrings.length > 3) {
+        if (count > arrayOfStrings.length - 3) {
+          if (!newArrayOfStrings.includes(value)) {
+            newArrayOfStrings.push(value)
+          }
+        }
+        count++
+      } else {
+        if (!newArrayOfStrings.includes(value)) {
+          newArrayOfStrings.push(value)
+        }
       }
     }
     setNewTags(newArrayOfStrings)
@@ -69,7 +79,6 @@ function EditableTag({
     setNewTags(_tags)
     setIsTouched(true)
   }
-
   const editTag = (value, index) => {
     if (newTags.includes(value)) {
       message.warning(`${value} already exist`)
@@ -101,13 +110,15 @@ function EditableTag({
         )
       })}
       {visibleInput ? (
-        <RenderAddField
-          dropdowns={dropdowns}
-          addTag={addTag}
-          inputRef={inputRef}
-          inputType={inputType}
-          {...rest}
-        />
+        newTags.length <= 4 && (
+          <RenderAddField
+            dropdowns={dropdowns}
+            addTag={addTag}
+            inputRef={inputRef}
+            inputType={inputType}
+            {...rest}
+          />
+        )
       ) : (
         <StyledAddButton onClick={() => setVisibleInput(true)} color="cyan">
           <PlusOutlined /> New
@@ -145,6 +156,7 @@ const RenderEditField = (props) => {
         onPressEnter={() => props.setEditableIndex(null)}
         ref={props.editInputRef}
         type={props.inputType}
+        min={1}
       />
     )
   }
@@ -171,6 +183,7 @@ const RenderAddField = (props) => {
         size="small"
         ref={props.inputRef}
         type={props.inputType}
+        min={1}
       />
     )
   }
@@ -180,37 +193,4 @@ const StyledAddButton = styled(Tag)`
   cursor: pointer;
 `
 
-export default EditableTag
-
-// <AutoSelect
-//   value={tag}
-//   options={["Dashboard", "Ronac"]}
-//   onChange={(value) => {
-//     editTag(value, index)
-//     setEditableIndex(null)
-//   }}
-//   onBlur={() => setEditableIndex(null)}
-//   onPressEnter={() => setEditableIndex(null)}
-// />
-// <Input
-//   value={tag}
-//   ref={editInputRef}
-//   onChange={(e) => {
-//     editTag(e.target.value, index)
-//   }}
-//   onBlur={() => setEditableIndex(null)}
-//   onPressEnter={() => setEditableIndex(null)}
-// />
-
-// <AutoSelect
-//   options={["Libis", "Ronac"]}
-//   onChange={(value) => addTag(value)}
-//   onPressEnter={(value) => addTag(value)}
-//   onBlur={(value) => addTag(value)}
-// />
-// <Input
-//   onPressEnter={(e) => addTag(e.target.value)}
-//   onBlur={(e) => addTag(e.target.value)}
-//   size="small"
-//   ref={inputRef}
-// />
+export default PriceHistoryEditableTag

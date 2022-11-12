@@ -14,6 +14,7 @@ import {
   MASTER_DATA,
   MONTHLY_SALES_SUMMARY,
   PAYMENT_TRANSACTION,
+  PRICE_HISTORY_MASTERFILE,
   PRODUCTS_MASTERFILE,
   REPORTS,
   ROLES_MASTERFILE,
@@ -40,6 +41,7 @@ export default function (modules) {
       display: modules.includes(LABEL[DASHBOARD]),
       component: MainPage,
       path: "/dashboard",
+      imageUrl: "",
       subMenu: [
         {
           title: LABEL[GRILL_RESERVATION],
@@ -49,6 +51,8 @@ export default function (modules) {
           path: "/dashboard/grillReservation",
           component: MainPage,
           display: modules.includes(LABEL[GRILL_RESERVATION]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/employee-checking-date-important-event-deadline-calendar-person-holding-pen-flat-vector-illustration-time-management-schedule-agenda-concept-banner-website-design-landing-web-page_74855-24512.jpg?w=1380&t=st=1667323947~exp=1667324547~hmac=51d8fee933abf229e2faf43649627c880ee47a6e5e7bb7308945f4b7acdb0af6",
         },
         {
           title: LABEL[PAYMENT_TRANSACTION],
@@ -58,6 +62,8 @@ export default function (modules) {
           path: "/dashboard/paymentTransaction",
           component: DashboardTransactionPage,
           display: modules.includes(LABEL[PAYMENT_TRANSACTION]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/man-paying-online-getting-sales-slip-receipt-laptop-terminal-flat-vector-illustration-payment-money-transaction_74855-13151.jpg?w=996&t=st=1667324275~exp=1667324875~hmac=b1a6965f5842b0463086da81af753133cce09e04d70b57c3e8b04ff06e04032b",
         },
         {
           title: LABEL[FOR_DEPOSITS],
@@ -67,6 +73,8 @@ export default function (modules) {
           path: "/dashboard/forDeposits",
           // component: MainPage,
           display: modules.includes(LABEL[FOR_DEPOSITS]),
+          imageUrl:
+            "https://img.freepik.com/free-photo/credit-card-payment-buy-sell-products-service_1150-16379.jpg?w=1380&t=st=1667324668~exp=1667325268~hmac=7910d93493a5dfd1d4bbe4c5089a2c3e4d339bf7c7bf3f4bd388557776261279",
         },
       ],
     },
@@ -80,6 +88,7 @@ export default function (modules) {
       display: modules.includes(LABEL[REPORTS]),
       path: `/${REPORTS}`,
       component: MainPage,
+      imageUrl: "",
       subMenu: [
         // {
         //   title: LABEL[TRANSACTION],
@@ -125,6 +134,8 @@ export default function (modules) {
           path: "/reports/customerReports",
           component: MainPage,
           display: modules.includes(LABEL[CUSTOMER_REPORTS]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/online-community_24877-50878.jpg?w=826&t=st=1667325054~exp=1667325654~hmac=bc13ecb8ddd30d7938bc1f7954a32b6d86416b189780def82834c4f4604800c7",
         },
         {
           title: LABEL[DISCOUNT_OTHERS],
@@ -142,6 +153,8 @@ export default function (modules) {
           active: false,
           path: "/reports/monthlySalesSummary",
           display: modules.includes(LABEL[MONTHLY_SALES_SUMMARY]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/customer-relationship-management-concept-illustration_114360-7652.jpg?w=826&t=st=1667325236~exp=1667325836~hmac=8469fcf07fee2b9ef7fd859f14eab5d1751aea43eee9399d34f65fc7e398807b",
         },
       ],
     },
@@ -154,6 +167,7 @@ export default function (modules) {
       display: modules.includes(LABEL[MASTER_DATA]),
       path: `/${MASTER_DATA}`,
       component: MainPage,
+      imageUrl: "",
       subMenu: [
         {
           title: LABEL[USER_MASTERFILE],
@@ -163,6 +177,8 @@ export default function (modules) {
           path: "/masterData/userMasterFile",
           component: MainPage,
           display: modules.includes(LABEL[USER_MASTERFILE]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/follow-me-social-business-theme-design_24877-50426.jpg?w=826&t=st=1667325373~exp=1667325973~hmac=910760e59d76e03872ecc0fbb54a05441395b659f53a1d65b028e3a30509d07d",
         },
         {
           title: LABEL[BRANCH_MASTERFILE],
@@ -172,6 +188,8 @@ export default function (modules) {
           path: "/masterData/branchMasterFile",
           component: MainPage,
           display: modules.includes(LABEL[BRANCH_MASTERFILE]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/location_53876-59940.jpg?w=826&t=st=1667325314~exp=1667325914~hmac=cc9c54f1dab840feb53514b0c1e3c53198cf5b7d1cfd0423e65a7f3366d3cd0e",
         },
         {
           title: LABEL[DROPDOWN_MASTERFILE],
@@ -181,6 +199,8 @@ export default function (modules) {
           path: "/masterData/dropdownMasterfile",
           component: MainPage,
           display: modules.includes(LABEL[DROPDOWN_MASTERFILE]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/businessman-holding-pencil-big-complete-checklist-with-tick-marks_1150-35019.jpg?w=1380&t=st=1667325693~exp=1667326293~hmac=b92cba32aaa4bfa658f276e42fc256a0302679382db975b5ab1c8dd19ce8c949",
         },
         {
           title: LABEL[ROLES_MASTERFILE],
@@ -190,6 +210,8 @@ export default function (modules) {
           path: "/masterData/rolesMasterfile",
           component: MainPage,
           display: modules.includes(LABEL[ROLES_MASTERFILE]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/business-team-putting-together-jigsaw-puzzle-isolated-flat-vector-illustration-cartoon-partners-working-connection-teamwork-partnership-cooperation-concept_74855-9814.jpg?w=1380&t=st=1667325631~exp=1667326231~hmac=f1c5f10ebcea0aca70b248f0b2082f3e886008d58bf5d1350edbc783354b2a34",
         },
         {
           title: LABEL[PRODUCTS_MASTERFILE],
@@ -199,6 +221,17 @@ export default function (modules) {
           path: "/masterData/productMasterfile",
           component: MainPage,
           display: modules.includes(LABEL[PRODUCTS_MASTERFILE]),
+          imageUrl:
+            "https://img.freepik.com/free-vector/barbecue-food-accessories-flat-icons-set_1284-17109.jpg?w=826&t=st=1667325566~exp=1667326166~hmac=520f5ad9f1cf5b8a04fc16e17bd9f171c798de7f138a813112d73da079af93c2",
+        },
+        {
+          title: LABEL[PRICE_HISTORY_MASTERFILE],
+          key: PRICE_HISTORY_MASTERFILE,
+          dataKey: PRICE_HISTORY_MASTERFILE,
+          active: false,
+          path: "/masterData/priceHistoryMasterfile",
+          component: MainPage,
+          display: modules.includes(LABEL[PRICE_HISTORY_MASTERFILE]),
         },
       ],
     },

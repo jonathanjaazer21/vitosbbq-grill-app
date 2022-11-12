@@ -50,7 +50,7 @@ function UserProfile() {
             Roles
           </CustomTitle>
           <Space>
-            {user?.roles.map((_data) => (
+            {(user?.roles || []).map((_data) => (
               <Tag key={_data} color="magenta">
                 {_data}
               </Tag>

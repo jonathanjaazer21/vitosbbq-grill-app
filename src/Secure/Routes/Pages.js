@@ -11,6 +11,7 @@ import {
   MASTER_DATA,
   MONTHLY_SALES_SUMMARY,
   PAYMENT_TRANSACTION,
+  PRICE_HISTORY_MASTERFILE,
   PRODUCTS_MASTERFILE,
   REPORTS,
   ROLES_MASTERFILE,
@@ -39,6 +40,8 @@ import AnalyticsDailyReport from "Components/Features/AnalyticsDailyReport"
 import DashboardForDeposits from "Components/Features/DashboardForDeposits"
 import MonthlySalesPage from "Pages/MonthlySalesPage"
 import AnalyticsMonthlySales from "Components/Features/AnalyticsMonthlySales"
+import SettingsPriceHistoryMasterfile from "Components/Features/SettingsPriceHistoryMasterfile"
+import Dashboard from "Components/Features/Dashboard"
 
 const iconSize = {
   fontSize: "15rem",
@@ -47,17 +50,20 @@ const iconSize = {
 export default {
   [DASHBOARD]: (
     <MainPage>
-      <DashboardOutlined style={iconSize} />
+      <Dashboard />
+      {/* <DashboardOutlined style={iconSize} /> */}
     </MainPage>
   ),
   [REPORTS]: (
     <MainPage>
-      <FolderOutlined style={iconSize} />
+      <Dashboard mainMenu={REPORTS} />
+      {/* <FolderOutlined style={iconSize} /> */}
     </MainPage>
   ),
   [MASTER_DATA]: (
     <MainPage>
-      <SettingOutlined style={iconSize} />
+      <Dashboard mainMenu={MASTER_DATA} />
+      {/* <SettingOutlined style={iconSize} /> */}
     </MainPage>
   ),
   [GRILL_RESERVATION]: <DashboardGrillingPage />,
@@ -72,6 +78,7 @@ export default {
   [CUSTOMER_REPORTS]: <AnalyticsCustomer />,
   [DAILY_REPORTS]: <AnalyticsDailyReport />,
   [MONTHLY_SALES_SUMMARY]: <MonthlySalesPage />,
+  [PRICE_HISTORY_MASTERFILE]: <SettingsPriceHistoryMasterfile />,
 }
 
 // const Pages = (props) => {
