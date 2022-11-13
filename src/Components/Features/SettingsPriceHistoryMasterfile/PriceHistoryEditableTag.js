@@ -7,6 +7,7 @@ import AutoSelect from "Components/Commons/AutoSelect"
 import { sortArray, sortByNumber } from "Helpers/sorting"
 
 function PriceHistoryEditableTag({
+  orderVia,
   tags = [],
   exposeData = () => {},
   setIsTouched = () => {},
@@ -20,10 +21,8 @@ function PriceHistoryEditableTag({
   const [editableIndex, setEditableIndex] = useState(null)
   const [visibleInput, setVisibleInput] = useState(false)
   useEffect(() => {
-    if (tags.length > 0) {
-      mergeDuplicates(tags)
-    }
-  }, [tags])
+    mergeDuplicates(tags)
+  }, [tags, orderVia])
 
   useEffect(() => {
     inputRef?.current?.focus()
@@ -56,7 +55,6 @@ function PriceHistoryEditableTag({
           newArrayOfStrings.push(Number(value))
         }
       }
-      console.log("loaded", newArrayOfStrings)
     }
     setNewTags(newArrayOfStrings)
   }
@@ -166,7 +164,6 @@ const RenderEditField = (props) => {
 }
 
 const RenderAddField = (props) => {
-  console.log("props rest", props)
   if (props.dropdowns.length > 0) {
     return (
       <AutoSelect

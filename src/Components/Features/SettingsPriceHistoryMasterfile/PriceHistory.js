@@ -3,27 +3,32 @@ import { sortArray } from "Helpers/sorting"
 import { forEach } from "lodash"
 import React, { useEffect, useState } from "react"
 import PriceHistoriesClass from "Services/Classes/priceHistoriesClass"
+import SpecificPriceHistoriesClass from "Services/Classes/specificPriceHistoriesClass"
 import EditableTag from "./PriceHistoryEditableTag"
 
 function PriceHistory({
   defaultTags = [],
   id,
   productCode,
+  orderVia, //optional for partnerMerchant orderVia's and Zap only
   addHistory = () => {},
 }) {
   const [initializedTags, setInitializedTags] = useState([])
   const [tags, setTags] = useState([])
+  useEffect(() => {
+    setInitializedTags(defaultTags)
+  }, [defaultTags, orderVia])
 
   const compareTags = (_tags = [], _initializedTags = []) => {
     let tagState = false
-
     if (_tags.length !== _initializedTags.length) {
       tagState = true
     } else {
-      for (const [index, value] of tags.entries()) {
-        const num1 = Number(_initializedTags[index])
+      for (const value of tags) {
         const num2 = Number(value)
-        tagState = num1 !== num2
+        if (!_initializedTags.includes(num2)) {
+          tagState = !_initializedTags.includes(num2)
+        }
       }
     }
 
@@ -36,20 +41,47 @@ function PriceHistory({
   const handleSave = async () => {
     const convertPricesToNumber = tags.map((price) => Number(price))
     if (productCode && id) {
-      PriceHistoriesClass.setDataById(id, {
-        [productCode]: sortArray(convertPricesToNumber),
-      })
+      if (orderVia) {
+        SpecificPriceHistoriesClass.setDataById(id, {
+          [productCode]: sortArray(convertPricesToNumber),
+        })
+      } else {
+        PriceHistoriesClass.setDataById(id, {
+          [productCode]: sortArray(convertPricesToNumber),
+        })
+      }
+      console.log("id", id)
       message.success("Updated successfully")
     } else {
-      const result = await PriceHistoriesClass.addData({
-        [productCode]: sortArray(convertPricesToNumber),
-      })
-      if (result._id) {
-        message.success("Updated successfully")
-        addHistory({
+      let withOrderVia = orderVia ? { orderVia } : {}
+      if (orderVia) {
+        const result = await SpecificPriceHistoriesClass.addData({
           [productCode]: sortArray(convertPricesToNumber),
-          _id: result._id,
+          ...withOrderVia,
         })
+        if (result._id) {
+          console.log("id", result._id)
+          message.success("Updated successfully")
+          addHistory({
+            [productCode]: sortArray(convertPricesToNumber),
+            _id: result._id,
+            ...withOrderVia,
+          })
+        }
+      } else {
+        const result = await PriceHistoriesClass.addData({
+          [productCode]: sortArray(convertPricesToNumber),
+          ...withOrderVia,
+        })
+        if (result._id) {
+          console.log("id", result._id)
+          message.success("Updated successfully")
+          addHistory({
+            [productCode]: sortArray(convertPricesToNumber),
+            _id: result._id,
+            ...withOrderVia,
+          })
+        }
       }
     }
     setInitializedTags(sortArray(tags))
@@ -60,6 +92,7 @@ function PriceHistory({
     <div style={{ display: "flex", flexDirection: "column" }}>
       <EditableTag
         tags={tagsUsed}
+        orderVia={orderVia} // this is optional partnermerchant and zap only feature for useEffects
         exposeData={(data) => {
           setTags(data)
         }}
