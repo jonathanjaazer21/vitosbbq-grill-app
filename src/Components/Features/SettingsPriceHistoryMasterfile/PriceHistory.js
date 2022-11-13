@@ -50,7 +50,6 @@ function PriceHistory({
           [productCode]: sortArray(convertPricesToNumber),
         })
       }
-      console.log("id", id)
       message.success("Updated successfully")
     } else {
       let withOrderVia = orderVia ? { orderVia } : {}
@@ -60,7 +59,6 @@ function PriceHistory({
           ...withOrderVia,
         })
         if (result._id) {
-          console.log("id", result._id)
           message.success("Updated successfully")
           addHistory({
             [productCode]: sortArray(convertPricesToNumber),
@@ -74,7 +72,6 @@ function PriceHistory({
           ...withOrderVia,
         })
         if (result._id) {
-          console.log("id", result._id)
           message.success("Updated successfully")
           addHistory({
             [productCode]: sortArray(convertPricesToNumber),
