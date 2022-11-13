@@ -10,6 +10,8 @@ function EditableTag({
   exposeData = () => {},
   setIsTouched = () => {},
   dropdowns = [],
+  inputType = "text",
+  ...rest // used in PriceHistoryMasterfile
 }) {
   const inputRef = useRef()
   const editInputRef = useRef()
@@ -89,6 +91,8 @@ function EditableTag({
             editTag={editTag}
             setEditableIndex={setEditableIndex}
             editInputRef={editInputRef}
+            inputType={inputType}
+            {...rest}
           />
         ) : (
           <Tag closable onClose={(e) => removeTag(e, tag)}>
@@ -101,6 +105,8 @@ function EditableTag({
           dropdowns={dropdowns}
           addTag={addTag}
           inputRef={inputRef}
+          inputType={inputType}
+          {...rest}
         />
       ) : (
         <StyledAddButton onClick={() => setVisibleInput(true)} color="cyan">
@@ -134,15 +140,18 @@ const RenderEditField = (props) => {
         onChange={(e) => {
           props.editTag(e.target.value, props.index)
         }}
+        size="small"
         onBlur={() => props.setEditableIndex(null)}
         onPressEnter={() => props.setEditableIndex(null)}
         ref={props.editInputRef}
+        type={props.inputType}
       />
     )
   }
 }
 
 const RenderAddField = (props) => {
+  console.log("props rest", props)
   if (props.dropdowns.length > 0) {
     return (
       <AutoSelect
@@ -152,7 +161,6 @@ const RenderAddField = (props) => {
         }}
         onBlur={(value) => props.addTag(value)}
         onPressEnter={(value) => props.addTag(value)}
-        ref={props.inputRef}
       />
     )
   } else {
@@ -162,6 +170,7 @@ const RenderAddField = (props) => {
         onBlur={(e) => props.addTag(e.target.value)}
         size="small"
         ref={props.inputRef}
+        type={props.inputType}
       />
     )
   }

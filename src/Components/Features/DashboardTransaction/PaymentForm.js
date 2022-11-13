@@ -31,7 +31,7 @@ function PaymentForm({
   enabledButton = true,
   dropdownCollections,
 }) {
-  const [dataIndex, setDataIndex] = useState(null)
+  const [dataIndex, setDataIndex] = useState(null) // if the modified button (Pen icon) is clicked then dataIndex will be filled by its index itself according to list.
   const [data, setData] = useState({
     date: new Date(),
     [SchedulersClass.MODE_PAYMENT]: "",
@@ -66,17 +66,15 @@ function PaymentForm({
 
   const handleChange = (fieldName, value) => {
     if (fieldName === "amount") {
-      const numberValue = Number(value)
-      if (isNaN(numberValue)) return
-
-      const newBalance = Number(balanceDue) - numberValue
-      if (dataIndex === null) {
-        if (newBalance < 0) {
-          message.warning("Amount must not exceed Balance Due")
-          return
-        }
-      }
-      setData({ ...data, [fieldName]: numberValue })
+      if (isNaN(value)) return
+      // const newBalance = Number(balanceDue) - numberValue
+      // if (dataIndex === null) {
+      //   if (newBalance < 0) {
+      //     message.warning("Amount must not exceed Balance Due")
+      //     return
+      //   }
+      // }
+      setData({ ...data, [fieldName]: value })
       return
     }
     setData({ ...data, [fieldName]: value })
@@ -86,7 +84,7 @@ function PaymentForm({
     const _paymentList = [...paymentList]
     let updatedData = { ...data }
     updatedData.date = updatedData?.date || new Date()
-
+    updatedData.amount = parseFloat(updatedData.amount)
     // if add payment is triggered
     if (dataIndex === null) {
       _paymentList.push({ ...updatedData })
@@ -97,7 +95,6 @@ function PaymentForm({
 
     // if update payment is triggered
     if (dataIndex >= 0) {
-      console.log("amountUpdated", totalDue)
       let newBalance =
         totalDue -
         Number(
@@ -107,12 +104,10 @@ function PaymentForm({
           )
         )
 
-      console.log("fixedBalance", fixedDeduction)
       newBalance = newBalance - fixedDeduction
-      console.log("newBalance", newBalance)
       if (Number(updatedData?.amount) > newBalance) {
-        updatedData.amount = newBalance
-        message.info(`Resetted Payment to Remaining balance: ${newBalance}`)
+        // updatedData.amount = newBalance
+        // message.info(`Resetted Payment to Remaining balance: ${newBalance}`)
       }
       updatedData.date = updatedData?.date || new Date()
       _paymentList[dataIndex] = updatedData
@@ -121,6 +116,7 @@ function PaymentForm({
       return
     }
   }
+
   return (
     <div
       style={{

@@ -19,7 +19,10 @@ import StringField from "./StringField"
 import StringFieldArray from "./StringFieldArray"
 import BooleanField from "./BooleanField"
 import ObjectFieldArray from "./ObjectFieldArray"
-function FormHandler({ ServiceClass, back, formSave = () => {} }) {
+function FormHandler(
+  { ServiceClass, back, formSave = () => {} },
+  productData = {}
+) {
   const query = useQuery()
   const id = query.get("id")
   const [collectionData] = useGetDocumentById(ServiceClass, id)

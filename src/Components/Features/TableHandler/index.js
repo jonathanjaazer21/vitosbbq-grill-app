@@ -48,6 +48,14 @@ import {
 import thousandsSeparators from "Helpers/formatNumber"
 import TransactionGroupPayment from "../TransactionGroupPayments"
 import { produceSalesSummary } from "./produceSalesSummary"
+import segregateAdvanceOrders, {
+  advanceOrders,
+  notAdvanceOrders,
+} from "./segregateAdvanceOrders"
+import { produceSalesSummary1 } from "./produceSalesSummary1"
+import { produceSalesSummary2 } from "./produceSalesSummary2"
+import NewProductsClass from "Services/Classes/NewProductsClass"
+import { sortByNumber } from "Helpers/sorting"
 const produceAmount = (value) => {
   return thousandsSeparators(Number(value).toFixed(2))
 }
@@ -77,9 +85,10 @@ function TableHandler(props) {
   const [isFiltered, setIsFiltered] = useState(false)
   const [filteredData, setFilteredData] = useState([])
 
+  const sortedData = sortByNumber(data, SchedulersClass.UTAK_NO)
   return (
     <div style={{ position: "relative" }}>
-      {data.length > 0 && isLoading === false && (
+      {isLoading === false && (
         <div
           style={
             location.pathname === path
@@ -152,6 +161,7 @@ function TableHandler(props) {
                 handleModified(data)
               }}
               hideColumns={hideColumns}
+              productData={props.productData}
             />
           </Route>
         )}
@@ -214,13 +224,27 @@ const ActionButtons = (props) => {
     }
   }, [filterValue, selectedFilter])
 
-  const handleExportExcel = async (_schedules, branch) => {
-    const defaultSheet = await schedulerExcel(
+  const sorted = (_data = []) => {
+    return _data.sort((a, b) => {
+      const dateA = a[SchedulersClass.DATE_START]
+      const dateB = b[SchedulersClass.DATE_START]
+      const formatA = new Date(formatDateFromDatabase(dateA))
+      const formatB = new Date(formatDateFromDatabase(dateB))
+      return formatB.getTime() - formatA.getTime()
+    })
+  }
+
+  const handleExportExcel = async (sched, branch) => {
+    const _schedules = sortByNumber(sched, SchedulersClass.UTAK_NO)
+    console.log("_schedules", _schedules)
+    const newProductData = await NewProductsClass.getData()
+    const defaultSheet = await segregateAdvanceOrders(
       _schedules,
       productData,
-      "",
-      branch
+      branch,
+      newProductData
     )
+
     const [cashSheet, cashTotal] = await schedulerExcel(
       _schedules.filter((obj) => {
         const source = displayPaymentProp(
@@ -232,80 +256,92 @@ const ActionButtons = (props) => {
       }),
       productData,
       "CASH",
-      branch
+      branch,
+      newProductData
     )
 
     const [rSheet, rTotal] = await schedulerExcel(
       _schedules.filter((obj) => displaySalesType(obj) === "R"),
       productData,
       "R",
-      branch
+      branch,
+      newProductData
     )
 
     const [spwdSheet, spwdTotal] = await schedulerExcel(
       _schedules.filter((obj) => displaySalesType(obj) === "SPWD"),
       productData,
       "SPWD",
-      branch
+      branch,
+      newProductData
     )
 
     const [ddSheet, ddTotal] = await schedulerExcel(
       _schedules.filter((obj) => displaySalesType(obj) === "D/O"),
       productData,
       "DO",
-      branch
+      branch,
+      newProductData
     )
     const [wbSheet, wbTotal] = await schedulerExcel(
       _schedules.filter((obj) => obj[SchedulersClass.ORDER_VIA_WEBSITE]),
       productData,
       "WB",
-      branch
+      branch,
+      newProductData
     )
     const [ppSheet, ppTotal] = await schedulerExcel(
       _schedules.filter((obj) => displaySalesType(obj) === "PP"),
       productData,
       "PP",
-      branch
+      branch,
+      newProductData
     )
 
     const [orderVia, orderViaTotal] = await schedulerExcel(
       _schedules.filter((obj) => obj[SchedulersClass.ORDER_VIA]),
       productData,
       "DIRECT",
-      branch
+      branch,
+      newProductData
     )
 
     const [ppGF, ppGFTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "GBF"),
       productData,
       "PP GBF",
-      branch
+      branch,
+      newProductData
     )
     const [ppMMF, ppMMFTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "MMF"),
       productData,
       "PP MMF",
-      branch
+      branch,
+      newProductData
     )
 
     const [ppDN, ppDNTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "DN"),
       productData,
       "PP DN",
-      branch
+      branch,
+      newProductData
     )
 
     const [ppFP, ppFPTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "FP"),
       productData,
       "PP FP",
-      branch
+      branch,
+      newProductData
     )
     const [ppZAP, ppZAPTotal] = await schedulerExcel(
       _schedules.filter((obj) => displayOrderVia(obj) === "ZAP"),
       productData,
       "PP ZAP",
-      branch
+      branch,
+      newProductData
     )
 
     const [orderViaWB, orderViaWBTotal] = await schedulerExcel(
@@ -472,7 +508,8 @@ const ActionButtons = (props) => {
       }
     }
 
-    const salesSummary = await produceSalesSummary(_schedules, branch)
+    const salesSummary = await produceSalesSummary1(_schedules, branch)
+    const salesSummary2 = await produceSalesSummary2(_schedules, branch)
 
     ExportService.exportExcelReports({
       ...defaultSheet,
@@ -488,9 +525,11 @@ const ActionButtons = (props) => {
       ...wbSheet,
       ...sumRCSheet,
       ...salesSummary,
+      ...salesSummary2,
     })
   }
 
+  const [timer, setTimer] = useState() // Used in an onChange input field filter
   return (
     <StyledContainer enableFilter={enableFilter} wrap>
       <StyledLeftContent enableFilter={enableFilter}>
@@ -547,7 +586,15 @@ const ActionButtons = (props) => {
               <CustomInput
                 onChange={(e) => {
                   if (e.target.value) {
-                    loadDocumentData(SchedulersClass.UTAK_NO, e.target.value)
+                    const utakValue = e.target.value
+                    clearTimeout(timer)
+                    setTimer(
+                      setTimeout(
+                        () =>
+                          loadDocumentData(SchedulersClass.UTAK_NO, utakValue),
+                        1000
+                      )
+                    )
                   } else {
                     clearDocumentData()
                   }

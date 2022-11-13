@@ -183,7 +183,7 @@ export const calculateDiscountScheduler = (record) => {
   // record[SchedulersClass.FIXED_DEDUCTION]?.totalAmountDeducted || 0
   let discAndOthers = 0
   for (const key in record[SchedulersClass.OTHERS]) {
-    discAndOthers = Number(record[SchedulersClass.OTHERS][key])
+    discAndOthers = discAndOthers + Number(record[SchedulersClass.OTHERS][key])
   }
   const discWithFixedDeduction = Number(discAndOthers) + Number(fixedDeduction)
   return thousandsSeparators(discWithFixedDeduction.toFixed(2))
@@ -205,6 +205,8 @@ export const displayPaymentProp = (data, record, fieldName) => {
         ...record[SchedulersClass.PARTIALS][0], //record[SchedulersClass.PARTIALS].length - 1
       }
       return obj[fieldName]
+    } else {
+      return ""
     }
   }
   return data
@@ -222,7 +224,10 @@ export const displaySalesType = (record) => {
   if (record[SchedulersClass.ORDER_VIA]) {
     if (typeof record[SchedulersClass.OTHERS] !== "undefined") {
       for (const key in record[SchedulersClass.OTHERS]) {
-        if (key === "Automatic 50 percent off") {
+        if (
+          key === "Automatic 50 percent off" ||
+          key === "Automatic 20 percent off"
+        ) {
           return "D/O"
         }
         if (key === "Incidents") {
@@ -263,4 +268,17 @@ export const displayOrderVia = (record) => {
     return split2.filter(Boolean)[0]
   }
   return ""
+}
+
+export const getProductPurchases = (record, productCodeList) => {
+  const productCodeQtyList = {}
+  for (const code of productCodeList) {
+    const productCodeQty = record[code]
+    if (typeof productCodeQty !== "undefined") {
+      if (productCodeQty > 0) {
+        productCodeQtyList[code] = record[code]
+      }
+    }
+  }
+  return productCodeQtyList
 }

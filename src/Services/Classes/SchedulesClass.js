@@ -72,6 +72,15 @@ export default class SchedulersClass {
     return Base.getDataByFieldname(this.COLLECTION_NAME, fieldname, value)
   }
 
+  static getDataByFieldnameWithBranch(fieldname, value, branch) {
+    return Base.getDataByFieldnameWithBranch(
+      this.COLLECTION_NAME,
+      fieldname,
+      value,
+      branch
+    )
+  }
+
   static async getDataByKeyword(fieldname, value = "", branchSelected = "") {
     // return Base.getDataByKeyword(this.COLLECTION_NAME, fieldname, value)
     const q = query(
@@ -270,6 +279,7 @@ export default class SchedulersClass {
 
   static PARTIALS = "partials"
   static PARTIAL_DATES_STRING = "partialDates"
+  static CASH_FOR_DEPOSIT = "cashForDeposit"
 
   // this is not included in the database post of data, this is only for viewing in print document particular field
   static TIME_SLOT = "timeSlot"
@@ -283,6 +293,8 @@ export default class SchedulersClass {
   static FIXED_DEDUCTION = "fixedDeduction"
   static IS_VIP = "isVIP"
   static ZAP_NUMBER = "zapNumber"
+  static EXCESS_PAYMENT = "excessPayment"
+  static WITH_FLEXIBLE_PRICES = "withFlexiblePrices"
 
   static PROPERTIES = [
     this._ID,
@@ -320,6 +332,7 @@ export default class SchedulersClass {
     this.TOTAL_DUE,
     this.BALANCE_DUE,
     this.AMOUNT_PAID,
+    this.EXCESS_PAYMENT,
   ]
 
   static TYPES = {
@@ -339,6 +352,7 @@ export default class SchedulersClass {
     [this.INDICATE_REASON]: TEXT_AREA_TYPE,
     [this.BALANCE_DUE]: AMOUNT_TYPE,
     [this.PARTIALS]: ARRAY_OF_OBJECT_TYPE,
+    [this.EXCESS_PAYMENT]: AMOUNT_TYPE,
   }
 
   static LABELS = {
@@ -406,6 +420,7 @@ export default class SchedulersClass {
     [this.AMOUNT_PAID]: "AMOUNT PAID",
     [this.OTHERS]: "OTHERS",
     [this.BALANCE_DUE]: "COLLECTIBLE",
+    [this.EXCESS_PAYMENT]: "OVER PAYMENT",
   }
 }
 /* (

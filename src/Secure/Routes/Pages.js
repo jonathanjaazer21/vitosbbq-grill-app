@@ -4,11 +4,14 @@ import {
   DAILY_REPORTS,
   DASHBOARD,
   DROPDOWN_MASTERFILE,
+  FOR_DEPOSITS,
   GRILL_RESERVATION,
   INCIDENT_REPORTS,
   INVENTORY,
   MASTER_DATA,
+  MONTHLY_SALES_SUMMARY,
   PAYMENT_TRANSACTION,
+  PRICE_HISTORY_MASTERFILE,
   PRODUCTS_MASTERFILE,
   REPORTS,
   ROLES_MASTERFILE,
@@ -34,6 +37,11 @@ import SettingsBranchMasterfile from "Components/Features/SettingsBranchMasterfi
 import AnalyticsIncidents from "Components/Features/AnalyticsIncidents"
 import AnalyticsCustomer from "Components/Features/AnalyticsCustomer"
 import AnalyticsDailyReport from "Components/Features/AnalyticsDailyReport"
+import DashboardForDeposits from "Components/Features/DashboardForDeposits"
+import MonthlySalesPage from "Pages/MonthlySalesPage"
+import AnalyticsMonthlySales from "Components/Features/AnalyticsMonthlySales"
+import SettingsPriceHistoryMasterfile from "Components/Features/SettingsPriceHistoryMasterfile"
+import Dashboard from "Components/Features/Dashboard"
 
 const iconSize = {
   fontSize: "15rem",
@@ -42,22 +50,25 @@ const iconSize = {
 export default {
   [DASHBOARD]: (
     <MainPage>
-      <DashboardOutlined style={iconSize} />
+      <Dashboard />
+      {/* <DashboardOutlined style={iconSize} /> */}
     </MainPage>
   ),
   [REPORTS]: (
     <MainPage>
-      <FolderOutlined style={iconSize} />
+      <Dashboard mainMenu={REPORTS} />
+      {/* <FolderOutlined style={iconSize} /> */}
     </MainPage>
   ),
   [MASTER_DATA]: (
     <MainPage>
-      <SettingOutlined style={iconSize} />
+      <Dashboard mainMenu={MASTER_DATA} />
+      {/* <SettingOutlined style={iconSize} /> */}
     </MainPage>
   ),
   [GRILL_RESERVATION]: <DashboardGrillingPage />,
   [PAYMENT_TRANSACTION]: <DashboardTransactionPage />,
-  [INVENTORY]: <DashboardStoreInventory />,
+  [FOR_DEPOSITS]: <DashboardForDeposits />,
   [USER_MASTERFILE]: <SettingsUserMasterfilePage />,
   [PRODUCTS_MASTERFILE]: <SettingsProductMasterfile />,
   [ROLES_MASTERFILE]: <SettingsRoleMasterfile />,
@@ -66,6 +77,8 @@ export default {
   [INCIDENT_REPORTS]: <AnalyticsIncidents />,
   [CUSTOMER_REPORTS]: <AnalyticsCustomer />,
   [DAILY_REPORTS]: <AnalyticsDailyReport />,
+  [MONTHLY_SALES_SUMMARY]: <MonthlySalesPage />,
+  [PRICE_HISTORY_MASTERFILE]: <SettingsPriceHistoryMasterfile />,
 }
 
 // const Pages = (props) => {

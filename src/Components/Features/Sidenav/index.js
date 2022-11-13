@@ -7,7 +7,6 @@ const { SubMenu } = Menu
 function Sidenav() {
   const history = useHistory()
   const { menus, selectedKeys } = useSelectMenus()
-
   return (
     <Menu
       mode="inline"
@@ -32,7 +31,7 @@ function Sidenav() {
                   onClick={() => {
                     history.push(sub.path)
                   }}
-                  style={{ display: menu.display ? "block" : "none" }}
+                  style={{ display: sub?.display ? "block" : "none" }}
                 >
                   {sub.title}
                 </Menu.Item>

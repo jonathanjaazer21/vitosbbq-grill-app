@@ -10,6 +10,13 @@ export default function useGetDocuments(ServiceClass, config) {
   useEffect(() => {
     loadData()
   }, [ServiceClass])
+
+  useEffect(() => {
+    if (config?.userId) {
+      loadData()
+    }
+  }, [config?.userId])
+
   const loadData = async (_data = {}) => {
     // this is for static data changes triggered from formHandler
     if (Object.keys(_data).length > 0) {
@@ -40,7 +47,9 @@ export default function useGetDocuments(ServiceClass, config) {
         setData(_data)
         setIsLoading(false)
       } else {
-        const _data = await ServiceClass.getData(user.branchSelected)
+        const _data = await ServiceClass.getData(
+          config?.userId ? config.userId : user.branchSelected
+        )
         setData(_data)
         setIsLoading(false)
       }
@@ -49,5 +58,12 @@ export default function useGetDocuments(ServiceClass, config) {
       setIsLoading(false)
     }
   }
-  return [data, loadData]
+
+  const addData = (newData) => {
+    const dataCopy = [...data]
+    dataCopy.push({ ...newData })
+    setData(dataCopy)
+  }
+
+  return [data, loadData, addData]
 }

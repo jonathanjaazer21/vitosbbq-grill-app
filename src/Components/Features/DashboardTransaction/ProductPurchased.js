@@ -1,4 +1,13 @@
-import { Card, Space, Table, Tag } from "antd"
+import {
+  Card,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Popconfirm,
+  Button,
+  Radio,
+} from "antd"
 import MainButton from "Components/Commons/MainButton"
 import React, { useEffect, useState } from "react"
 import CustomModal from "Components/Commons/CustomModal"
@@ -8,11 +17,18 @@ import ProductsClass from "Services/Classes/ProductsClass"
 import CustomInput from "Components/Commons/CustomInput"
 import thousandsSeparators from "Helpers/formatNumber"
 import SchedulersClass from "Services/Classes/SchedulesClass"
+import CustomDrawer from "Components/Commons/CustomDrawer"
+import { InfoCircleOutlined } from "@ant-design/icons"
+import useGetDocuments from "Hooks/useGetDocuments"
+import PriceHistoriesClass from "Services/Classes/priceHistoriesClass"
+import SpecificPriceHistoriesClass from "Services/Classes/specificPriceHistoriesClass"
 
+const { Option } = Select
 function ProductPurchased({
   modifiedData = () => {},
   orderData,
   orderVia = "",
+  formType,
 }) {
   const {
     products,
@@ -25,11 +41,41 @@ function ProductPurchased({
     handleEditPrice,
     totalDue,
     isTouched,
-  } = useProductPurchased(orderData, orderVia)
+    priceOptionsData,
+    priceOptionsNewProductData,
+    codeObjList,
+  } = useProductPurchased(orderData, orderVia, formType)
+  const [priceHistory, setPriceHistory] = useState([])
+  const [specificPriceHistory, setSpecificPriceHistory] = useState([])
+  useEffect(() => {
+    loadPriceHistory()
+    loadSpecificPriceHistory()
+  }, [])
+  console.log("priceHistory", priceHistory)
+  console.log("specific", specificPriceHistory)
+  const loadPriceHistory = async () => {
+    const data = await PriceHistoriesClass.getData()
+    setPriceHistory(data)
+  }
+
+  const loadSpecificPriceHistory = async () => {
+    const data = await SpecificPriceHistoriesClass.getData()
+    setSpecificPriceHistory(data)
+  }
   useEffect(() => {
     const modifiedObj = {}
     for (const key in products) {
-      modifiedObj[key] = 0
+      // this is a resolution for the field naming error in firebase since previous data contains this field
+      // field that contains "/" is not allowed in firebase
+      // programmatically set since there are too many documents that contains this kind of fields
+      if (
+        key.includes("CLONG - P/S - 1 PC") ||
+        key.includes("SPORK W/ KNIFE")
+      ) {
+        // wiil not set a key to the product list
+      } else {
+        modifiedObj[key] = 0
+      }
     }
     if (isTouched) {
       if (dataSource.length > 0) {
@@ -43,7 +89,7 @@ function ProductPurchased({
         }
         modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
         modifiedObj[SchedulersClass.OTHERS] = {}
-        modifiedData(modifiedObj)
+        modifiedData(modifiedObj, products)
       } else {
         modifiedObj[SchedulersClass.TOTAL_DUE] = 0
         modifiedObj[SchedulersClass.OTHERS] = {}
@@ -51,14 +97,35 @@ function ProductPurchased({
       }
     }
     if (orderVia) {
-      modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
-      modifiedData(modifiedObj)
+      // modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
+      // console.log("modifiedObj", modifiedObj)
+      // console.log("dataSource", dataSource)
+      // modifiedData(modifiedObj)
+      if (dataSource.length > 0) {
+        // set default list of products
+        for (const obj of dataSource) {
+          modifiedObj[obj?.code] = obj?.qty
+          let customPrice = `customPrice${obj?.code}`
+          if (typeof obj[customPrice] !== "undefined") {
+            modifiedObj[customPrice] = obj[customPrice]
+          }
+        }
+        modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
+        modifiedData(modifiedObj)
+      } else {
+        modifiedObj[SchedulersClass.TOTAL_DUE] = 0
+        if (isTouched) {
+          modifiedObj[SchedulersClass.OTHERS] = {}
+        }
+        modifiedData(modifiedObj)
+      }
     }
   }, [dataSource, isTouched, totalDue, orderVia])
 
   const sortedProductList = productList.sort(
     (a, b) => a[ProductsClass.NO] - b[ProductsClass.NO]
   )
+
   return (
     <Card
       title="Product Purchased"
@@ -78,6 +145,98 @@ function ProductPurchased({
         pagination={{ pageSize: 4 }}
         dataSource={[...dataSource]}
         columns={[
+          {
+            title: "",
+            key: "action",
+            dataIndex: "action",
+            render: (value, record) => {
+              const customPrice =
+                record[`customPrice${record?.code}`] || record.price
+
+              const oldProd = priceOptionsData.find(
+                (product) => product?.code === record?.code
+              )
+
+              const newProd = priceOptionsNewProductData.find(
+                (product) => product?.code === record?.code
+              )
+
+              let _priceHistoryList = []
+              if (
+                (orderVia || "").includes("FP") ||
+                (orderVia || "").includes("DN") ||
+                (orderVia || "").includes("DD") ||
+                (orderVia || "").includes("GBF") ||
+                (orderVia || "").includes("GF") ||
+                (orderVia || "").includes("MMF") ||
+                (orderVia || "").includes("ZAP")
+              ) {
+                for (const obj of specificPriceHistory) {
+                  if (typeof obj[record?.code] !== "undefined") {
+                    if (obj.orderVia.trim() === orderVia.trim()) {
+                      _priceHistoryList = obj[record?.code]
+                    }
+                  }
+                }
+              } else {
+                for (const obj of priceHistory) {
+                  if (typeof obj[record?.code] !== "undefined") {
+                    _priceHistoryList = obj[record?.code]
+                  }
+                }
+              }
+              // return record?.editable ? (
+              //   <></>
+              // ) : (orderVia || "").includes("FP") ||
+              //   (orderVia || "").includes("DN") ||
+              //   (orderVia || "").includes("DD") ||
+              //   (orderVia || "").includes("GBF") ||
+              //   (orderVia || "").includes("MMF") ||
+              //   (orderVia || "").includes("ZAP") ? (
+              //   <></>
+              // ) : (
+              return (
+                <Popconfirm
+                  placement="right"
+                  title={
+                    <Radio.Group
+                      value={customPrice}
+                      onChange={(e) => {
+                        handleEditPrice(e, record.code)
+                      }}
+                      style={{ display: "flex", flexDirection: "column" }}
+                    >
+                      {/* <Radio
+                        value={oldProd?.price || 0}
+                        disabled={(oldProd?.price || 0) === 0}
+                      >
+                        {oldProd?.price || 0}
+                      </Radio> */}
+                      {/* {_priceHistoryList.length === 0 && (
+                        <Radio value={newProd?.price || 0}>
+                          {newProd?.price || 0}
+                        </Radio>
+                      )} */}
+                      {_priceHistoryList.map((price) => {
+                        return (
+                          <Radio value={price || 0} disabled={price === 0}>
+                            {price || 0}
+                          </Radio>
+                        )
+                      })}
+                    </Radio.Group>
+                  }
+                >
+                  <Button
+                    shape="circle"
+                    type="text"
+                    icon={<InfoCircleOutlined />}
+                  />
+                </Popconfirm>
+              )
+              // )
+            },
+          },
           {
             title: "Code",
             dataIndex: "code",
@@ -108,10 +267,29 @@ function ProductPurchased({
               }
             },
             render: (value, record) => {
-              const isCustomPrice =
-                typeof record[`customPrice${record?.code}`] !== "undefined"
-              const customPrice = record[`customPrice${record?.code}`] || value
-              return editableId === record?.code && isCustomPrice ? (
+              // const isCustomPrice =
+              //   typeof record[`customPrice${record?.code}`] !== "undefined"
+              let customPrice = record[`customPrice${record?.code}`] || value
+              if (
+                (orderVia || "").includes("FP") ||
+                (orderVia || "").includes("DN") ||
+                (orderVia || "").includes("DD") ||
+                (orderVia || "").includes("GBF") ||
+                (orderVia || "").includes("MMF")
+              ) {
+                customPrice = value
+                if (orderData[SchedulersClass.ORDER_VIA_PARTNER]) {
+                  customPrice = record[`customPrice${record?.code}`] || value
+                }
+              }
+
+              if ((orderVia || "").includes("ZAP")) {
+                customPrice = value
+                if (orderData[SchedulersClass.ORDER_VIA_PARTNER]) {
+                  customPrice = record[`customPrice${record?.code}`] || value
+                }
+              }
+              return editableId === record?.code && record?.editable ? (
                 <CustomInput
                   value={customPrice}
                   onChange={handleEditPrice}
@@ -197,6 +375,7 @@ const Due = (props) => {
   )
 }
 
+// this is the drawer popup
 const ActionButton = ({
   productList = [],
   addProduct = () => {},
@@ -205,6 +384,19 @@ const ActionButton = ({
   handleEditing,
   setEditableId,
 }) => {
+  const [prodList, setProdList] = useState([])
+  const [groupHeaderSelect, setGroupHeaderSelect] = useState("")
+  useEffect(() => {
+    if (groupHeaderSelect === "") {
+      setProdList(productList)
+    } else {
+      const productListFilter = productList.filter(
+        (data) => data[ProductsClass.GROUP_HEADER] === groupHeaderSelect
+      )
+      setProdList(productListFilter)
+    }
+  }, [productList, groupHeaderSelect])
+
   return (
     <div
       style={{
@@ -214,18 +406,49 @@ const ActionButton = ({
         position: "relative",
       }}
     >
-      <CustomModal
+      {/* <CustomModal
         title="Product list"
         buttonLabel="Add Product"
         buttonType="default"
         footer={false}
+      > */}
+      <CustomDrawer
+        buttonLabel="Add Product"
+        size="medium"
+        title="Products"
+        width={720}
       >
         <Space
           direction="vertical"
           wrap
           style={{ width: "100%", justifyContent: "center" }}
         >
-          {productList.map((obj, index) => {
+          <div
+            style={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <Select
+              value={groupHeaderSelect}
+              onChange={(value) => setGroupHeaderSelect(value)}
+              style={{ width: "200px", textAlign: "center" }}
+            >
+              <Option value="">All</Option>
+              {productList.map((data) => {
+                return (
+                  <Option
+                    key={data?.no}
+                    value={data[ProductsClass.GROUP_HEADER]}
+                  >
+                    {data[ProductsClass.GROUP_HEADER]}
+                  </Option>
+                )
+              })}
+            </Select>
+          </div>
+          {prodList.map((obj, index) => {
             const customCol = [
               {
                 title: "Code",
@@ -234,6 +457,17 @@ const ActionButton = ({
                   return <span style={{ fontSize: "10px" }}>{data}</span>
                 },
                 width: "12rem",
+                filters: [
+                  ...obj[ProductsClass.PRODUCT_LIST].map((_data) => {
+                    return {
+                      text: _data.code,
+                      value: _data.code,
+                    }
+                  }),
+                ],
+                onFilter: (value, record) => record.code.indexOf(value) === 0,
+                sorter: (a, b) => a.code.length - b.code.length,
+                sortDirections: ["descend"],
               },
               {
                 title: "Description",
@@ -336,7 +570,8 @@ const ActionButton = ({
             )
           })}
         </Space>
-      </CustomModal>
+      </CustomDrawer>
+      {/* </CustomModal> */}
     </div>
   )
 }

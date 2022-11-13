@@ -151,6 +151,7 @@ function Scheduler({ handleNavigate, navigate }) {
     }
     element.style.color = "#333"
   }
+
   const HeaderTemplate = (props) => {
     return (
       <div

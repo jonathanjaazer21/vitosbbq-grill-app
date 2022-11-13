@@ -35,15 +35,22 @@ export default class BranchClass {
   static _ID = "_id"
   static BRANCH_ADDRESS = "branchAddress"
   static BRANCH_NAME = "branchName"
-
-  static PROPERTIES = [this._ID, this.BRANCH_NAME, this.BRANCH_ADDRESS]
+  static DEPOSIT_ACCOUNTS = "depositAccounts"
+  static PROPERTIES = [
+    this._ID,
+    this.BRANCH_NAME,
+    this.BRANCH_ADDRESS,
+    this.DEPOSIT_ACCOUNTS,
+  ]
 
   static LABELS = {
     [this.BRANCH_ADDRESS]: "Address",
     [this.BRANCH_NAME]: "Branch",
+    [this.DEPOSIT_ACCOUNTS]: "Deposit Accounts",
   }
   static TYPES = {
     [this.BRANCH_ADDRESS]: STRING_TYPE,
     [this.BRANCH_NAME]: STRING_TYPE,
+    [this.DEPOSIT_ACCOUNTS]: ARRAY_OF_STRING_TYPE,
   }
 }

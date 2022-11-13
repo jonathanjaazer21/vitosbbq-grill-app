@@ -1,11 +1,12 @@
 import React, { useState } from "react"
 import { useEffect } from "react"
-import { CODE, DESCRIPTION, QUANTITY } from "Restructured/Constants/products"
-import { DATE_END, DATE_START } from "Restructured/Constants/schedules"
-import { Grid } from "Restructured/Styles"
+// import { CODE, DESCRIPTION, QUANTITY } from "Restructured/Constants/products"
+// import { DATE_END, DATE_START } from "Restructured/Constants/schedules"
+// import { Grid } from "Restructured/Styles"
 import { Space } from "antd"
 import FilteringPanelMethods from "../../FilteringPanel/Controllers/FilteringPanelMethods"
 import PrintMethods from "../Controllers/PrintMethods"
+import SchedulersClass from "Services/Classes/SchedulesClass"
 
 function FilteringPanelDocs(props) {
   const [documentPrintInfo, setDocumentPrintInfo] = useState({})
@@ -45,11 +46,11 @@ function FilteringPanelDocs(props) {
       <span>ORDER LIST</span>
       <table style={{ fontSize: "8px", width: "100%" }}>
         <tr style={{ fontWeight: 700, backgroundColor: "#999" }}>
-          <th>DATE</th>
-          <th>SLOT</th>
-          <th>CODE</th>
-          <th>PRODUCT</th>
-          <th>QUANTITY</th>
+          <th align="left">DATE</th>
+          <th align="left">SLOT</th>
+          <th align="left">CODE</th>
+          <th align="left">PRODUCT</th>
+          <th align="left">QUANTITY</th>
         </tr>
         {printDetailsPerSched.map((data, index) => {
           return (
@@ -61,10 +62,12 @@ function FilteringPanelDocs(props) {
               }
             >
               <td>{data.date}</td>
-              <td>{`${data[DATE_START]} - ${data[DATE_END]}`}</td>
-              <td>{data[CODE]}</td>
-              <td>{data[DESCRIPTION]}</td>
-              <td>{data[QUANTITY]}</td>
+              <td>{`${data[SchedulersClass.DATE_START]} - ${
+                data[SchedulersClass.DATE_END]
+              }`}</td>
+              <td>{data["code"]}</td>
+              <td>{data["description"]}</td>
+              <td>{data["quantity"]}</td>
             </tr>
           )
         })}
@@ -85,9 +88,9 @@ function FilteringPanelDocs(props) {
                   : { backgroundColor: "#999" }
               }
             >
-              <td>{data[CODE]}</td>
-              <td>{data[DESCRIPTION]}</td>
-              <td>{data[QUANTITY]}</td>
+              <td>{data["code"]}</td>
+              <td>{data["description"]}</td>
+              <td>{data["quantity"]}</td>
             </tr>
           )
         })}

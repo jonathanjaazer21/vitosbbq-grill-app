@@ -6,8 +6,9 @@ import RolesClass from "./RolesClass"
 
 export default class UsersClass {
   static COLLECTION_NAME = "users"
-  static getData() {
-    return Base.getData(this.COLLECTION_NAME)
+  static async getData(userId = null) {
+    const result = await Base.getData(this.COLLECTION_NAME)
+    return result.filter((data) => data[this._ID] !== userId)
   }
   static getDataById(id) {
     return Base.getDataById(this.COLLECTION_NAME, id)

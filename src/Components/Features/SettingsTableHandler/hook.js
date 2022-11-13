@@ -37,12 +37,14 @@ export default function useTableHandler({
   paginateRequest = false,
   exposeData = () => {},
   modifiedData,
+  userId = null,
 }) {
   const history = useHistory()
   const { path } = useRouteMatch()
   const [collectionData, loadData] = useGetDocuments(ServiceClass, {
     bySort,
     customSort,
+    userId: userId,
   })
 
   const [data, setData] = useState([])

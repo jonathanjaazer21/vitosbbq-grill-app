@@ -47,6 +47,18 @@ function UserProfile() {
         </Space>
         <Space direction="vertical" size={3}>
           <CustomTitle typographyType="text" type="secondary">
+            Roles
+          </CustomTitle>
+          <Space>
+            {(user?.roles || []).map((_data) => (
+              <Tag key={_data} color="magenta">
+                {_data}
+              </Tag>
+            ))}
+          </Space>
+        </Space>
+        <Space direction="vertical" size={3}>
+          <CustomTitle typographyType="text" type="secondary">
             Email
           </CustomTitle>
           <span>{user._id}</span>

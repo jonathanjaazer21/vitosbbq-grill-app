@@ -5,10 +5,18 @@ import {
 import sumArray from "Helpers/sumArray"
 import useGetDocuments from "Hooks/useGetDocuments"
 import React, { useEffect, useState } from "react"
+import NewProductsClass from "Services/Classes/NewProductsClass"
 import ProductsClass from "Services/Classes/ProductsClass"
+import SchedulersClass from "Services/Classes/SchedulesClass"
+import SpecificPricesClass from "Services/Classes/SpecificPricesClass"
 import productStaticPrices from "./productStaticPrices"
-export default function useProductPurchased(orderData, orderVia = "") {
+export default function useProductPurchased(
+  orderData,
+  orderVia = "",
+  formType
+) {
   const [data] = useGetDocuments(ProductsClass)
+  const [newProductData] = useGetDocuments(NewProductsClass)
   const [editableId, setEditableId] = useState(null)
   const [codeObjList, setCodeObjList] = useState([])
   const [productList, setProductList] = useState([])
@@ -16,11 +24,37 @@ export default function useProductPurchased(orderData, orderVia = "") {
   const [dataSource, setDataSource] = useState([])
   const [totalDue, setTotalDue] = useState(0)
   const [isTouched, setIsTouched] = useState(false)
-  // this is for active product button selected load when modified
+  const [specificPrices, setSpecificPrices] = useState([])
+  const [priceOptionsData, setPricesOptionsData] = useState([])
+  const [priceOptionsNewProductData, setPricesOptionsNewProductData] = useState(
+    []
+  )
 
   useEffect(() => {
+    if (data.length > 0 || newProductData.length > 0) {
+      const _data = producedProductListWithGroupAndAmounts(data)
+      const _newProductData =
+        producedProductListWithGroupAndAmounts(newProductData)
+      setPricesOptionsData(_data)
+      setPricesOptionsNewProductData(_newProductData)
+    }
+  }, [data, newProductData])
+  useEffect(() => {
+    loadSpecificPrices()
+  }, [])
+
+  const loadSpecificPrices = async () => {
+    const _specificPrices = await SpecificPricesClass.getData()
+    setSpecificPrices(_specificPrices)
+  }
+
+  // this is for active product button selected load when modified
+  useEffect(() => {
     if (orderData) {
-      const productList = producedProductListOfAllCodes(data)
+      const sourceProductData = orderData.withFlexiblePrices
+        ? newProductData
+        : data
+      const productList = producedProductListOfAllCodes(sourceProductData)
       const checkedProductCodes = []
       for (const key of productList) {
         if (typeof orderData[key] !== "undefined") {
@@ -29,31 +63,106 @@ export default function useProductPurchased(orderData, orderVia = "") {
           }
         }
       }
-      loadProductStates(data, checkedProductCodes)
+      loadProductStates(sourceProductData, checkedProductCodes)
     }
   }, [orderData, codeObjList])
 
   // this is for product class loading
   useEffect(() => {
-    if (data.length > 0) {
+    produceCodeObjList(specificPrices)
+  }, [data, newProductData, orderVia, specificPrices])
+
+  const produceCodeObjList = async (_specificPrices) => {
+    if (data.length > 0 || newProductData.length > 0) {
       setProductList(data)
       loadProductStates(data)
 
       const _codeObjList = []
-      for (const { productList = [] } of data) {
-        for (const obj of productList) {
-          const productObj = { ...obj }
-          productObj.price = productStaticPrices(
-            orderVia,
-            obj?.code,
-            obj?.price
-          )
-          _codeObjList.push(productObj)
+      const addFlexPrices =
+        formType === "add" ? { withFlexiblePrices: true } : {}
+      const _orderData = { ...orderData, ...addFlexPrices }
+
+      if (_orderData?.withFlexiblePrices && newProductData.length > 0) {
+        setProductList(newProductData)
+        loadProductStates(newProductData)
+        for (const { productList = [] } of newProductData) {
+          for (const obj of productList) {
+            const productObj = { ...obj }
+            const price = productStaticPrices(
+              orderVia,
+              obj?.code,
+              obj?.price,
+              _specificPrices
+            )
+            productObj.price = price
+            productObj[`customPrice${obj?.code}`] = price
+            if (typeof _orderData[`customPrice${obj?.code}`] !== "undefined") {
+              productObj[`customPrice${obj?.code}`] =
+                _orderData[`customPrice${obj?.code}`]
+            }
+
+            // for custom price change from ORDER_VIA to ORDER_VIA_PARTNER or ORDER_VIA_WEBSITE
+            if (
+              (orderVia || "").includes("DN") ||
+              (orderVia || "").includes("DD") ||
+              (orderVia || "").includes("FP") ||
+              (orderVia || "").includes("ZAP") ||
+              (orderVia || "").includes("GBF") ||
+              (orderVia || "").includes("GF") ||
+              (orderVia || "").includes("MMF")
+            ) {
+              if (orderData[SchedulersClass.ORDER_VIA]) {
+                productObj.price = price
+                productObj[`customPrice${obj?.code}`] = price
+              } else {
+                if (orderData[SchedulersClass.ORDER_VIA_PARTNER]) {
+                  productObj.price = _orderData[`customPrice${obj?.code}`]
+                  productObj[`customPrice${obj?.code}`] =
+                    _orderData[`customPrice${obj?.code}`]
+                  if ((orderVia || "").includes("ZAP")) {
+                    productObj.price = price
+                    productObj[`customPrice${obj?.code}`] = price
+                  }
+                  if (orderVia === 0) {
+                    productObj.price = 0
+                    productObj[`customPrice${obj?.code}`] = 0
+                  }
+                }
+                if (orderData[SchedulersClass.ORDER_VIA_WEBSITE]) {
+                  productObj.price = _orderData[`customPrice${obj?.code}`]
+                  productObj[`customPrice${obj?.code}`] =
+                    _orderData[`customPrice${obj?.code}`]
+                  if (!(orderVia || "").includes("ZAP")) {
+                    productObj.price = price
+                    productObj[`customPrice${obj?.code}`] = price
+                  }
+                }
+              }
+            }
+            _codeObjList.push({ ...productObj })
+          }
         }
+        setCodeObjList(_codeObjList)
       }
-      setCodeObjList(_codeObjList)
+      if (
+        typeof _orderData?.withFlexiblePrices === "undefined" &&
+        data.length > 0
+      ) {
+        for (const { productList = [] } of data) {
+          for (const obj of productList) {
+            const productObj = { ...obj }
+            productObj.price = productStaticPrices(
+              orderVia,
+              obj?.code,
+              obj?.price
+            )
+            _codeObjList.push(productObj)
+          }
+        }
+        setCodeObjList(_codeObjList)
+      }
     }
-  }, [data, orderVia])
+  }
 
   useEffect(() => {
     if (codeObjList) {
@@ -63,20 +172,51 @@ export default function useProductPurchased(orderData, orderVia = "") {
           const _data = codeObjList.find(
             (obj) => obj[ProductsClass.CODE] === code
           )
-
           const isDataExist = dataSource.find(
             (obj) => obj[ProductsClass.CODE] === code
           )
+
           if (!isDataExist) {
-            const ifPriceEditable =
+            let ifPriceEditable =
               _data[ProductsClass.PRICE] === 0
                 ? {
                     editable: true,
                     [`customPrice${code}`]:
-                      orderData[[`customPrice${code}`]] || 0,
-                    price: orderData[[`customPrice${code}`]] || 0,
+                      orderData[`customPrice${code}`] || 0,
+                    price: orderData[`customPrice${code}`] || 0,
                   }
                 : {}
+
+            if (
+              (orderVia || "").includes("DN") ||
+              (orderVia || "").includes("DD") ||
+              (orderVia || "").includes("FP") ||
+              (orderVia || "").includes("ZAP") ||
+              (orderVia || "").includes("GBF") ||
+              (orderVia || "").includes("MMF")
+            ) {
+            } else {
+              if (
+                typeof orderData[SchedulersClass.WITH_FLEXIBLE_PRICES] !==
+                  "undefined" &&
+                _data[ProductsClass.PRICE] !== 0
+              ) {
+                ifPriceEditable = {
+                  editable: false,
+                  [`customPrice${code}`]:
+                    orderData[`customPrice${code}`] || _data?.price,
+                  price: orderData[`customPrice${code}`] || _data?.price,
+                }
+              }
+
+              if (formType === "add") {
+                ifPriceEditable = {
+                  editable: _data[ProductsClass.PRICE] === 0 ? true : false,
+                  [`customPrice${code}`]: _data?.price,
+                  price: _data?.price,
+                }
+              }
+            }
 
             _dataSource.push({
               ..._data,
@@ -88,7 +228,6 @@ export default function useProductPurchased(orderData, orderVia = "") {
           }
         }
       }
-
       setDataSource(_dataSource)
       handleTotalDue(_dataSource)
     }
@@ -139,14 +278,15 @@ export default function useProductPurchased(orderData, orderVia = "") {
     setIsTouched(true)
   }
 
-  const handleEditPrice = (e) => {
+  const handleEditPrice = (e, optionalId = null) => {
     const value = e.target.value
+    const code = optionalId ? optionalId : editableId
     if (isNaN(value)) return
     if (Number(value) < 0) return
     const _dataSource = [...dataSource]
-    const dataIndex = dataSource.findIndex((obj) => obj?.code === editableId)
+    const dataIndex = dataSource.findIndex((obj) => obj?.code === code)
     const dataSourceObj = { ..._dataSource[dataIndex] }
-    dataSourceObj[`customPrice${editableId}`] = Number(value)
+    dataSourceObj[`customPrice${code}`] = Number(value)
     dataSourceObj.price = Number(value)
     _dataSource[dataIndex] = dataSourceObj
     setDataSource(_dataSource)
@@ -166,5 +306,7 @@ export default function useProductPurchased(orderData, orderVia = "") {
     setEditableId,
     totalDue,
     isTouched,
+    priceOptionsData,
+    priceOptionsNewProductData,
   }
 }

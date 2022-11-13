@@ -24,6 +24,8 @@ import {
   EditFilled,
   DeleteFilled,
   ReloadOutlined,
+  UnorderedListOutlined,
+  PlusCircleOutlined,
 } from "@ant-design/icons"
 import { Flex } from "../Styles"
 import OrderDetails from "./OrderDetails"
@@ -38,6 +40,7 @@ import {
   calculateTotalDueMinusDiscount,
   calculateTotalPayments,
   producedPaymentList,
+  producedProductListOfAllCodes,
 } from "Helpers/collectionData"
 import { formatDateDash, formatDateFromDatabase } from "Helpers/dateFormat"
 import PaymentForm from "./PaymentForm"
@@ -47,9 +50,22 @@ import { UnauthorizedContext } from "Error/Unauthorized"
 import useOrderNoCounter from "Hooks/hookOrderNoCounter"
 import UploadFiles from "../Upload"
 import { useGetUploads } from "../Upload/useGetUploads"
-function OrderForm({ back, formType, modifiedData = () => {} }) {
+import ProductsClass from "Services/Classes/ProductsClass"
+import LogsClass from "Services/Classes/LogsClass"
+import CustomModal from "Components/Commons/CustomModal"
+import sumArray from "Helpers/sumArray"
+import ExcessPaymentsClass from "Services/Classes/ExcessPaymentsClass"
+
+function OrderForm({
+  back,
+  formType,
+  modifiedData = () => {},
+  setAdvanceFilterButton = () => {},
+}) {
+  const [productData] = useGetDocuments(ProductsClass)
   const { user } = useContext(UnauthorizedContext)
   const { handleRemove, handleUpload } = useGetUploads()
+  const [productPurchased, setProductPurchased] = useState({})
   const [generateNewOrder] = useOrderNoCounter()
   const [dropdownCollections] = useGetDocuments(DropdownsClass)
   const [orderData, loadOrderData] = useGetDocumentById(SchedulersClass)
@@ -77,10 +93,22 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
 
   const [fixedDeduction, setFixedDeduction] = useState({})
 
-  console.log("sched", sched)
-  console.log("paymentList", paymentList)
-  console.log("removedPaths", uploads?.removedPaths)
-  console.log("fileList", uploads?.fileList)
+  const [userLogs, setUserLogs] = useState([])
+
+  useEffect(() => {
+    setAdvanceFilterButton("none")
+  }, [])
+
+  useEffect(() => {
+    loadLogs()
+  }, [id])
+
+  const loadLogs = async () => {
+    if (id) {
+      const _data = await LogsClass.getDataByFieldName("_id", id)
+      setUserLogs(_data)
+    }
+  }
 
   const handleTab = (value) => {
     setChannel(value)
@@ -101,7 +129,6 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
       [SchedulersClass.PARTIALS]: paymentList,
     })
     const _discounts = calculateDiscountScheduler({ ...sched })
-    console.log("_discounts", _discounts)
     setTotalDue(_totalDue)
     setBalanceDue(_balanceDue)
     setTotalPayments(_totalPayments)
@@ -188,6 +215,14 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         return b.date - a.date
       })
       setPaymentList(sortedPayments)
+      if (productData.length > 0) {
+        const listOfCodes = producedProductListOfAllCodes(productData)
+        const codesObj = {}
+        for (const code of listOfCodes) {
+          codesObj[code] = _sched[code]
+        }
+        setProductPurchased(codesObj)
+      }
     } else {
       const _sched = { ...sched }
       if (formType === "add") {
@@ -195,10 +230,11 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         _sched[SchedulersClass.DATE_START] = new Date() // this is for default data of dates
         _sched[SchedulersClass.DATE_END] = new Date() //  this is for default data of dates
         _sched[SchedulersClass.BRANCH] = user.branchSelected
+        _sched[SchedulersClass.WITH_FLEXIBLE_PRICES] = true
       }
       setSched(_sched)
     }
-  }, [orderData, user])
+  }, [orderData, user, productData])
 
   useEffect(() => {
     if (channelOption === "partnerMerchant")
@@ -210,7 +246,6 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
     if (channelOption === "direct") setChannel(SchedulersClass.ORDER_VIA)
   }, [channelOption])
 
-  console.log("fixedDedyctuib", sched)
   const handleSave = async () => {
     if (formType === "modified") {
       const data = {
@@ -219,58 +254,188 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         [SchedulersClass.SUBJECT]: sched[SchedulersClass.CUSTOMER],
         ...fixedDeduction,
       }
+
+      // this is a resolution for the field naming error in firebase since previous data contains this field
+      // field that contains "/" is not allowed in firebase
+      if (typeof data["CLONG - P/S - 1 PC"] !== "undefined") {
+        delete data["CLONG - P/S - 1 PC"]
+        if (typeof data["customPriceCLONG - P/S - 1 PC"] !== "undefined") {
+          delete data["customPriceCLONG - P/S - 1 PC"]
+        }
+      }
+      if (typeof data["SPORK W/ KNIFE"] !== "undefined") {
+        delete data["SPORK W/ KNIFE"]
+        if (typeof data["customPriceSPORK W/ KNIFE"] !== "undefined") {
+          delete data["customPriceSPORK W/ KNIFE"]
+        }
+      }
+      // new integrated solution: for this => this is a resolution for the field naming error in firebase since previous data contains this field
+      for (const key in data) {
+        if (key.includes("/")) {
+          delete data[key]
+        }
+      }
+      //////
+
+      console.log("data sb", data)
+
+      if (typeof sched[SchedulersClass.ORDER_VIA] === "undefined") {
+        data[SchedulersClass.ORDER_VIA] = null
+      }
+
+      if (typeof sched.Subject === "undefined") {
+        data.Subject = null
+        data[SchedulersClass.CUSTOMER] = ""
+      }
+
+      if (sched[SchedulersClass.CUSTOMER]) {
+        data.Subject = sched[SchedulersClass.CUSTOMER]
+        data[SchedulersClass.CUSTOMER] = sched[SchedulersClass.CUSTOMER]
+      }
+
+      // remove all product purchased aside from "others" and "totalDue" to be resetted in the next line of this loop
+      for (const key in productPurchased) {
+        if (key === "others" || key === "totalDue") {
+        } else {
+          delete data[key]
+        }
+      }
+
+      // to set the product that contains values greater than 0
+      for (const key in productPurchased) {
+        if (Number(productPurchased[key]) > 0) {
+          data[key] = Number(productPurchased[key])
+        } else {
+          if (typeof orderData[key] !== "undefined") {
+            if (Number(orderData[key]) > 0) {
+              if (typeof productPurchased[key] !== "undefined") {
+                data[key] = productPurchased[key]
+              }
+            }
+          }
+        }
+      }
+
       if (paymentList.length > 0) {
-        console.log("date payment", paymentList[0].date)
         data[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
       }
       if (data[SchedulersClass.PARTIALS]?.length > 0) {
         const _partialDates = []
+        let cashForDeposit = false
         data[SchedulersClass.PARTIALS].forEach((pObj) => {
           _partialDates.push(formatDateDash(pObj?.date || new Date()))
+          if (
+            pObj[SchedulersClass.ACCOUNT_NUMBER] === "Cash" &&
+            pObj[SchedulersClass.MODE_PAYMENT] === "Cash"
+          ) {
+            cashForDeposit = true
+          }
+
+          if (
+            pObj[SchedulersClass.ACCOUNT_NUMBER] === "Cash" &&
+            pObj[SchedulersClass.MODE_PAYMENT] === "BDO / 981"
+          ) {
+            cashForDeposit = false
+          }
         })
         data[SchedulersClass.PARTIAL_DATES_STRING] = _partialDates
+        data[SchedulersClass.CASH_FOR_DEPOSIT] = cashForDeposit
       }
       const result = await SchedulersClass.updateDataById(id, data)
       modifiedData(data)
       setLoadingButton(true)
       handleRemove(uploads?.removedPaths)
       await handleUpload(uploads?.fileList, id)
+      // save to logs
+      await LogsClass.addData({
+        [LogsClass._ID]: id,
+        [LogsClass.ACTION]: "Modified",
+        [LogsClass.DATE]: new Date(),
+        [LogsClass.DISPLAY_NAME]: user?.name,
+        [LogsClass.EMAIL]: user?._id,
+      })
+      // calculate excess payments
+      const amountPaid =
+        paymentList.length > 0 ? sumArray(paymentList, "amount") : 0
+      const excessPayment = totalDue - amountPaid
+      if (excessPayment < 0) {
+        const isExcessPaymentExist =
+          await ExcessPaymentsClass.getDataByFieldName("_id", id)
+        const convertExcessPaymentToPositive = excessPayment * -1
+        if (isExcessPaymentExist.length === 0) {
+          await ExcessPaymentsClass.addData({
+            [ExcessPaymentsClass._ID]: id,
+            [ExcessPaymentsClass.AMOUNT]: convertExcessPaymentToPositive,
+            [ExcessPaymentsClass.DATE]: new Date(),
+            [ExcessPaymentsClass.NAME]: data?.customer,
+          })
+        } else {
+          const _id = isExcessPaymentExist[0]._id
+          await ExcessPaymentsClass.setData(_id, {
+            [ExcessPaymentsClass.AMOUNT]: convertExcessPaymentToPositive,
+            [ExcessPaymentsClass.DATE]: new Date(),
+            [ExcessPaymentsClass.NAME]: data?.customer,
+          })
+        }
+      }
+
       setLoadingButton(false)
       back()
     } else {
       if (user.branchSelected) {
         const newOrderNo = await generateNewOrder(user.branchSelected)
-        console.log("generatedOrderNo", newOrderNo)
         const newSched = {
           ...sched,
           [SchedulersClass.PARTIALS]: paymentList,
           [SchedulersClass.ORDER_NO]: newOrderNo,
           [SchedulersClass.BRANCH]: user.branchSelected,
           ...fixedDeduction,
+          withFlexiblePrices: true,
         }
         // this is for added partial dates string
         if (newSched[SchedulersClass.PARTIALS]?.length > 0) {
           const _partialDates = []
+          let cashForDeposit = false
           newSched[SchedulersClass.PARTIALS].forEach((pObj) => {
+            if (
+              pObj[SchedulersClass.ACCOUNT_NUMBER] === "Cash" &&
+              pObj[SchedulersClass.MODE_PAYMENT] === "Cash"
+            ) {
+              cashForDeposit = true
+            }
+
+            if (
+              pObj[SchedulersClass.ACCOUNT_NUMBER] === "Cash" &&
+              pObj[SchedulersClass.MODE_PAYMENT] === "BDO / 981"
+            ) {
+              cashForDeposit = false
+            }
             _partialDates.push(formatDateDash(pObj?.date || new Date()))
           })
           newSched[SchedulersClass.PARTIAL_DATES_STRING] = _partialDates
+          newSched[SchedulersClass.CASH_FOR_DEPOSIT] = cashForDeposit
         }
 
         try {
-          console.log("newSched", { ...newSched })
           if (paymentList.length > 0) {
-            console.log("date payment", paymentList[0].date)
             newSched[SchedulersClass.DATE_PAYMENT] = paymentList[0].date
           }
+
+          // result contains a collection of data saved
           const result = await SchedulersClass.addData(newSched)
           modifiedData(result)
           setLoadingButton(true)
           handleRemove(uploads?.removedPaths)
           await handleUpload(uploads?.fileList, result?._id)
+          // save to logs
+          await LogsClass.addData({
+            [LogsClass._ID]: result._id,
+            [LogsClass.ACTION]: "Created",
+            [LogsClass.DATE]: new Date(),
+            [LogsClass.DISPLAY_NAME]: user?.name,
+            [LogsClass.EMAIL]: user?._id,
+          })
           setLoadingButton(false)
-          back()
-          console.log("new ID", result)
           back()
         } catch (error) {
           console.log("error", error)
@@ -283,6 +448,14 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
   const handleRemovePayment = (_index) => {
     const _paymentList = paymentList.filter((obj, index) => index !== _index)
     setPaymentList(_paymentList)
+  }
+
+  const handleForDeposit = (_index) => {
+    const paymentListCopy = [...paymentList]
+    const paymentData = paymentList.find((obj, index) => index === _index)
+    paymentData.cashForDeposit = true
+    paymentListCopy[_index] = paymentData
+    setPaymentList(paymentListCopy)
   }
 
   if (formType === "modified" && Object.keys(orderData).length === 0) {
@@ -355,17 +528,29 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
 
           <Col xs={24} sm={24} md={24} lg={12} xl={6}>
             <ProductPurchased
-              modifiedData={(products) => {
-                console.log("sdfsdprod", products)
-                setSched({ ...sched, ...products, _id: id })
+              modifiedData={(products, productCodes = []) => {
+                const schedCopy = { ...sched }
+                for (const key in productCodes) {
+                  if (productCodes[key] === false) {
+                    if (typeof schedCopy[`customPrice${key}`] !== "undefined") {
+                      schedCopy[`customPrice${key}`] = 0
+                    }
+                  }
+                }
+                setProductPurchased({ ...products })
+                setSched({ ...schedCopy, ...products, _id: id })
               }}
               orderData={orderData}
-              orderVia={sched[SchedulersClass.ORDER_VIA_PARTNER]}
+              orderVia={
+                sched[SchedulersClass.ORDER_VIA_PARTNER] ||
+                sched[SchedulersClass.ORDER_VIA_WEBSITE]
+              }
+              formType={formType}
             />
             <br />
             <Card
               title="Discounts and Others"
-              extra={
+              extra={[
                 Object.keys(sched[SchedulersClass.OTHERS] || {}).length > 0 ? (
                   <MainButton
                     shape="circle"
@@ -379,8 +564,8 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
                   />
                 ) : (
                   <></>
-                )
-              }
+                ),
+              ]}
             >
               <Space
                 style={{
@@ -610,6 +795,21 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
                             danger
                             onClick={() => handleRemovePayment(index)}
                           />
+                          {/* {record[SchedulersClass.MODE_PAYMENT] === "Cash" && (
+                            <MainButton
+                              type={record?.cashForDeposit ? "text" : "primary"}
+                              label={
+                                record?.cashForDeposit ? "Pending" : "Unpaid"
+                              }
+                              onClick={() => {
+                                if (record?.cashForDeposit) {
+                                } else {
+                                  handleForDeposit(index)
+                                }
+                              }}
+                              size="small"
+                            />
+                          )} */}
                         </Space>
                       )
                     },
@@ -678,6 +878,44 @@ function OrderForm({ back, formType, modifiedData = () => {} }) {
         >
           {Object.keys(sched).length > 0 && (
             <Space style={{ width: "100%", justifyContent: "flex-end" }}>
+              <CustomModal
+                ButtonIcon={<UnorderedListOutlined />}
+                buttonShape="circle"
+                buttonType="text"
+              >
+                <Table
+                  columns={[
+                    {
+                      title: LogsClass.LABELS[LogsClass.EMAIL],
+                      dataIndex: LogsClass.EMAIL,
+                      key: LogsClass.EMAIL,
+                    },
+                    {
+                      title: LogsClass.LABELS[LogsClass.DISPLAY_NAME],
+                      dataIndex: LogsClass.DISPLAY_NAME,
+                      key: LogsClass.DISPLAY_NAME,
+                    },
+                    {
+                      title: LogsClass.LABELS[LogsClass.ACTION],
+                      dataIndex: LogsClass.ACTION,
+                      key: LogsClass.ACTION,
+                    },
+                    {
+                      title: LogsClass.LABELS[LogsClass.DATE],
+                      dataIndex: LogsClass.DATE,
+                      key: LogsClass.DATE,
+                      render: (data) => {
+                        const formatFromDatabase = formatDateFromDatabase(data)
+                        const formatDate = formatDateDash(formatFromDatabase)
+                        return formatDate
+                      },
+                    },
+                  ]}
+                  dataSource={[...userLogs]}
+                  pagination={false}
+                  size="small"
+                />
+              </CustomModal>
               {loadingButton ? (
                 <MainButton
                   size="large"
@@ -744,10 +982,9 @@ export const StyledContainer = styled.div`
   justify-content: flex-start;
   position: absolute;
   top: 0;
-  height: 85vh;
+  height: 100vh;
   width: 100%;
   z-index: 1000;
-  background-color: transparent;
 `
 
 const StyledHeader = styled(Space)`

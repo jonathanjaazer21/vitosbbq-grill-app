@@ -8,7 +8,7 @@ import {
   PrinterOutlined,
 } from "@ant-design/icons"
 import styled from "styled-components"
-import CustomInput from "Components/Commons/CustomInput"
+// import CustomInput from "Components/Commons/CustomInput"
 import useTableHandler from "./hook"
 import classes from "./table.module.css"
 import {
@@ -22,14 +22,14 @@ import URLNotFound from "Error/URLNotFound"
 import FormHandler from "../FormHandler"
 import FormHandlerAdd from "../FormHandler/FormHandlerAdd"
 import { UnauthorizedContext } from "Error/Unauthorized"
-import FilterOptions from "../FilterOptions"
-import CustomTitle from "Components/Commons/CustomTitle"
-import { DATE_TYPE, STRING_TYPE } from "Constants/types"
-import CustomRangePicker from "Components/Commons/RangePicker"
-import useRangeHandler from "Hooks/useRangeHandler"
-import useGetDocumentsByKeyword from "Hooks/useGetDocumentsByKeyword"
-import DropdownChannel from "./DropdownChannel"
-import AutoSelect from "Components/Commons/AutoSelect"
+// import FilterOptions from "../FilterOptions"
+// import CustomTitle from "Components/Commons/CustomTitle"
+// import { DATE_TYPE, STRING_TYPE } from "Constants/types"
+// import CustomRangePicker from "Components/Commons/RangePicker"
+// import useRangeHandler from "Hooks/useRangeHandler"
+// import useGetDocumentsByKeyword from "Hooks/useGetDocumentsByKeyword"
+// import DropdownChannel from "./DropdownChannel"
+// import AutoSelect from "Components/Commons/AutoSelect"
 function TableHandler(props) {
   const {
     ServiceClass,
