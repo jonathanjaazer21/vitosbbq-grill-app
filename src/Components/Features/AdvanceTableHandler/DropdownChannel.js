@@ -4,13 +4,9 @@ import React from "react"
 import MainButton from "Components/Commons/MainButton"
 
 function DropdownChannel({ history, path }) {
-  const handleButtonClick = (e) => {
-    console.log("click left button", e)
-  }
+  const handleButtonClick = (e) => {}
 
-  const handleMenuClick = (e) => {
-    console.log("click", e)
-  }
+  const handleMenuClick = (e) => {}
 
   const menu = (
     <Menu onClick={handleMenuClick}>

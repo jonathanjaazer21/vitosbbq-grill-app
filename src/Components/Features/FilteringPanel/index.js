@@ -30,7 +30,6 @@ function FilteringPanel({ isToggled = false }) {
     getDataByDate,
   ] = useSchedulerFilter(SchedulersClass)
 
-  console.log("printDataFetched", dataFetched)
   return (
     <Grid style={{ position: "relative" }}>
       {/* <Select

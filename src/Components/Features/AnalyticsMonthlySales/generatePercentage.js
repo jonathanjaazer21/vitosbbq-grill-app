@@ -105,7 +105,6 @@ const reportA = (data, products, productsWithHeaders = []) => {
       finalReport.push(productByPercentage)
     }
   }
-  console.log("finalReport", finalReport)
   finalReport.push(["", totalSumOfProductPurchases, "100%"])
   finalReport.push([])
   return finalReport

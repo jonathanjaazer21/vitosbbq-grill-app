@@ -29,7 +29,6 @@ function FormHandler(
   const [properties, setProperties] = useState([])
   const [modifiedData, setModifiedData] = useState({})
   useEffect(() => {
-    console.log(ServiceClass.COLLECTION_NAME)
     if (ServiceClass.PROPERTIES.length > 0) {
       const newProperties = ServiceClass.PROPERTIES.filter(
         (field) => field !== "_id"
@@ -58,7 +57,6 @@ function FormHandler(
     back()
   }
 
-  console.log("collectionData", collectionData)
   return (
     <>
       {Object.keys(collectionData).length > 0 && (

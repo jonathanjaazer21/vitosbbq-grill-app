@@ -89,7 +89,6 @@ export const produceSalesSummary1 = async (schedules, branch) => {
   const additionalCTrans = []
   if (depositList.length > 0) {
     const details = { ...depositList[0] }
-    console.log("details", details)
     const _data = {
       [SchedulersClass.DATE_ORDER_PLACED]: "",
       [SchedulersClass.DATE_START]: "",
@@ -186,8 +185,6 @@ export const produceSalesSummary1 = async (schedules, branch) => {
     })
   }
 
-  console.log("depositList", additionalDTrans)
-  console.log("d trans", additionalDTrans)
   const [D_TRANS, D_TOTAL, D_COLLECTIBLES] = produceTRANS_NEW(
     [...datePlacePayments, ...additionalDTrans],
     formattedDate,
@@ -364,7 +361,6 @@ const produceReportASummary = (A_TRANS, B_TRANS, C_TRANS) => {
     }
   })
 
-  console.log("B_TRANS", B_TRANS)
   B_TRANS.forEach((arrayData, index) => {
     if (index > 3) {
       if (index !== B_TRANS.length - 1) {

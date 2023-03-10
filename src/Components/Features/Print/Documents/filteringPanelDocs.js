@@ -27,7 +27,6 @@ function FilteringPanelDocs(props) {
       branch,
       dataFetched: _dataFetched,
     }
-    console.log("console", _dataFetched)
     const _orders = FilteringPanelMethods.produceOrders({ ...args })
     const _detailsPerSched = PrintMethods.producePrintDetailsPerSchedule({
       branch,
@@ -37,7 +36,6 @@ function FilteringPanelDocs(props) {
     })
     const _summaryPerProduct =
       PrintMethods.producePrintSummaryPerProduct(_detailsPerSched)
-    console.log("console", _summaryPerProduct)
     setSummary(_summaryPerProduct)
     setPrintDetailsPerSched(_detailsPerSched)
   }

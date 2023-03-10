@@ -151,7 +151,6 @@ const RenderEditField = (props) => {
 }
 
 const RenderAddField = (props) => {
-  console.log("props rest", props)
   if (props.dropdowns.length > 0) {
     return (
       <AutoSelect

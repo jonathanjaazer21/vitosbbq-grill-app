@@ -224,7 +224,6 @@ function DashboardForDeposits() {
         setIsLoading(false)
         message.info("Successfully deposited")
       } catch (e) {
-        console.log("error", e)
         setIsLoading(false)
         message.error("Failed to deposit")
       }

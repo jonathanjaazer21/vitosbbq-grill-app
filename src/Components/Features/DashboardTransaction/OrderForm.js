@@ -277,8 +277,6 @@ function OrderForm({
       }
       //////
 
-      console.log("data sb", data)
-
       if (typeof sched[SchedulersClass.ORDER_VIA] === "undefined") {
         data[SchedulersClass.ORDER_VIA] = null
       }
