@@ -89,9 +89,7 @@ function DailyReportType({ Services, filterBasis, title, back }) {
         [date._d, dateTo._d],
         DATE_PAYMENT
       )
-      console.log("listdata", data)
       let newData = data.filter((row) => dropdowns.includes(row[filterBasis]))
-      console.log("listagain", newData)
       const formattedDataList = []
       for (const obj of newData) {
         const datePaid =
@@ -210,7 +208,6 @@ function DailyReportType({ Services, filterBasis, title, back }) {
     },
   ]
 
-  console.log("dataList", dataList)
   return (
     <>
       <div>

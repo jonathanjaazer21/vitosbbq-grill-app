@@ -2,7 +2,7 @@ import { Card, Col, Row, Select, Table, Typography } from "antd"
 import useGetDocuments from "Hooks/useGetDocuments"
 import React, { useState } from "react"
 import PriceHistoriesClass from "Services/Classes/priceHistoriesClass"
-import ProductsClass from "Services/Classes/ProductsClass"
+import ProductsClass from "Services/Classes/NewProductsClass"
 import SpecificPriceHistoriesClass from "Services/Classes/specificPriceHistoriesClass"
 import SpecificPricesClass from "Services/Classes/SpecificPricesClass"
 import { DirectOrders } from "./DirectOrders"
@@ -37,6 +37,7 @@ function SettingsPriceHistoryMasterfile() {
     return specificProductsByOrderVia[code]
   }
 
+  console.log("products", products)
   return (
     <>
       <div

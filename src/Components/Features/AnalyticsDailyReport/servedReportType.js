@@ -111,7 +111,6 @@ function ServedReportType({ Services, filterBasis, title, back }) {
             })
           }
         }
-        console.log("newDDD", newData)
       } else {
         newData = data.filter((row) => dropdowns.includes(row[filterBasis]))
       }

@@ -55,7 +55,6 @@ export default function useReportDirectSales() {
       }
     }
 
-    console.log("_newData", _newData)
     const totalDue = sumArray(_newData, "totalDue")
     const amountPaid = sumArray(_newData, "amountPaid")
 
@@ -144,7 +143,6 @@ export default function useReportDirectSales() {
     setOrderViaSummary(orderViaSummary)
     setAccountNumberSummary(accountNumberSummary)
   }
-  console.log("listWithPartials", listWithPartials)
   const searchHandler = () => {
     loadRangeHandlerData({
       dateField: "datePayment", // required

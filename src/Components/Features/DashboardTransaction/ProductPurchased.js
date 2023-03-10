@@ -51,8 +51,6 @@ function ProductPurchased({
     loadPriceHistory()
     loadSpecificPriceHistory()
   }, [])
-  console.log("priceHistory", priceHistory)
-  console.log("specific", specificPriceHistory)
   const loadPriceHistory = async () => {
     const data = await PriceHistoriesClass.getData()
     setPriceHistory(data)
@@ -97,10 +95,6 @@ function ProductPurchased({
       }
     }
     if (orderVia) {
-      // modifiedObj[SchedulersClass.TOTAL_DUE] = Number(totalDue)
-      // console.log("modifiedObj", modifiedObj)
-      // console.log("dataSource", dataSource)
-      // modifiedData(modifiedObj)
       if (dataSource.length > 0) {
         // set default list of products
         for (const obj of dataSource) {

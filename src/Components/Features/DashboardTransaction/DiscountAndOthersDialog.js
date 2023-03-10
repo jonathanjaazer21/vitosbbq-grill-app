@@ -144,7 +144,6 @@ function DiscountAndOthersDialog(props) {
         visible={visible}
         onOk={() => {
           setVisible(false)
-          // console.log("additionalDetails", additionalDetails)
           props.modifiedData(additionalDetails, state)
         }}
         onCancel={() => setVisible(false)}

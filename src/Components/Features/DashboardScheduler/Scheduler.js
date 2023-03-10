@@ -47,7 +47,6 @@ const db = getFirestore()
 const CellTemplate = (props) => {
   const [subject, setSubject] = useState("")
   useEffect(() => {
-    console.log("productData", props)
     const productOrders = []
     const productList = producedProductListOfAllCodes(props?.productData)
     for (const value of productList) {
@@ -117,10 +116,8 @@ function Scheduler({ handleNavigate, navigate }) {
           })
         }
         if (change.type === "modified") {
-          console.log("Modified city: ", change.doc.data())
         }
         if (change.type === "removed") {
-          console.log("Removed city: ", change.doc.data())
         }
       })
 

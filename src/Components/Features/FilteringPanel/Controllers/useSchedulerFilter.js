@@ -96,7 +96,6 @@ function useSchedulerFilter() {
           _id: doc._id,
         })
       })
-      console.log("schedules panel", _dataFetched)
       setDataFetched(_dataFetched)
       const args = {
         branch: user.branchSelected,

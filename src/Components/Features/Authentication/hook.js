@@ -34,7 +34,6 @@ export default function useAuthentication() {
       }
     } catch (e) {
       message.error("Connection not available")
-      console.log("Authentication hook", e?.message)
     }
   }
 

@@ -50,7 +50,6 @@ export default function useReportDirectSales() {
     //   }
     // }
 
-    console.log("_newData", _newData)
     const totalDue = sumArray(_newData, "totalDue")
     const amountPaid = sumArray(_newData, "amountPaid")
 
@@ -85,7 +84,6 @@ export default function useReportDirectSales() {
     const _newData = data.filter(
       (obj) => obj.orderVia && obj?.status !== "CANCELLED"
     )
-    console.log("withPartialsNewData", _newData)
     const withPartials = []
     for (const obj of _newData) {
       if (typeof obj?.partials === "object") {
@@ -112,7 +110,6 @@ export default function useReportDirectSales() {
         withPartials.push({ ...obj, partials: "Full" })
       }
     }
-    console.log("withPartials", withPartials)
     const orderViaSummary = sumArrayOfObjectsGrouping(
       withPartials,
       "orderVia",

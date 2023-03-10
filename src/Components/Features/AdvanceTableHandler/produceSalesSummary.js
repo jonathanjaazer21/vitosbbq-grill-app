@@ -176,7 +176,6 @@ const produceTRANS = (schedules, formattedDate, title = "") => {
 
   for (const originalObj of sorting(renewedSched, SchedulersClass.UTAK_NO)) {
     let obj = { ...originalObj }
-    console.log("partials sched", obj[SchedulersClass.PARTIALS])
     if (title === "[C] COLLECTIONS ON PREVIOUS BALANCES") {
       if (obj[SchedulersClass.PARTIALS].length > 0) {
         const partialList = [...obj[SchedulersClass.PARTIALS]]

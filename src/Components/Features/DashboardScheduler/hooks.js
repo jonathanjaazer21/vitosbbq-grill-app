@@ -19,7 +19,6 @@ export default function useSchedulerHook() {
   })
 
   const handleNavigate = (args) => {
-    console.log("args", args)
     const currentView =
       typeof args?.currentView !== "undefined"
         ? args.currentView
