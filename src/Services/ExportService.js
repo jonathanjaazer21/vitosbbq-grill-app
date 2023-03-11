@@ -1,5 +1,4 @@
 import XLSX from "xlsx"
-import path from "path"
 export default class ExportService {
   static produceSheets(workBook, arrayOfArrayData = [], sheetName = "") {
     const customMerge = [
@@ -82,7 +81,6 @@ export default class ExportService {
     for (const key of sheetNames) {
       this.produceSheets(workBook, sheets[key], key)
     }
-
-    XLSX.writeFile(workBook, path.resolve("./excel-report.xlsx"))
+    XLSX.writeFile(workBook, "./excel-report.xlsx")
   }
 }

@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@ant-design/charts": "^1.2.4",
+    "@antv/util": "^3.3.2",
     "@react-pdf/renderer": "^1.6.13",
     "@reduxjs/toolkit": "^1.6.2",
     "@syncfusion/ej2-react-buttons": "^19.3.53",
@@ -23,6 +24,7 @@
     "fs": "0.0.1-security",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
+    "path-browserify": "^1.0.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-google-button": "^0.7.2",
