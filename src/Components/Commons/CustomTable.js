@@ -16,6 +16,7 @@ function CustomTable({ dataSource = [], columns = [], ...rest }) {
       dataSource={dataSource}
       columns={columns}
       pagination={{ ...rest.pagination, onChange: handleChange }}
+      rowKey={(tableKey) => tableKey?._id}
     />
   )
 }
