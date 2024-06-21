@@ -40,11 +40,9 @@ export default class Base {
       throw new Error(UNAVAILABLE)
     }
     const data = []
-    console.log("responsedata", data)
     querySnapshot.forEach((doc) => {
       data.push({ ...doc.data(), _id: doc.id })
     })
-    console.log("responsedata", data)
     return data
   }
 
@@ -56,7 +54,6 @@ export default class Base {
       const docRef = doc(db, collectionName, id)
       const docSnap = await getDoc(docRef)
       if (docSnap.exists()) {
-        console.log("docSnap", docSnap.data())
         return docSnap.data()
       } else {
         return {}
@@ -198,7 +195,6 @@ export default class Base {
   }
 
   static async addData(collectionName, data) {
-    console.log(collectionName, data)
     try {
       const docRef = await addDoc(collection(db, collectionName), { ...data })
       if (docRef?.id) {
@@ -225,8 +221,6 @@ export default class Base {
   }
 
   static async updateDataById(collectionName, id, data) {
-    console.log("id", id)
-    console.log("data to be updated", data)
     try {
       const docRef = doc(db, collectionName, id)
       await updateDoc(docRef, {
@@ -234,7 +228,6 @@ export default class Base {
       })
       return data
     } catch (err) {
-      console.log("error during update", err)
       throw new Error(err.code)
     }
   }
