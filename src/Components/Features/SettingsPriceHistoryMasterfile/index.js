@@ -7,20 +7,22 @@ import SpecificPriceHistoriesClass from "Services/Classes/specificPriceHistories
 import SpecificPricesClass from "Services/Classes/SpecificPricesClass"
 import { DirectOrders } from "./DirectOrders"
 import PriceHistory from "./PriceHistory"
+import SpecialFeaturesClass from "Services/Classes/SpecialFeaturesClass"
 
-const dropdowns = [
-  "DIRECT ORDERS",
-  "[ GF ] GRAB FOOD",
-  "[ FP ] FOOD PANDA",
-  "[ ZAP ] ZAP",
-]
+// const dropdowns = [
+//   "DIRECT ORDERS",
+//   "[ GF ] GRAB FOOD",
+//   "[ FP ] FOOD PANDA",
+//   "[ ZAP ] ZAP",
+// ]
 function SettingsPriceHistoryMasterfile() {
+  const [specialFeatures] = useGetDocuments(SpecialFeaturesClass)
+  const dropdowns = specialFeatures[0].priceHistoryDropdowns || []
   const [products] = useGetDocuments(ProductsClass)
   const [specificProducts] = useGetDocuments(SpecificPricesClass)
   const [specificPriceHistories, loadSpecific, addSpecificPriceHistory] =
     useGetDocuments(SpecificPriceHistoriesClass)
   const [selectedDropdown, setSelectedDropdown] = useState("DIRECT ORDERS")
-
   const findSpecificHistoryCode = (code, orderVia) => {
     for (const obj of specificPriceHistories) {
       if (obj[code] && obj.orderVia.trim() === orderVia.trim()) {
@@ -37,7 +39,6 @@ function SettingsPriceHistoryMasterfile() {
     return specificProductsByOrderVia[code]
   }
 
-  console.log("products", products)
   return (
     <>
       <div
