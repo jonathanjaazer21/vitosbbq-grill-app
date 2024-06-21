@@ -49,6 +49,7 @@
     "start-prod": "env-cmd -f .env.production npm start",
     "build-dev": "env-cmd -f .env.development npm run build",
     "build-prod": "env-cmd -f .env.production npm run build",
+    "firebase-prod": "env-cmd -f .env.production firebase deploy --project prod",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
