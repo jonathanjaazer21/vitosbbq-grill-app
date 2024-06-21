@@ -19,9 +19,9 @@ export const DirectOrders = ({ products }) => {
 
   return (
     <Row gutter={[12, { xs: 8, sm: 16, md: 24, lg: 32 }]}>
-      {products.map(({ groupHeader, productList = [] }) => {
+      {products.map(({ groupHeader, productList = [] }, index) => {
         return (
-          <Col>
+          <Col key={index}>
             <Card title={groupHeader}>
               <Table
                 pagination={false}

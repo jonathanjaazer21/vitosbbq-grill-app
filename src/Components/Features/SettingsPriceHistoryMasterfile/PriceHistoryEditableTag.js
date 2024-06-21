@@ -95,6 +95,7 @@ function PriceHistoryEditableTag({
       {newTags.map((tag, index) => {
         return index === editableIndex ? (
           <RenderEditField
+            key={index}
             dropdowns={dropdowns}
             tag={tag}
             index={index}
@@ -105,7 +106,7 @@ function PriceHistoryEditableTag({
             {...rest}
           />
         ) : (
-          <Tag closable onClose={(e) => removeTag(e, tag)}>
+          <Tag key={index} closable onClose={(e) => removeTag(e, tag)}>
             <span onDoubleClick={() => setEditableIndex(index)}>{tag}</span>
           </Tag>
         )
