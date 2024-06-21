@@ -4,6 +4,13 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
+How to run the project:
+
+1. Install node v16.13.0
+2. npm install
+3. create .env.development for develop or .env.production for prod
+4. npm run start-dev or npm run start-prod
+
 In the project directory, you can run:
 
 ### `npm start`
@@ -70,4 +77,5 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
 ### freepik
+
 <a href='https://www.freepik.com/vectors/man'>Man vector created by pch.vector - www.freepik.com</a>
