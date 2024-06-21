@@ -17,7 +17,8 @@ import SpecialFeaturesClass from "Services/Classes/SpecialFeaturesClass"
 // ]
 function SettingsPriceHistoryMasterfile() {
   const [specialFeatures] = useGetDocuments(SpecialFeaturesClass)
-  const dropdowns = specialFeatures[0].priceHistoryDropdowns || []
+  const dropdowns =
+    specialFeatures.length > 0 ? specialFeatures[0].priceHistoryDropdowns : []
   const [products] = useGetDocuments(ProductsClass)
   const [specificProducts] = useGetDocuments(SpecificPricesClass)
   const [specificPriceHistories, loadSpecific, addSpecificPriceHistory] =
@@ -65,9 +66,9 @@ function SettingsPriceHistoryMasterfile() {
         <DirectOrders products={products} />
       ) : (
         <Row gutter={[12, { xs: 8, sm: 16, md: 24, lg: 32 }]}>
-          {products.map(({ groupHeader, productList = [] }) => {
+          {products.map(({ groupHeader, productList = [] }, index) => {
             return (
-              <Col>
+              <Col key={index}>
                 <Card title={groupHeader}>
                   <Table
                     pagination={false}
