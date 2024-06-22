@@ -2,9 +2,7 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
-
-Getting Started
+## Getting Started
 
 1. Install node v16.13.0
 2. npm install
