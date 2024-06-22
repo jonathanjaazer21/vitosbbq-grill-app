@@ -4,7 +4,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Available Scripts
 
-How to run the project:
+Getting Started
 
 1. Install node v16.13.0
 2. npm install
