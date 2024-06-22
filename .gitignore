@@ -15,6 +15,7 @@ build
 /build
 
 .firebaserc
+/src/services/firebase.js
 
 # misc
 .DS_Store
