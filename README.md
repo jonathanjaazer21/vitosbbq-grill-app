@@ -2,6 +2,10 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Note
+
+This project was rebased due to a commit that contained a security vulnerability.
+
 ## Getting Started
 
 1. Install node v16.13.0
